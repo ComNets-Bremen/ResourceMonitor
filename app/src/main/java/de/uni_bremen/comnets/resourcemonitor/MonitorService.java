@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.TimeZone;
 import java.util.zip.GZIPOutputStream;
 
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.BluetoothBroadcastReceiver;
@@ -213,7 +214,15 @@ public class MonitorService extends Service {
             jsonObject.put(EnergyMonitorContract.AirplaneModeEntry.TABLE_NAME, EnergyMonitorDbHelper.cursorToJson(flightModeCursor));
             jsonObject.put(EnergyMonitorContract.WiFiStatusEntry.TABLE_NAME, EnergyMonitorDbHelper.cursorToJson(wifiCursor));
             jsonObject.put(EnergyMonitorContract.ScreenStatusEntry.TABLE_NAME, EnergyMonitorDbHelper.cursorToJson(screenStatusCursor));
-            jsonObject.put("UUID", preferences.getString("uuid", "None"));
+
+            String uuid = preferences.getString("uuid", "None");
+            String timezone = TimeZone.getDefault().getID();
+
+            jsonObject.put("UUID", uuid);
+            jsonObject.put("TIMEZONE", timezone);
+
+            Log.d(TAG, "UUID: " +  uuid + " timezone: " + timezone);
+
 
         } catch (Exception e) {
             e.printStackTrace();
