@@ -12,6 +12,10 @@ import android.os.Build;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
 
+
+/**
+ * BroadcastReceiver for cellular events
+ */
 public class CellularBroadcastReceiver extends ResourceBroadcastReceiver {
     public CellularBroadcastReceiver(SQLiteDatabase db){
         super(db);
@@ -30,6 +34,7 @@ public class CellularBroadcastReceiver extends ResourceBroadcastReceiver {
         ContentValues contentValues = new ContentValues();
         NetworkInfo networkInfo = null;
 
+        // Access to the network info has changed in LOLLIPOP
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             Network[] networks = conn.getAllNetworks();
             for (Network n: networks){
@@ -45,6 +50,7 @@ public class CellularBroadcastReceiver extends ResourceBroadcastReceiver {
         } else {
             networkInfo = conn.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         }
+
         String connType;
         int connState;
 

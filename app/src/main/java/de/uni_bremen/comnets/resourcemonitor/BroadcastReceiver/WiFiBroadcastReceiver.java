@@ -10,6 +10,9 @@ import android.net.wifi.WifiManager;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
 
+/**
+ * BroadcastReceiver for the WiFi network status
+ */
 public class WiFiBroadcastReceiver extends ResourceBroadcastReceiver {
 
     public WiFiBroadcastReceiver(SQLiteDatabase db) {

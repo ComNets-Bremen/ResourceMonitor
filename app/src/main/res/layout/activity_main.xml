@@ -33,7 +33,7 @@
             android:id="@+id/uuidText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/uuid"
+            android:text="@string/ui_uuid"
             android:textAlignment="center"
             />
 
@@ -41,7 +41,7 @@
             style="@style/Base.TextAppearance.AppCompat.Headline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/StatusTitle"
+            android:text="@string/ui_status_title"
             android:textAlignment="center"
             />
 
@@ -56,7 +56,7 @@
             style="@style/Base.TextAppearance.AppCompat.Headline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/SettingsCatTitle"
+            android:text="@string/ui_settings_category_title"
             android:textAlignment="center"
             />
 

@@ -7,6 +7,13 @@ Introduction
 ResourceMonitor collects a variety of different phone usage parameters for
 further analysis.
 
+Changelog
+---------
+
+### 2017-06-18, Version 0.1, Version Code 1
+
+Initial version, code completely rewritten
+
 Contact
 -------
 

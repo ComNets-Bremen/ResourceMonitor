@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 
-
+/**
+ * Setting fragment to edit the app settings
+ */
 public class SettingsFragment extends PreferenceFragment {
 
     public static final String TAG = MainActivity.class.getSimpleName();

@@ -10,17 +10,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * Created by jd on 16.06.17.
+ * Helper for database access
  */
 
 public class EnergyMonitorDbHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 6;
+    public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "EnergyMonitor.db";
     public static final String TAG = EnergyMonitorDbHelper.class.getSimpleName();
-
-
-
 
     public EnergyMonitorDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -56,6 +53,11 @@ public class EnergyMonitorDbHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
+    /**
+     * Return the statistics shown in the user interface
+     * @param db the database
+     * @return a string with some information
+     */
     public static String getDbStatistics(SQLiteDatabase db){
         String s = "";
         s += EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME + ": " + db.query(EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME, null, null, null, null, null, null).getCount() + "\n";

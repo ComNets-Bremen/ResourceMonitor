@@ -10,6 +10,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
 
+/**
+ * BroadcastReceiver for Bluetooth events
+ */
 public class BluetoothBroadcastReceiver extends ResourceBroadcastReceiver {
 
     public BluetoothBroadcastReceiver(SQLiteDatabase db){
@@ -30,6 +33,7 @@ public class BluetoothBroadcastReceiver extends ResourceBroadcastReceiver {
         storeValues(EnergyMonitorContract.BluetoothStatusEntry.TABLE_NAME, contentValues);
     }
 
+    @Override
     public IntentFilter getIntentFilter(IntentFilter intentFilter){
         intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         return intentFilter;

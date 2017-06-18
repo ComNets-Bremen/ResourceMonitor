@@ -11,6 +11,10 @@ import android.net.wifi.WifiManager;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
 
+/**
+ * BroadcastReceiver for the number of transmitted bytes.
+ * Triggered if WiFi / cellular interface changes the state
+ */
 public class ByteCountBroadcastReceiver extends ResourceBroadcastReceiver {
 
     public ByteCountBroadcastReceiver(SQLiteDatabase db){
@@ -19,11 +23,6 @@ public class ByteCountBroadcastReceiver extends ResourceBroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        ;
-        TrafficStats.getMobileTxBytes();
-        TrafficStats.getTotalRxBytes();
-        TrafficStats.getTotalTxBytes();
-
         ContentValues contentValues = new ContentValues();
         contentValues.put(EnergyMonitorContract.TrafficStatsEntry.COLUMN_NAME_MOBILE_RX, TrafficStats.getMobileRxBytes());
         contentValues.put(EnergyMonitorContract.TrafficStatsEntry.COLUMN_NAME_MOBILE_TX, TrafficStats.getMobileTxBytes());
@@ -33,6 +32,7 @@ public class ByteCountBroadcastReceiver extends ResourceBroadcastReceiver {
         storeValues(EnergyMonitorContract.TrafficStatsEntry.TABLE_NAME, contentValues);
     }
 
+    @Override
     public IntentFilter getIntentFilter(IntentFilter intentFilter){
         intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);

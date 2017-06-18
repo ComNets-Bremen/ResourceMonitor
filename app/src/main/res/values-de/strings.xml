@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ResourceMonitor</string>
+    <string name="DataCollectionRunning">Messwertaufnahme läuft</string>
+    <string name="DataCollectionStopped">Messwertaufnahme gestoppt</string>
+    <string name="settings_enable_data_collection">Messwertaufnahme</string>
+    <string name="MonitorServiceLabel">Klicken für Einstellungen</string>
+    <string name="MonitorServiceStarted">Messwertaufnahme läuft</string>
+    <string name="MonitorServiceStopped">Messwertaufnahme deaktiviert</string>
+    <string name="button_ok">OK</string>
+    <string name="dialog_help_title">ResourceMonitor Info</string>
+    <string name="dialog_no_mail_client">Kein Mailprogramm vorhanden</string>
+    <string name="dialog_mail_provider">Bitte eine Mailanwendung auswählen</string>
+    <string name="dialog_not_available">Diese Funktion steht zur Zeit nicht zur Verfügung</string>
+    <string name="export_failed">Export fehlgeschlagen</string>
+    <string name="export_progress_text">Exportiere Datenbank…</string>
+    <string name="export_progress_title">Bitte warten…</string>
+    <string name="mail_message">Hallo, anbei meine aktuellen Messwerte</string>
+    <string name="mail_subject">ResourceMonitor Data</string>
+    <string name="settings_data_collection_summary">Aktiviere / deaktiviere die Messwertaufnahme</string>
+    <string name="ui_about_button">Über diese App</string>
+    <string name="ui_export_button">Daten exportieren und senden</string>
+    <string name="ui_info_button">Info</string>
+    <string name="ui_settings_category_title">Einstellungen</string>
+    <string name="ui_status_title">Datenbankeinträge</string>
+    <string name="ui_uuid">UUID:</string>
+    <string name="warn_connect_service">Kann keine Verbindung zum Hintergrundienst herstellen</string>
+</resources>

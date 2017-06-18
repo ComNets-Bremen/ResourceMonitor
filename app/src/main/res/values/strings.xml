@@ -1,29 +1,29 @@
 <resources>
     <string name="app_name">ResourceMonitor</string>
-    <string name="MonitorServiceStarted">Monitoring Service started</string>
-    <string name="MonitorServiceStopped">Monitor Service stopped</string>
-    <string name="MonitorServiceLabel">MonitorService</string>
-    <string name="EnableDataCollectionTitle">Enable Data Collection</string>
-    <string name="EnableDataCollectionSummary">Enable the data collection: Phone usage</string>
+    <string name="MonitorServiceStarted">Collecting data</string>
+    <string name="MonitorServiceStopped">disabled</string>
+    <string name="MonitorServiceLabel">Tab to change</string>
+    <string name="settings_enable_data_collection">Enable Data Collection</string>
     <string name="ui_about_button">About this App</string>
-    <string name="SettingsCatTitle">Settings</string>
-    <string name="uuid">UUID:</string>
-    <string name="DataCollectionRunning">Data collection is currently running</string>
-    <string name="DataCollectionStopped">Data collection stopped</string>
-    <string name="export_filename">export.json.gz</string>
-    <string name="mail_destination">jd@comnets.uni-bremen.de</string>
+    <string name="ui_settings_category_title">Settings</string>
+    <string name="ui_uuid">UUID:</string>
+    <string name="DataCollectionRunning">Collecting data</string>
+    <string name="DataCollectionStopped">Data collection disabled</string>
+    <string name="export_filename" translatable="false">export.json.gz</string>
+    <string name="mail_destination" translatable="false">cnlab@comnets.uni-bremen.de</string>
     <string name="mail_subject">ResourceMonitor Data</string>
     <string name="mail_message">Hi, I would like to submit my data</string>
-    <string name="dialog_mail_provider">Please select a mail provider</string>
+    <string name="dialog_mail_provider">Please select a mail app</string>
     <string name="dialog_no_mail_client">No mail client available</string>
-    <string name="ui_export_button">Send via email</string>
+    <string name="ui_export_button">Export and send via email</string>
     <string name="warn_connect_service">Cannot connect to the background service</string>
     <string name="button_ok">OK</string>
-    <string name="dialog_no_help">Help is not available</string>
+    <string name="dialog_not_available">This function is currently not available</string>
     <string name="dialog_help_title">ResourceMonitor Info</string>
     <string name="ui_info_button">Info</string>
-    <string name="StatusTitle">Database Entries</string>
-    <string name="progress_title">Please wait...</string>
-    <string name="progress_text">Exporting Database</string>
+    <string name="ui_status_title">Database Entries</string>
+    <string name="export_progress_title">Please wait…</string>
+    <string name="export_progress_text">Exporting Database…</string>
     <string name="export_failed">Export failed</string>
+    <string name="settings_data_collection_summary">Enable / disable the data collection</string>
 </resources>

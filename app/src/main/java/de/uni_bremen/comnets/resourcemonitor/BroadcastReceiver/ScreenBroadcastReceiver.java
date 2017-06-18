@@ -8,6 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
 
+/**
+ * BroadcastReceiver for the screen status
+ */
 public class ScreenBroadcastReceiver extends ResourceBroadcastReceiver {
 
     public ScreenBroadcastReceiver(SQLiteDatabase db){

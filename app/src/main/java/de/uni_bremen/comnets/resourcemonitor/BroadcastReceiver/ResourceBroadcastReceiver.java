@@ -7,22 +7,27 @@ import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
-
 /**
- * Created by jd on 17.06.17.
+ * Abstract class for BroadcastReceivers on changed devices parameters. Offers
+ *
+ * - Access to database
+ * - do not store duplicate values
+ * - Register / unregister handler
+ * - Generic TAG for logging
  */
 
 public abstract class ResourceBroadcastReceiver extends BroadcastReceiver {
 
-    private ResourceBroadcastReceiver mReceiver = null;
-
-    private ContentValues lastContentValues;
-
     public String TAG;
+    private ResourceBroadcastReceiver mReceiver = null;
+    private ContentValues lastContentValues;
 
     SQLiteDatabase writableDb;
 
+    /**
+     * Constructor, db needed
+     * @param db A writable database
+     */
     public ResourceBroadcastReceiver(SQLiteDatabase db){
         super();
         lastContentValues = new ContentValues();
@@ -30,8 +35,21 @@ public abstract class ResourceBroadcastReceiver extends BroadcastReceiver {
         TAG = this.getClass().getSimpleName();
     }
 
+    /**
+     * Children have to implement this function to define the intentFilter required by them
+     *
+     * @param intentFilter The intentFilter which has to be adapted and returned afterwards
+     * @return the returned intentFilter
+     */
     public abstract IntentFilter getIntentFilter(IntentFilter intentFilter);
 
+
+    /**
+     * Store values into db
+     * @param tableName The table where to store the values
+     * @param contentValues The values to be stored in the db
+     * @return The line where the values where stored in. -1 if storing was not possible / required
+     */
     public long storeValues(String tableName, ContentValues contentValues){
         long row = -1;
 
@@ -45,6 +63,16 @@ public abstract class ResourceBroadcastReceiver extends BroadcastReceiver {
         return row;
     }
 
+    /**
+     * Called after the receiver was successfully registered.
+     * Has to be overwritten by the implementing class
+     */
+    public void afterRegister(Context context){}
+
+    /**
+     * Register this receiver to the given context
+     * @param context
+     */
     public void register(Context context){
         Log.d(TAG, "register");
         if (mReceiver == null){
@@ -58,9 +86,14 @@ public abstract class ResourceBroadcastReceiver extends BroadcastReceiver {
 
             IntentFilter intentFilter = new IntentFilter();
             context.registerReceiver(mReceiver, getIntentFilter(intentFilter));
+            afterRegister(context);
         }
     }
 
+    /**
+     * Unregister this receiver from the given context
+     * @param context
+     */
     public void unregister(Context context){
         Log.d(TAG, "unregister");
         if (mReceiver != null){

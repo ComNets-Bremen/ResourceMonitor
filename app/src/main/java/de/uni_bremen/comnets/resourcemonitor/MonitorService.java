@@ -27,7 +27,7 @@ import java.util.zip.GZIPOutputStream;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.BluetoothBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.ByteCountBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.CellularBroadcastReceiver;
-import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.FlightModeBroadcastReceiver;
+import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.AirplaneModeBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.PowerBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.ScreenBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.WiFiBroadcastReceiver;
@@ -51,7 +51,7 @@ public class MonitorService extends Service {
     PowerBroadcastReceiver powerBroadcastReceiver = null;
     ScreenBroadcastReceiver screenBroadcastReceiver = null;
     WiFiBroadcastReceiver wiFiBroadcastReceiver = null;
-    FlightModeBroadcastReceiver flightModeBroadcastReceiver = null;
+    AirplaneModeBroadcastReceiver airplaneModeBroadcastReceiver = null;
     ByteCountBroadcastReceiver byteCountBroadcastReceiver = null;
     BluetoothBroadcastReceiver bluetoothBroadcastReceiver = null;
     CellularBroadcastReceiver cellularBroadcastReceiver = null;
@@ -81,7 +81,7 @@ public class MonitorService extends Service {
         powerBroadcastReceiver = new PowerBroadcastReceiver(writableDb);
         screenBroadcastReceiver = new ScreenBroadcastReceiver(writableDb);
         wiFiBroadcastReceiver = new WiFiBroadcastReceiver(writableDb);
-        flightModeBroadcastReceiver = new FlightModeBroadcastReceiver(writableDb);
+        airplaneModeBroadcastReceiver = new AirplaneModeBroadcastReceiver(writableDb);
         byteCountBroadcastReceiver = new ByteCountBroadcastReceiver(writableDb);
         bluetoothBroadcastReceiver = new BluetoothBroadcastReceiver(writableDb);
         cellularBroadcastReceiver = new CellularBroadcastReceiver(writableDb);
@@ -148,8 +148,8 @@ public class MonitorService extends Service {
                 .setSmallIcon(R.mipmap.smallicon)
                 .setTicker(text)
                 .setWhen(System.currentTimeMillis())
-                .setContentTitle(getText(R.string.MonitorServiceLabel))
-                .setContentText(text)
+                .setContentTitle(text)
+                .setContentText(getText(R.string.MonitorServiceLabel))
                 .setContentIntent(contentIntent)
                 .setOngoing(true)
                 .build();
@@ -268,7 +268,7 @@ public class MonitorService extends Service {
         powerBroadcastReceiver.register(this);
         screenBroadcastReceiver.register(this);
         wiFiBroadcastReceiver.register(this);
-        flightModeBroadcastReceiver.register(this);
+        airplaneModeBroadcastReceiver.register(this);
         byteCountBroadcastReceiver.register(this);
         bluetoothBroadcastReceiver.register(this);
         cellularBroadcastReceiver.register(this);
@@ -284,7 +284,7 @@ public class MonitorService extends Service {
         powerBroadcastReceiver.unregister(this);
         screenBroadcastReceiver.unregister(this);
         wiFiBroadcastReceiver.unregister(this);
-        flightModeBroadcastReceiver.unregister(this);
+        airplaneModeBroadcastReceiver.unregister(this);
         byteCountBroadcastReceiver.unregister(this);
         bluetoothBroadcastReceiver.unregister(this);
         cellularBroadcastReceiver.unregister(this);

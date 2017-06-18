@@ -42,15 +42,17 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
 
+        // Add the setting fragment to the main activity
         getFragmentManager().beginTransaction().add(R.id.linearLayout, new SettingsFragment()).commit();
 
+        // Generate a random UUID and store it to the preferences
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (preferences.getString("uuid", null) == null)
             preferences.edit().putString("uuid", UUID.randomUUID().toString()).apply();
         Log.d(TAG, "UUID: " + preferences.getString("uuid", "NONE"));
 
+        // Ensure background service is running
         Intent serviceIntent = new Intent(this, MonitorService.class);
-        // Start service
         startService(serviceIntent);
 
         Button aboutButton = (Button) findViewById(R.id.aboutButton);
@@ -63,7 +65,7 @@ public class MainActivity extends AppCompatActivity
                     ioHelp.read(b);
                     text = new String(b);
                 } catch (IOException e) {
-                    text = getResources().getString(R.string.dialog_no_help);
+                    text = getResources().getString(R.string.dialog_not_available);
                 }
 
                 showUserMessage(Html.fromHtml(text), getResources().getString(R.string.dialog_help_title));
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity
                     ioHelp.read(b);
                     text = new String(b);
                 } catch (IOException e) {
-                    text = getResources().getString(R.string.dialog_no_help);
+                    text = getResources().getString(R.string.dialog_not_available);
                 }
 
                 showUserMessage(Html.fromHtml(text), getResources().getString(R.string.dialog_help_title));
@@ -124,8 +126,9 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         preferences.registerOnSharedPreferenceChangeListener(this);
         TextView tv = (TextView) findViewById(R.id.statusText);
-        if (mBound)
+        if (mBound) {
             tv.setText(mService.getDbStats());
+        }
     }
 
     @Override
@@ -140,9 +143,9 @@ public class MainActivity extends AppCompatActivity
             MonitorService.MonitorServiceBinder binder = (MonitorService.MonitorServiceBinder) service;
             mService = binder.getService();
             mBound = true;
+
             TextView tv = (TextView) findViewById(R.id.statusText);
             tv.setText(mService.getDbStats());
-
         }
 
         @Override
@@ -189,7 +192,7 @@ public class MainActivity extends AppCompatActivity
      * Export the database using a thread to keep UI responsing
      */
     private void exportDatabase(){
-        mProgressDialog = ProgressDialog.show(this, getString(R.string.progress_title),getString(R.string.progress_text), true);
+        mProgressDialog = ProgressDialog.show(this, getString(R.string.export_progress_title),getString(R.string.export_progress_text), true);
         new Thread() {
             @Override
             public void run() {

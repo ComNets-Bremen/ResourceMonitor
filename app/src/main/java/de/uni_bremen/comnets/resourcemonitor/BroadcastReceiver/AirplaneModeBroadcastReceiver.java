@@ -5,12 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.Settings;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
 
-public class FlightModeBroadcastReceiver extends ResourceBroadcastReceiver {
+/**
+ * BroadcastReceiver for the FlightMode
+ */
+public class AirplaneModeBroadcastReceiver extends ResourceBroadcastReceiver {
 
-    public FlightModeBroadcastReceiver(SQLiteDatabase db){
+    public AirplaneModeBroadcastReceiver(SQLiteDatabase db){
         super(db);
     }
 
@@ -18,6 +22,17 @@ public class FlightModeBroadcastReceiver extends ResourceBroadcastReceiver {
     public IntentFilter getIntentFilter(IntentFilter intentFilter) {
         intentFilter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         return intentFilter;
+    }
+
+    @Override
+    public void afterRegister(Context context) {
+        super.afterRegister(context);
+
+        ContentValues contentValues = new ContentValues();
+        int airplaneMode = Settings.Global.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, -1);
+        contentValues.put(EnergyMonitorContract.AirplaneModeEntry.COLUMN_NAME_AIRPLANE_MODE, airplaneMode);
+
+        storeValues(EnergyMonitorContract.AirplaneModeEntry.TABLE_NAME, contentValues);
     }
 
     @Override

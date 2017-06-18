@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 /**
- * Created by jd on 28.05.17.
+ * Boot receiver to start the app on bootup
  */
 
 public class MonitorServiceReceiver extends BroadcastReceiver {
