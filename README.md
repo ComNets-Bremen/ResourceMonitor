@@ -1,5 +1,5 @@
-EnergyMonitor
-=============
+ResourceMonitor
+===============
 
 Introduction
 ------------
@@ -7,6 +7,7 @@ Introduction
 ResourceMonitor collects a variety of different phone usage parameters for
 further analysis.
 
+ResourceMonitor is available on [Google Play](https://play.google.com/store/apps/details?id=de.uni_bremen.comnets.resourcemonitor).
 Changelog
 ---------
 
