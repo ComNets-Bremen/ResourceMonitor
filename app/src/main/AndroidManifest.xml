@@ -20,6 +20,7 @@
         <receiver android:name=".MonitorServiceReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                 <action android:name="de.uni_bremen.comnets.resourcemonitor.restart" />
             </intent-filter>
         </receiver>

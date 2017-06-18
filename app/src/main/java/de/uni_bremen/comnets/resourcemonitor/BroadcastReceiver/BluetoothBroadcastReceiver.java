@@ -25,11 +25,20 @@ public class BluetoothBroadcastReceiver extends ResourceBroadcastReceiver {
 
         if (intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED)){
             int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
-            boolean hasBle = context.getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
             contentValues.put(EnergyMonitorContract.BluetoothStatusEntry.COLUMN_NAME_BLUETOOTH_STATUS, state);
-            contentValues.put(EnergyMonitorContract.BluetoothStatusEntry.COLUMN_NAME_BLE_AVAILABLE, hasBle);
         }
 
+        storeValues(EnergyMonitorContract.BluetoothStatusEntry.TABLE_NAME, contentValues);
+    }
+
+    @Override
+    public void afterRegister(Context context) {
+        super.afterRegister(context);
+
+        ContentValues contentValues = new ContentValues();
+
+        int state = BluetoothAdapter.getDefaultAdapter().getState();
+        contentValues.put(EnergyMonitorContract.BluetoothStatusEntry.COLUMN_NAME_BLUETOOTH_STATUS, state);
         storeValues(EnergyMonitorContract.BluetoothStatusEntry.TABLE_NAME, contentValues);
     }
 

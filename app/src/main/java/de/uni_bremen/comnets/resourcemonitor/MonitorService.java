@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -217,9 +218,11 @@ public class MonitorService extends Service {
 
             String uuid = preferences.getString("uuid", "None");
             String timezone = TimeZone.getDefault().getID();
+            boolean hasBle = getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
 
             jsonObject.put("UUID", uuid);
             jsonObject.put("TIMEZONE", timezone);
+            jsonObject.put("HAS_BLE", hasBle);
 
             Log.d(TAG, "UUID: " +  uuid + " timezone: " + timezone);
 

@@ -13,7 +13,22 @@ Changelog
 
 ### 2017-06-18, Version 0.1, Version Code 1
 
-Initial version, code completely rewritten
+- Initial version, code completely rewritten
+
+### 2017-06-18, Version 0.2, Version Code 2
+
+- Minor changes in the translation
+
+### 2017-06-18, Version 0.3, Version Code 3
+
+- Transmit device timezone
+
+### 2017-06-18, Version 0.4, Version Code 4
+
+- Start App after upgrade
+- Store BLE availablility in json object instead of table
+- Store Bluetooth status on App start
+
 
 Contact
 -------

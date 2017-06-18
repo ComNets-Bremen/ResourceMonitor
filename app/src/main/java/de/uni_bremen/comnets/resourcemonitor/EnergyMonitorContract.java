@@ -125,15 +125,13 @@ public final class EnergyMonitorContract {
     public static class BluetoothStatusEntry implements BaseColumns {
         public static final String TABLE_NAME = "BluetoothStatus";
         public static final String COLUMN_NAME_BLUETOOTH_STATUS = "bluetooth_status";
-        public static final String COLUMN_NAME_BLE_AVAILABLE = "ble_avail";
         public static final String COLUMN_NAME_TIME = "time";
 
         public static final String CREATE_TABLE =
                 "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
                         _ID + " INTEGER PRIMARY KEY, " +
                         COLUMN_NAME_TIME + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, " +
-                        COLUMN_NAME_BLUETOOTH_STATUS + " INTEGER, " +
-                        COLUMN_NAME_BLE_AVAILABLE + " INTEGER " +
+                        COLUMN_NAME_BLUETOOTH_STATUS + " INTEGER " +
                         ")";
 
         public static final String DELETE_TABLE =
