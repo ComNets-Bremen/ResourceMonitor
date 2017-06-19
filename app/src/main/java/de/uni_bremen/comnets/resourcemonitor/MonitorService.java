@@ -219,12 +219,14 @@ public class MonitorService extends Service {
             String uuid = preferences.getString("uuid", "None");
             String timezone = TimeZone.getDefault().getID();
             boolean hasBle = getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+            long exportTimestamp = System.currentTimeMillis();
 
             jsonObject.put("UUID", uuid);
             jsonObject.put("TIMEZONE", timezone);
             jsonObject.put("HAS_BLE", hasBle);
+            jsonObject.put("EXPORT_TIMESTAMP", exportTimestamp);
 
-            Log.d(TAG, "UUID: " +  uuid + " timezone: " + timezone);
+            Log.d(TAG, "UUID: " +  uuid + " timezone: " + timezone + " export timestamp: " + exportTimestamp);
 
 
         } catch (Exception e) {
@@ -242,7 +244,14 @@ public class MonitorService extends Service {
         JSONObject jsonObject = db2Json();
 
         try {
-            File f = new File(getFilesDir(), getString(R.string.export_filename));
+            File f = new File(getFilesDir(),
+                    Long.toString(System.currentTimeMillis()/1000)+
+                            "_" +
+                            getString(R.string.export_filename_prefix) +
+                            "_" +
+                            preferences.getString("uuid", "None") +
+                            ".tar.gz"
+            );
             FileOutputStream fos = openFileOutput(f.getName(), Context.MODE_PRIVATE);
             GZIPOutputStream gos = new GZIPOutputStream(fos);
             gos.write(jsonObject.toString().getBytes());

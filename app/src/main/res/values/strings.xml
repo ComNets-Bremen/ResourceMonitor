@@ -9,7 +9,7 @@
     <string name="ui_uuid">UUID:</string>
     <string name="DataCollectionRunning">Collecting data</string>
     <string name="DataCollectionStopped">Data collection disabled</string>
-    <string name="export_filename" translatable="false">export.json.gz</string>
+    <string name="export_filename_prefix" translatable="false">export</string>
     <string name="mail_destination" translatable="false">cnlab@comnets.uni-bremen.de</string>
     <string name="mail_subject">ResourceMonitor Data</string>
     <string name="mail_message">Hi, I would like to submit my data</string>
