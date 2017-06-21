@@ -207,6 +207,9 @@ public class MonitorService extends Service {
         Cursor  screenStatusCursor = writableDb.query(
                 EnergyMonitorContract.ScreenStatusEntry.TABLE_NAME,
                 null, null,null, null, null, null);
+        Cursor  cellularStatusCursor = writableDb.query(
+                EnergyMonitorContract.CellularStatusEntry.TABLE_NAME,
+                null, null,null, null, null, null);
 
         try {
             jsonObject.put(EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME, EnergyMonitorDbHelper.cursorToJson(batteryStatusCursor));
@@ -215,6 +218,7 @@ public class MonitorService extends Service {
             jsonObject.put(EnergyMonitorContract.AirplaneModeEntry.TABLE_NAME, EnergyMonitorDbHelper.cursorToJson(flightModeCursor));
             jsonObject.put(EnergyMonitorContract.WiFiStatusEntry.TABLE_NAME, EnergyMonitorDbHelper.cursorToJson(wifiCursor));
             jsonObject.put(EnergyMonitorContract.ScreenStatusEntry.TABLE_NAME, EnergyMonitorDbHelper.cursorToJson(screenStatusCursor));
+            jsonObject.put(EnergyMonitorContract.CellularStatusEntry.TABLE_NAME, EnergyMonitorDbHelper.cursorToJson(cellularStatusCursor));
 
             String uuid = preferences.getString("uuid", "None");
             String timezone = TimeZone.getDefault().getID();
@@ -238,19 +242,22 @@ public class MonitorService extends Service {
 
     /**
      * Export the db json object via mail
+     *
+     * @return A file handler to the created file
      */
-    public void exportData(){
+    public File exportData(){
 
         JSONObject jsonObject = db2Json();
 
         try {
             File f = new File(getFilesDir(),
+
                     Long.toString(System.currentTimeMillis()/1000)+
                             "_" +
                             getString(R.string.export_filename_prefix) +
                             "_" +
                             preferences.getString("uuid", "None") +
-                            ".tar.gz"
+                            ".json.gz"
             );
             FileOutputStream fos = openFileOutput(f.getName(), Context.MODE_PRIVATE);
             GZIPOutputStream gos = new GZIPOutputStream(fos);
@@ -258,26 +265,10 @@ public class MonitorService extends Service {
             gos.close();
             fos.close();
 
-            ArrayList<Uri> uris = new ArrayList<>();
-
-            // Use a file provider to access the exported data via 3rd party app
-            uris.add(FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".fileprovider", f));
-
-            Intent emailIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-            emailIntent.setType("message/rfc822");
-            emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{getResources().getString(R.string.mail_destination)});
-            emailIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.mail_subject));
-            emailIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.mail_message));
-            emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-
-            try {
-                startActivity(Intent.createChooser(emailIntent, getResources().getText(R.string.dialog_mail_provider)));
-            } catch (android.content.ActivityNotFoundException ex) {
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.dialog_no_mail_client), Toast.LENGTH_SHORT).show();
-            }
+            return f;
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
     }
 

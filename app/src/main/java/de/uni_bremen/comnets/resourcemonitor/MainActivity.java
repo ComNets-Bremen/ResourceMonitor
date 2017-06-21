@@ -7,8 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
@@ -21,6 +24,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
@@ -31,7 +35,7 @@ public class MainActivity extends AppCompatActivity
     public static final String TAG = MainActivity.class.getSimpleName();
 
     MonitorService mService;
-    ProgressDialog mProgressDialog;
+    ProgressDialog progressDialog;
     boolean mBound = false;
 
     SharedPreferences preferences;
@@ -192,25 +196,37 @@ public class MainActivity extends AppCompatActivity
      * Export the database using a thread to keep UI responsing
      */
     private void exportDatabase(){
-        mProgressDialog = ProgressDialog.show(this, getString(R.string.export_progress_title),getString(R.string.export_progress_text), true);
-        new Thread() {
-            @Override
-            public void run() {
+        new exportDatabaseTask().execute();
+    }
 
-                mService.exportData();
-                try {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mProgressDialog.dismiss();
-                        }
-                    });
-                } catch (final Exception e) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.export_failed), Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                }
-            }
-        }.start();
+    private class exportDatabaseTask extends AsyncTask<Void, Void, Uri>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = ProgressDialog.show(MainActivity.this, getString(R.string.export_progress_title),getString(R.string.export_progress_text), true);
+        }
+
+        @Override
+        protected Uri doInBackground(Void... params) {
+            File f = mService.exportData();
+            return  FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".fileprovider", f);
+        }
+
+        @Override
+        protected void onPostExecute(Uri uri) {
+            super.onPostExecute(uri);
+            progressDialog.dismiss();
+            Log.d(TAG, "URI: " + uri);
+            Intent emailTxIntent = new Intent(Intent.ACTION_SEND);
+            emailTxIntent.setType("message/rfc822");
+            emailTxIntent.putExtra(Intent.EXTRA_STREAM, uri);
+            emailTxIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            emailTxIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{getResources().getString(R.string.mail_destination)});
+            emailTxIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.mail_subject));
+            emailTxIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.mail_message));
+            startActivity(Intent.createChooser(emailTxIntent, getResources().getText(R.string.dialog_mail_provider)));
+        }
     }
 }
 

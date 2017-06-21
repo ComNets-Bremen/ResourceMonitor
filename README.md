@@ -8,8 +8,18 @@ ResourceMonitor collects a variety of different phone usage parameters for
 further analysis.
 
 ResourceMonitor is available on [Google Play](https://play.google.com/store/apps/details?id=de.uni_bremen.comnets.resourcemonitor).
+
+Known Issues
+------------
+
+- Sending mail via gmail does currently not work
+
 Changelog
 ---------
+
+### 2017-06-21, Version 0.6, Version Code 6
+
+- Fixed several export issues
 
 ### 2017-06-19, Version 0.5, Version Code 5
 
