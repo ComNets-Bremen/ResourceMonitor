@@ -18,11 +18,22 @@
     <string name="mail_message">Hallo, anbei meine aktuellen Messwerte</string>
     <string name="mail_subject">ResourceMonitor Data</string>
     <string name="settings_data_collection_summary">Aktiviere / deaktiviere die Messwertaufnahme</string>
-    <string name="ui_about_button">Über diese App</string>
-    <string name="ui_export_button">Daten exportieren und senden</string>
+    <string name="ui_export_button">Daten exportieren und an ComNets senden</string>
     <string name="ui_info_button">Info</string>
     <string name="ui_settings_category_title">Einstellungen</string>
     <string name="ui_status_title">Datenbankeinträge</string>
     <string name="ui_uuid">UUID:</string>
     <string name="warn_connect_service">Kann keine Verbindung zum Hintergrundienst herstellen</string>
+    <string name="txt_version_code">Versionscode</string>
+    <string name="txt_version_title">Version der App</string>
+    <string name="txt_version_name">Name der Version</string>
+    <string name="mail_developer_subject">Benutzeranfrage</string>
+    <string name="mail_developer_body">Bitte die nachfolgenden Informationen nicht verändern. Dies hilft und mögliche Probleme zu beheben.</string>
+    <string name="dialog_export_provider">Anwendung auswählen</string>
+    <string name="action_version_info">Versionsinfo</string>
+    <string name="action_info">Über diese App</string>
+    <string name="action_github">ResourceMonitor auf GitHub</string>
+    <string name="action_export_file">Datenbank in eine Datei exportieren</string>
+    <string name="action_contact">ComNets kontaktieren</string>
+    <string name="action_about_developer">Über die Entwickler</string>
 </resources>

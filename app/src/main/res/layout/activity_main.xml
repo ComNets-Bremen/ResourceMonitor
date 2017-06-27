@@ -13,22 +13,6 @@
         tools:context="de.uni_bremen.comnets.resourcemonitor.MainActivity"
         android:id="@+id/linearLayout">
 
-        <Button
-            android:id="@+id/aboutButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/ui_about_button" />
-        <Button
-            android:id="@+id/infoButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/ui_info_button" />
-        <Button
-            android:id="@+id/exportButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/ui_export_button" />
-
         <TextView
             android:id="@+id/uuidText"
             android:layout_width="match_parent"
@@ -52,6 +36,12 @@
             android:text=""
             />
 
+        <Button
+            android:id="@+id/exportButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ui_export_button" />
+
         <TextView
             style="@style/Base.TextAppearance.AppCompat.Headline"
             android:layout_width="match_parent"
@@ -59,7 +49,6 @@
             android:text="@string/ui_settings_category_title"
             android:textAlignment="center"
             />
-
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

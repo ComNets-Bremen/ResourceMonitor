@@ -4,18 +4,18 @@
     <string name="MonitorServiceStopped">disabled</string>
     <string name="MonitorServiceLabel">Tab to change</string>
     <string name="settings_enable_data_collection">Enable Data Collection</string>
-    <string name="ui_about_button">About this App</string>
     <string name="ui_settings_category_title">Settings</string>
     <string name="ui_uuid">UUID:</string>
     <string name="DataCollectionRunning">Collecting data</string>
     <string name="DataCollectionStopped">Data collection disabled</string>
     <string name="export_filename_prefix" translatable="false">export</string>
+    <string name="github_page" translatable="false">https://github.com/ComNets-Bremen/ResourceMonitor</string>
     <string name="mail_destination" translatable="false">cnlab@comnets.uni-bremen.de</string>
     <string name="mail_subject">ResourceMonitor Data</string>
     <string name="mail_message">Hi, I would like to submit my data</string>
     <string name="dialog_mail_provider">Please select a mail app</string>
     <string name="dialog_no_mail_client">No mail client available</string>
-    <string name="ui_export_button">Export and send via email</string>
+    <string name="ui_export_button">Send data to ComNets</string>
     <string name="warn_connect_service">Cannot connect to the background service</string>
     <string name="button_ok">OK</string>
     <string name="dialog_not_available">This function is currently not available</string>
@@ -26,4 +26,17 @@
     <string name="export_progress_text">Exporting Database…</string>
     <string name="export_failed">Export failed</string>
     <string name="settings_data_collection_summary">Enable / disable the data collection</string>
+    <string name="action_info">About this App</string>
+    <string name="action_version_info">Version info</string>
+    <string name="action_contact">Contact ComNets</string>
+    <string name="action_github">Visit project on GitHub</string>
+    <string name="action_export_file">Export database to file</string>
+    <string name="txt_version_name">Version Name</string>
+    <string name="txt_version_code">Version Code</string>
+    <string name="txt_version_title">Version Information</string>
+    <string name="mail_developer_subject">User request</string>
+    <string name="mail_developer_body">Please leave the following information. This will help to solve your problem.</string>
+    <string name="mail_developer" translatable="false">cn.dev@comnets.uni-bremen.de</string>
+    <string name="action_about_developer">About the developer</string>
+    <string name="dialog_export_provider">Select App</string>
 </resources>

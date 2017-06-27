@@ -9,6 +9,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.content.FileProvider;
@@ -19,6 +20,8 @@ import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -27,6 +30,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity
@@ -59,45 +63,11 @@ public class MainActivity extends AppCompatActivity
         Intent serviceIntent = new Intent(this, MonitorService.class);
         startService(serviceIntent);
 
-        Button aboutButton = (Button) findViewById(R.id.aboutButton);
-        aboutButton.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View view){
-                String text;
-                try {
-                    InputStream ioHelp = getResources().openRawResource(R.raw.infotext);
-                    byte[] b = new byte[ioHelp.available()];
-                    ioHelp.read(b);
-                    text = new String(b);
-                } catch (IOException e) {
-                    text = getResources().getString(R.string.dialog_not_available);
-                }
-
-                showUserMessage(Html.fromHtml(text), getResources().getString(R.string.dialog_help_title));
-            }
-        });
-
-        Button infoButton = (Button) findViewById(R.id.infoButton);
-        infoButton.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View view){
-                String text;
-                try {
-                    InputStream ioHelp = getResources().openRawResource(R.raw.about);
-                    byte[] b = new byte[ioHelp.available()];
-                    ioHelp.read(b);
-                    text = new String(b);
-                } catch (IOException e) {
-                    text = getResources().getString(R.string.dialog_not_available);
-                }
-
-                showUserMessage(Html.fromHtml(text), getResources().getString(R.string.dialog_help_title));
-            }
-        });
-
         Button exportButton = (Button) findViewById(R.id.exportButton);
         exportButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
                 if (mBound){
-                    exportDatabase();
+                    exportDatabaseToMail();
                 } else {
                     Toast.makeText(getApplicationContext(), getString(R.string.warn_connect_service), Toast.LENGTH_SHORT).show();
                 }
@@ -139,6 +109,72 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         preferences.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        String text;
+        switch (item.getItemId()) {
+            case R.id.action_contact:
+                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                        "mailto",getString(R.string.mail_developer), null));
+                String body = "\n\n" + "--" + "\n" +
+                        getString(R.string.mail_developer_body) + "\n\n" +
+                        "Version_Code: " + BuildConfig.VERSION_CODE + "\n" +
+                        "Version_Name: " + BuildConfig.VERSION_NAME + "\n" +
+                        "Language: " + Locale.getDefault().toString() + "\n" +
+                        "Android: " + Build.VERSION.RELEASE;
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.mail_developer_subject) + ": " + getString(R.string.app_name));
+                emailIntent.putExtra(Intent.EXTRA_TEXT, body);
+                startActivity(Intent.createChooser(emailIntent, getString(R.string.dialog_mail_provider)));
+                return true;
+            case R.id.action_export_file:
+                exportDatabaseToAnywhere();
+                return true;
+            case R.id.action_github:
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.github_page)));
+                startActivity(browserIntent);
+                return true;
+            case R.id.action_version:
+                String s = getString(R.string.txt_version_name) + ": " + BuildConfig.VERSION_NAME + "\n" +
+                        getString(R.string.txt_version_code) + ": " + BuildConfig.VERSION_CODE;
+                showUserMessage(s, getString(R.string.txt_version_title));
+                return true;
+            case R.id.action_info:
+                try {
+                    InputStream ioHelp = getResources().openRawResource(R.raw.infotext);
+                    byte[] b = new byte[ioHelp.available()];
+                    ioHelp.read(b);
+                    text = new String(b);
+                } catch (IOException e) {
+                    text = getResources().getString(R.string.dialog_not_available);
+                }
+
+                showUserMessage(Html.fromHtml(text), getResources().getString(R.string.dialog_help_title));
+                return true;
+
+            case R.id.action_about_developer:
+                try {
+                    InputStream ioHelp = getResources().openRawResource(R.raw.about);
+                    byte[] b = new byte[ioHelp.available()];
+                    ioHelp.read(b);
+                    text = new String(b);
+                } catch (IOException e) {
+                    text = getResources().getString(R.string.dialog_not_available);
+                }
+
+                showUserMessage(Html.fromHtml(text), getResources().getString(R.string.dialog_help_title));
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -193,13 +229,36 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Export the database using a thread to keep UI responsing
+     * Export the database to anywhere using a thread to keep UI responding
      */
-    private void exportDatabase(){
-        new exportDatabaseTask().execute();
+    private void exportDatabaseToAnywhere(){
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("*/*");
+        new exportDatabaseTask(intent, getResources().getText(R.string.dialog_export_provider).toString()).execute();
+    }
+
+    /**
+     * Export the database via mail using a thread to keep UI responding
+     */
+    private void exportDatabaseToMail(){
+        Intent emailTxIntent = new Intent(Intent.ACTION_SEND);
+        emailTxIntent.setType("message/rfc822");
+        emailTxIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{getResources().getString(R.string.mail_destination)});
+        emailTxIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.mail_subject));
+        emailTxIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.mail_message));
+
+        new exportDatabaseTask(emailTxIntent, getResources().getText(R.string.dialog_mail_provider).toString()).execute();
     }
 
     private class exportDatabaseTask extends AsyncTask<Void, Void, Uri>{
+        Intent m_intent;
+        String m_dialogTitle;
+
+        exportDatabaseTask(Intent intent, String dialogTitle){
+            super();
+            m_intent = intent;
+            m_dialogTitle = dialogTitle;
+        }
 
         @Override
         protected void onPreExecute() {
@@ -218,14 +277,9 @@ public class MainActivity extends AppCompatActivity
             super.onPostExecute(uri);
             progressDialog.dismiss();
             Log.d(TAG, "URI: " + uri);
-            Intent emailTxIntent = new Intent(Intent.ACTION_SEND);
-            emailTxIntent.setType("message/rfc822");
-            emailTxIntent.putExtra(Intent.EXTRA_STREAM, uri);
-            emailTxIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            emailTxIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{getResources().getString(R.string.mail_destination)});
-            emailTxIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.mail_subject));
-            emailTxIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.mail_message));
-            startActivity(Intent.createChooser(emailTxIntent, getResources().getText(R.string.dialog_mail_provider)));
+            m_intent.putExtra(Intent.EXTRA_STREAM, uri);
+            m_intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(m_intent, m_dialogTitle));
         }
     }
 }

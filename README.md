@@ -17,6 +17,13 @@ Known Issues
 Changelog
 ---------
 
+### 2017-06-27, Version 0.7, Version Code 7
+
+- Moved some options to sub menu
+- Allow data export to any destination (just for the case the user is
+  interested in analyzing the data)
+- Add more information and contact details
+
 ### 2017-06-21, Version 0.6, Version Code 6
 
 - Fixed several export issues
