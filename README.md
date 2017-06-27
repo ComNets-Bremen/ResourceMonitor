@@ -12,7 +12,12 @@ ResourceMonitor is available on [Google Play](https://play.google.com/store/apps
 Known Issues
 ------------
 
-- Sending mail via gmail does currently not work
+- None
+
+Data Format
+-----------
+
+ResourceMonitor exports the collected data as gzip compressed json.
 
 Changelog
 ---------
