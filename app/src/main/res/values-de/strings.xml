@@ -18,7 +18,7 @@
     <string name="mail_message">Hallo, anbei meine aktuellen Messwerte</string>
     <string name="mail_subject">ResourceMonitor Data</string>
     <string name="settings_data_collection_summary">Aktiviere / deaktiviere die Messwertaufnahme</string>
-    <string name="ui_export_button">Daten exportieren und an ComNets senden</string>
+    <string name="ui_export_button">Daten an ComNets senden</string>
     <string name="ui_info_button">Info</string>
     <string name="ui_settings_category_title">Einstellungen</string>
     <string name="ui_status_title">Datenbankeinträge</string>
@@ -36,4 +36,6 @@
     <string name="action_export_file">Datenbank in eine Datei exportieren</string>
     <string name="action_contact">ComNets kontaktieren</string>
     <string name="action_about_developer">Über die Entwickler</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="action_more">Mehr</string>
 </resources>

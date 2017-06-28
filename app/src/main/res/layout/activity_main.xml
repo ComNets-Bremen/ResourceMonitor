@@ -42,13 +42,16 @@
             android:layout_height="wrap_content"
             android:text="@string/ui_export_button" />
 
-        <TextView
-            style="@style/Base.TextAppearance.AppCompat.Headline"
+        <ImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/ui_settings_category_title"
-            android:textAlignment="center"
-            />
+            android:layout_height="0dp"
+            android:src="@drawable/resource_monitor_logo"
+            android:scaleType="centerInside"
+            android:id="@+id/LargeAppIcon"
+            android:layout_weight="1"
+            android:contentDescription="@string/app_name"
+            android:scaleX="0.8"
+            android:scaleY="0.8"/>
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

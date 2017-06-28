@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         // Add the setting fragment to the main activity
-        getFragmentManager().beginTransaction().add(R.id.linearLayout, new SettingsFragment()).commit();
+        //getFragmentManager().beginTransaction().add(R.id.linearLayout, new SettingsFragment()).commit();
 
         // Generate a random UUID and store it to the preferences
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -102,6 +102,8 @@ public class MainActivity extends AppCompatActivity
         TextView tv = (TextView) findViewById(R.id.statusText);
         if (mBound) {
             tv.setText(mService.getDbStats());
+            mService.updatedSetting("data_collection_enabled");
+            // TODO: Update more settings?
         }
     }
 
@@ -172,6 +174,10 @@ public class MainActivity extends AppCompatActivity
                 showUserMessage(Html.fromHtml(text), getResources().getString(R.string.dialog_help_title));
 
                 return true;
+            case R.id.action_settings:
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -186,6 +192,8 @@ public class MainActivity extends AppCompatActivity
 
             TextView tv = (TextView) findViewById(R.id.statusText);
             tv.setText(mService.getDbStats());
+            mService.updatedSetting("data_collection_enabled");
+            // TODO: Update more settings?
         }
 
         @Override

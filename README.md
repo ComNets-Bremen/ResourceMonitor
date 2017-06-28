@@ -22,6 +22,12 @@ ResourceMonitor exports the collected data as gzip compressed json.
 Changelog
 ---------
 
+### 2017-06-28, Version 0.8, Version Code 8
+
+- Move settings to separate activity
+- Add icon to fill white space
+- Restructured menu
+
 ### 2017-06-27, Version 0.7, Version Code 7
 
 - Moved some options to sub menu
