@@ -17,12 +17,13 @@ Known Issues
 Data Format
 -----------
 
-ResourceMonitor exports the collected data as gzip compressed json.
+ResourceMonitor exports the collected data as gzip compressed json. The format
+is described in detail in [DataFormat.md](DataFormat.md).
 
 Changelog
 ---------
 
-The changelog is located in [CHANGELOG.md](CHANGELOG.md)
+The changelog is located in [CHANGELOG.md](CHANGELOG.md).
 
 Contact
 -------
