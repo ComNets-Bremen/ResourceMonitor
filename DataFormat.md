@@ -7,6 +7,7 @@ subject to change!
 
 - `HAS_BLE`: True if the device supports Bluetooth Low Energy
 - `EXPORT_TIMESTAMP`: Unix timestamp of export
+- `VERSION_CODE`: App Version code
 - `UUID`: Random id created during App installation to distinguish different
   users
 - `TIMEZONE`: The timezone the data was collected
