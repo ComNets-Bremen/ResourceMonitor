@@ -14,6 +14,11 @@ Known Issues
 
 - None
 
+TODO
+----
+
+- Nicer UI
+
 Data Format
 -----------
 

@@ -229,6 +229,7 @@ public class MonitorService extends Service {
             jsonObject.put("TIMEZONE", timezone);
             jsonObject.put("HAS_BLE", hasBle);
             jsonObject.put("EXPORT_TIMESTAMP", exportTimestamp);
+            jsonObject.put("VERSION_CODE", BuildConfig.VERSION_CODE);
 
             Log.d(TAG, "UUID: " +  uuid + " timezone: " + timezone + " export timestamp: " + exportTimestamp);
 

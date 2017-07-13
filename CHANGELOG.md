@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2017-07-11, Version 0.9, Version Code 9
+
+- Store app version number in json object
+
 ### 2017-06-28, Version 0.8, Version Code 8
 
 - Move settings to separate activity
