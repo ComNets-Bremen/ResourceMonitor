@@ -22,8 +22,8 @@
     <string name="dialog_help_title">ResourceMonitor Info</string>
     <string name="ui_info_button">Info</string>
     <string name="ui_status_title">Database Entries</string>
-    <string name="export_progress_title">Please wait…</string>
-    <string name="export_progress_text">Exporting Database…</string>
+    <string name="export_progress_title">Exporting Database</string>
+    <string name="export_progress_text">Starting…</string>
     <string name="export_failed">Export failed</string>
     <string name="settings_data_collection_summary">Enable / disable the data collection</string>
     <string name="action_info">About this App</string>
@@ -41,4 +41,22 @@
     <string name="dialog_export_provider">Select App</string>
     <string name="action_settings">Settings</string>
     <string name="action_more">More</string>
+    <string name="export_server_start">Starting export</string>
+    <string name="url_export_server_upload" translatable="false">https://data.comnets.uni-bremen.de/ResourceMonitor/</string>
+    <string name="url_export_server_token" translatable="false">https://data.comnets.uni-bremen.de/ResourceMonitor/getToken/</string>
+    <string name="url_export_server_range" translatable="false">https://data.comnets.uni-bremen.de/ResourceMonitor/getRange</string>
+    <string name="export_server_check_url">Checking server URLs</string>
+    <string name="export_server_check_network">Checking Internet connectivity</string>
+    <string name="export_server_request_token">Getting token</string>
+    <string name="export_server_check_existing_datasets">Checking for existing datasets</string>
+    <string name="export_server_export_data">Exporting Data</string>
+    <string name="export_server_upload_data">Uploading Data</string>
+    <string name="export_server_done">Export done</string>
+    <string name="export_server_unexpected_error">An unexpected error ocurred</string>
+    <string name="export_server_check_url_failed">Invalid URLs configured</string>
+    <string name="export_server_check_network_failed">No Internet Connection available</string>
+    <string name="export_server_request_token_failed">Failed to request a token</string>
+    <string name="export_server_check_existing_datasets_failed">Server does not reply</string>
+    <string name="export_server_export_data_failed">Export data failed</string>
+    <string name="export_server_upload_data_failed">Data upload failed</string>
 </resources>

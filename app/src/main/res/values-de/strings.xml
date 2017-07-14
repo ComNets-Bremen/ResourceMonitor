@@ -38,4 +38,19 @@
     <string name="action_about_developer">Über die Entwickler</string>
     <string name="action_settings">Einstellungen</string>
     <string name="action_more">Mehr</string>
+    <string name="export_server_check_existing_datasets">Überprüfe existierende Datensätze</string>
+    <string name="export_server_check_existing_datasets_failed">Server antwortet nicht</string>
+    <string name="export_server_check_network">Prüfe Internetverbindung</string>
+    <string name="export_server_check_network_failed">Keine Internetverbindung verfügbar</string>
+    <string name="export_server_check_url">Checke Server URLs</string>
+    <string name="export_server_check_url_failed">Fehlerhafte URLs konfiguriert</string>
+    <string name="export_server_done">Export abgeschlossen</string>
+    <string name="export_server_export_data">Exportiere Daten</string>
+    <string name="export_server_export_data_failed">Export fehlgeschlagen</string>
+    <string name="export_server_request_token">Empfange Token</string>
+    <string name="export_server_request_token_failed">Fehler bei der Anfrage des Tokens</string>
+    <string name="export_server_start">Starte Export</string>
+    <string name="export_server_unexpected_error">Es ist ein unerwarteter Fehler aufgetreten</string>
+    <string name="export_server_upload_data">Daten werden auf den Server geladen</string>
+    <string name="export_server_upload_data_failed">Datenübertragung fehlgeschlagen</string>
 </resources>

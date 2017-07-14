@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2017-07-14, Version 0.10, Version Code 10
+
+- Data upload via dataserver
+
 ### 2017-07-11, Version 0.9, Version Code 9
 
 - Store app version number in json object

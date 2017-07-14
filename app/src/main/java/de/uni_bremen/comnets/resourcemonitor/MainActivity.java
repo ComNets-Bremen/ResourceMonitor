@@ -27,6 +27,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,7 +69,8 @@ public class MainActivity extends AppCompatActivity
         exportButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
                 if (mBound){
-                    exportDatabaseToMail();
+                    //exportDatabaseToMail();
+                    exportDatabaseToServer();
                 } else {
                     Toast.makeText(getApplicationContext(), getString(R.string.warn_connect_service), Toast.LENGTH_SHORT).show();
                 }
@@ -258,6 +261,13 @@ public class MainActivity extends AppCompatActivity
         new exportDatabaseTask(emailTxIntent, getResources().getText(R.string.dialog_mail_provider).toString()).execute();
     }
 
+    private void exportDatabaseToServer(){
+        new exportDatabaseToServerTask().execute();
+    }
+
+    /**
+     * Class to export the database using an Android intent
+     */
     private class exportDatabaseTask extends AsyncTask<Void, Void, Uri>{
         Intent m_intent;
         String m_dialogTitle;
@@ -271,7 +281,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = ProgressDialog.show(MainActivity.this, getString(R.string.export_progress_title),getString(R.string.export_progress_text), true);
+            progressDialog = ProgressDialog.show(MainActivity.this, getString(R.string.export_progress_title),getString(R.string.export_progress_text), false);
         }
 
         @Override
@@ -288,6 +298,148 @@ public class MainActivity extends AppCompatActivity
             m_intent.putExtra(Intent.EXTRA_STREAM, uri);
             m_intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivity(Intent.createChooser(m_intent, m_dialogTitle));
+        }
+    }
+
+    /**
+     * Class to upload data to the server
+     */
+    private class exportDatabaseToServerTask extends AsyncTask<Void, Integer, Integer>{
+        /* TODO
+         * - separate module
+         * - nicer status ids
+         * - ...
+         */
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = ProgressDialog.show(MainActivity.this, getString(R.string.export_progress_title), getString(R.string.export_server_start));
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            ServerCommunicationHandler sch = new ServerCommunicationHandler(getApplicationContext());
+
+            publishProgress(1);
+
+            if (!sch.areUrlsValid()){
+                return 1;
+            }
+
+            publishProgress(2);
+            if (!sch.isNetworkAvailable()){
+                Log.d(TAG, "No network available");
+                return 2;
+            }
+
+            publishProgress(3);
+            String token = sch.requestToken(false);
+            if (token == null){
+                Log.d(TAG, "Cannot get token");
+                return 3;
+            }
+            Log.d(TAG, "TOKEN: " + token);
+
+            publishProgress(4);
+            JSONObject job = sch.requestDataRange(token);
+            if (job == null){
+                // Mayne an issue with the token? request a new one and try again.
+                token = sch.requestToken(true);
+                if (token== null) {
+                    Log.d(TAG, "Cannot get new token");
+                    return 3;
+                }
+                job = sch.requestDataRange(token);
+                if(job == null) {
+                    Log.d(TAG, "Error getting existing range");
+                    return 4;
+                }
+            }
+
+            publishProgress(5);
+            JSONObject serverData = mService.exportDataForServer(job);
+            if (serverData == null){
+                Log.d(TAG, "Error exporting data");
+                return 5;
+            }
+
+            publishProgress(6);
+            JSONObject uploadResult = sch.uploadData(serverData, token);
+            if (uploadResult == null){
+                Log.d(TAG, "Upload failed");
+                return 6;
+            }
+
+            publishProgress(7);
+
+            return 0;
+        }
+
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            switch(values[0]){
+                case 1:
+                    Log.d(TAG, "Checking URLs");
+                    progressDialog.setMessage(getString(R.string.export_server_check_url));
+                    break;
+                case 2:
+                    Log.d(TAG, "Checking Network");
+                    progressDialog.setMessage(getString(R.string.export_server_check_network));
+                    break;
+                case 3:
+                    Log.d(TAG, "Requesting Token");
+                    progressDialog.setMessage(getString(R.string.export_server_request_token));
+                    break;
+                case 4:
+                    Log.d(TAG, "Requesting existing datasets");
+                    progressDialog.setMessage(getString(R.string.export_server_check_existing_datasets));
+                    break;
+                case 5:
+                    Log.d(TAG, "Exporting Data");
+                    progressDialog.setMessage(getString(R.string.export_server_export_data));
+                    break;
+                case 6:
+                    Log.d(TAG, "Uploading data");
+                    progressDialog.setMessage(getString(R.string.export_server_upload_data));
+                    break;
+                case 7:
+                    Log.d(TAG, "DONE");
+                    progressDialog.setMessage(getString(R.string.export_server_done));
+                    break;
+                default:
+                    Log.d(TAG, "Unknown status code");
+                    progressDialog.setMessage(getString(R.string.export_server_unexpected_error));
+            }
+        }
+
+        protected void onPostExecute(Integer status) {
+            super.onPostExecute(status);
+            progressDialog.dismiss();
+            switch(status){
+                case 1:
+                    showUserMessage(getString(R.string.export_server_check_url_failed), getString(R.string.export_progress_title));
+                    break;
+                case 2:
+                    showUserMessage(getString(R.string.export_server_check_network_failed), getString(R.string.export_progress_title));
+                    break;
+                case 3:
+                    showUserMessage(getString(R.string.export_server_request_token_failed), getString(R.string.export_progress_title));
+                    break;
+                case 4:
+                    showUserMessage(getString(R.string.export_server_check_existing_datasets_failed), getString(R.string.export_progress_title));
+                    break;
+                case 5:
+                    showUserMessage(getString(R.string.export_server_export_data_failed), getString(R.string.export_progress_title));
+                    break;
+                case 6:
+                    showUserMessage(getString(R.string.export_server_upload_data_failed), getString(R.string.export_progress_title));
+                    break;
+                case 0:
+                    showUserMessage(getString(R.string.export_server_done), getString(R.string.export_progress_title));
+                    break;
+                default:
+                    showUserMessage(getString(R.string.export_server_unexpected_error), getString(R.string.export_progress_title));
+            }
         }
     }
 }

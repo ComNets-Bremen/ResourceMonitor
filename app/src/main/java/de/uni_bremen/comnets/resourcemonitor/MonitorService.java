@@ -59,6 +59,16 @@ public class MonitorService extends Service {
     CellularBroadcastReceiver cellularBroadcastReceiver = null;
 
     /**
+     * Export data to json
+     *
+     * @param job   The json object defining which data is already available at the server side
+     * @return      The missing data
+     */
+    public JSONObject exportDataForServer(JSONObject job) {
+        return db2Json();
+    }
+
+    /**
      * Binder for the communication with the foreground activity
      */
     public class MonitorServiceBinder extends Binder {
