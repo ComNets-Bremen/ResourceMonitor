@@ -16,7 +16,7 @@ subject to change!
     - `cellular_type`: The type of the connection
     - `time`: Time when the data was acquired
     - `cellular_state`: Connection state
--`BatteryStatus`: Array of the statuses of the battery
+- `BatteryStatus`: Array of the statuses of the battery
     - `is_charging`: Is the device charging?
     - `chrg_usb`: Is the device charging via USB?
     - `time`: Time when the data was acquired
