@@ -13,16 +13,22 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v4.content.FileProvider;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
 import java.util.TimeZone;
 import java.util.zip.GZIPOutputStream;
 
@@ -66,6 +72,56 @@ public class MonitorService extends Service {
      */
     public JSONObject exportDataForServer(JSONObject job) {
         return db2Json();
+    }
+
+    /**
+     * Return the result of the last upload.
+     *
+     * @param serverUploadResult result returned by the server
+     */
+    public void setServerUploadResult(JSONObject serverUploadResult) {
+        // We store the data into the preferences. Maybe store statistics into DB as well?
+
+        Calendar c = Calendar.getInstance();
+        String lastUploadDateString = DateUtils.formatDateTime(
+                getApplicationContext(),
+                c.getTimeInMillis(),
+                DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME
+        );
+
+        SharedPreferences.Editor prefedit = preferences.edit();
+        prefedit.putString("LastSuccessfulUpload_Time", lastUploadDateString);
+        Iterator<?> keys = serverUploadResult.keys();
+        int totalChangedItems = 0;
+        // Get amount of changed items from all returned fields.
+        while (keys.hasNext()) {
+            String key = (String) keys.next();
+            try {
+                if (serverUploadResult.getInt(key) > 0) {
+                    totalChangedItems += serverUploadResult.getInt(key);
+                }
+            } catch (JSONException e){
+                Log.d("TAG", "Not an int key: " + key);
+            }
+        }
+        prefedit.putInt("LastSuccessfulUpload_Changed", totalChangedItems);
+        prefedit.apply();
+    }
+
+    /**
+     * Get the time of the last successful upload
+     * @return String with the time or null if never uploaded data
+     */
+    public String getLastServerUploadTime() {
+        return preferences.getString("LastSuccessfulUpload_Time", null);
+    }
+
+    /**
+     * Get the number changed item at the server side during the last upload. -1 if no values are available.
+     * @return number of changed items or -1 if no values are available.
+     */
+    public int getLastServerUploadItems() {
+        return preferences.getInt("LastSuccessfulUpload_Changed", -1);
     }
 
     /**

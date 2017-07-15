@@ -1,6 +1,13 @@
 Changelog
 =========
 
+### 2017-07-15, Version 0.11, Version Code 11
+
+- Give more feedback for the upload
+- Show last successful upload date and time in UI
+- Minor performance improvements and restructurings
+- Restructured menu
+
 ### 2017-07-14, Version 0.10, Version Code 10
 
 - Data upload via dataserver
