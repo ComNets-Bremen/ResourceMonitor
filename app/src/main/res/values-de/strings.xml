@@ -56,4 +56,5 @@
     <string name="export_server_changed_items">Datensätze</string>
     <string name="export_last_upload">Letzer Upload</string>
     <string name="export_server_thanks">Danke, dass Sie uns Daten gesendet haben.</string>
+    <string name="export_time_never">Nie</string>
 </resources>

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2017-07-15, Version 0.12, Version Code 12
+
+- Minor translation fixes
+
 ### 2017-07-15, Version 0.11, Version Code 11
 
 - Give more feedback for the upload

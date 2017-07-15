@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity
                     text = getResources().getString(R.string.dialog_not_available);
                 }
 
-                Helper.showUserMessage(this, Html.fromHtml(text), getResources().getString(R.string.dialog_help_title));
+                Helper.showHTMLUserMessage(this, text, getResources().getString(R.string.dialog_help_title));
                 return true;
 
             case R.id.action_about_developer:
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity
                     text = getResources().getString(R.string.dialog_not_available);
                 }
 
-                Helper.showUserMessage(this, Html.fromHtml(text), getResources().getString(R.string.dialog_help_title));
+                Helper.showHTMLUserMessage(this, text, getResources().getString(R.string.dialog_help_title));
 
                 return true;
             case R.id.action_settings:
@@ -231,7 +231,11 @@ public class MainActivity extends AppCompatActivity
             tv.setText(mService.getDbStats());
             mService.updatedSetting("data_collection_enabled");
             TextView lastUpload = (TextView) findViewById(R.id.lastUpload);
-            lastUpload.setText(getString(R.string.export_last_upload) +  ": " + mService.getLastServerUploadTime());
+            String lastTime = mService.getLastServerUploadTime();
+            if (lastTime == null){
+                lastTime = getString(R.string.export_time_never);
+            }
+            lastUpload.setText(getString(R.string.export_last_upload) +  ": " + lastTime);
             // TODO: Update more settings?
         }
 
