@@ -11,7 +11,6 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,6 +67,12 @@ public class MainActivity extends AppCompatActivity
 
         TextView uuidText = (TextView) findViewById(R.id.uuidText);
         uuidText.setText((uuidText.getText() + " " + preferences.getString("uuid", "None")));
+
+        // Show dialog only on first startup
+        if (preferences.getBoolean("firstStart", true)){
+            preferences.edit().putBoolean("firstStart", false).apply();
+            showManualDialog();
+        }
 
     }
 
@@ -161,6 +166,10 @@ public class MainActivity extends AppCompatActivity
                 Helper.showHTMLUserMessage(this, text, getResources().getString(R.string.dialog_help_title));
 
                 return true;
+
+            case R.id.action_manual:
+                showManualDialog();
+                return true;
             case R.id.action_settings:
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 startActivity(settingsIntent);
@@ -168,6 +177,23 @@ public class MainActivity extends AppCompatActivity
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    /**
+     * Show the dialog telling the user how to use this app
+     */
+    private void showManualDialog() {
+        String text;
+        try {
+            InputStream ioHelp = getResources().openRawResource(R.raw.manual);
+            byte[] b = new byte[ioHelp.available()];
+            ioHelp.read(b);
+            text = new String(b);
+        } catch (IOException e) {
+            text = getResources().getString(R.string.dialog_not_available);
+        }
+
+        Helper.showHTMLUserMessage(this, text, getResources().getString(R.string.dialog_help_title));
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {

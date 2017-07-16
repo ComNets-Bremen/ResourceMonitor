@@ -63,4 +63,5 @@
     <string name="export_last_upload">Last data upload</string>
     <string name="export_server_thanks">Thank you for sharing the data!</string>
     <string name="export_time_never">Never</string>
+    <string name="action_manual">App manual</string>
 </resources>

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2017-07-16, Version 0.13, Version Code 13
+
+- Tell the user how to use this app
+
 ### 2017-07-15, Version 0.12, Version Code 12
 
 - Minor translation fixes

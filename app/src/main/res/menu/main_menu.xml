@@ -6,6 +6,7 @@
     <item android:id="@+id/action_version" android:title="@string/action_version_info" android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_info" android:title="@string/action_info" android:orderInCategory="200" app:showAsAction="never" />
     <item android:id="@+id/action_contact" android:title="@string/action_contact" android:orderInCategory="300" app:showAsAction="never" />
+    <item android:id="@+id/action_manual" android:title="@string/action_manual" android:orderInCategory="400" app:showAsAction="never" />
     <item android:id="@+id/action_more" android:title="@string/action_advanced" android:orderInCategory="500" app:showAsAction="never">
         <menu>
             <item android:id="@+id/action_about_developer" android:title="@string/action_about_developer" android:orderInCategory="600" app:showAsAction="never" />
