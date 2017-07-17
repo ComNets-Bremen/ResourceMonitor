@@ -18,6 +18,11 @@ TODO
 ----
 
 - Nicer UI
+- Automatic upload:
+    - Is a WiFi network available?
+    - Upload every n hours
+    - Show log of last upload
+    - Only upload new datasets
 
 Data Format
 -----------
