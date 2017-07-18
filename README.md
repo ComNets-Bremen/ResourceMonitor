@@ -8,6 +8,7 @@ ResourceMonitor collects a variety of different phone usage parameters for
 further analysis.
 
 ResourceMonitor is available on [Google Play](https://play.google.com/store/apps/details?id=de.uni_bremen.comnets.resourcemonitor).
+You can access the [Developing Version of the App here](https://play.google.com/apps/testing/de.uni_bremen.comnets.resourcemonitor).
 
 Known Issues
 ------------
@@ -38,8 +39,9 @@ Changelog
 
 The changelog is located in [CHANGELOG.md](CHANGELOG.md).
 
-Contact
--------
+Author / Contact
+----------------
 
 If you have any questions or comments, please write to
-Jens Dede (jd@comnets.uni-bremen.de)
+Jens Dede (jd@comnets.uni-bremen.de), [Sustainable Communication Networks,
+University of Bremen](https://www.comnets.uni-bremen.de/), Germany
