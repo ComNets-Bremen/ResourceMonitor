@@ -23,6 +23,9 @@ TODO
     - Upload every n hours
     - Show log of last upload
     - Only upload new datasets
+- Benefit for the user:
+    - Set an email address and send automatic reports like "This is your
+      pattern from the last week" as a pdf document.
 
 Data Format
 -----------
