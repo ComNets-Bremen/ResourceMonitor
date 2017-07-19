@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -18,6 +19,13 @@ import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Random;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Class to handle the data upload to the server
@@ -29,11 +37,11 @@ public class ServerCommunicationHandler {
 
     private Context context;
 
-    URL uploadUrl = null;
-    URL tokenUrl = null;
-    URL rangeUrl = null;
+    private URL uploadUrl = null;
+    private URL tokenUrl = null;
+    private URL rangeUrl = null;
 
-    String uuid;
+    private String uuid;
 
     ServerCommunicationHandler(Context context){
         this.context = context;
@@ -136,11 +144,21 @@ public class ServerCommunicationHandler {
         Log.d(TAG, "Range URL: " + rangeUrl);
         HttpURLConnection connection = null;
         JSONObject receivedData = null;
+
         try {
             connection = (HttpURLConnection) rangeUrl.openConnection();
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("X-TOKEN", token);
             connection.setRequestProperty("X-CLIENTID", uuid);
+
+            String hmac = getBase64Hmac(token, token);
+            if (hmac == null){
+                connection.setRequestProperty("X-TOKEN", token);
+            } else {
+                connection.setRequestProperty("X-SECRET", hmac);
+            }
+
+            Log.d(TAG, "SECRET: " + hmac);
+
             InputStream is = new BufferedInputStream(connection.getInputStream());
             BufferedReader bsr = new BufferedReader(new InputStreamReader(is));
             StringBuilder sb = new StringBuilder();
@@ -175,13 +193,20 @@ public class ServerCommunicationHandler {
 
         try {
             connection = (HttpURLConnection) uploadUrl.openConnection();
-            connection.setRequestProperty("X-TOKEN", token);
+
             connection.setRequestProperty("X-CLIENTID", uuid);
             connection.setRequestProperty("Content-type", "application/json");
 
             connection.setDoOutput(true);
 
             String postData = serverData.toString();
+
+            String hmac = getBase64Hmac(token, postData);
+            if (hmac == null){
+                connection.setRequestProperty("X-TOKEN", token);
+            } else {
+                connection.setRequestProperty("X-SECRET", hmac);
+            }
             connection.setFixedLengthStreamingMode(postData.length());
 
             OutputStream os = new BufferedOutputStream(connection.getOutputStream());
@@ -209,5 +234,28 @@ public class ServerCommunicationHandler {
             }
         }
         return  receivedData;
+    }
+
+
+    /**
+     * Create a Base64 encoded HMAC
+     * @param token The token
+     * @param data  The data
+     * @return      The base64 encoded resulting hmac
+     */
+    private static String getBase64Hmac(String token, String data){
+
+        Mac mac;
+        try {
+            mac = Mac.getInstance("HmacSHA1");
+            SecretKeySpec sk = new SecretKeySpec(token.getBytes(),mac.getAlgorithm());
+            mac.init(sk);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            return null;
+        }
+
+        byte result[] = mac.doFinal(data.getBytes());
+
+        return Base64.encodeToString(result, Base64.URL_SAFE);
     }
 }

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2017-07-20, Version 0.14, Version Code 14
+
+- Use Keyed-Hash Message Authentication Code
+
 ### 2017-07-16, Version 0.13, Version Code 13
 
 - Tell the user how to use this app
