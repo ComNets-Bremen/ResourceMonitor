@@ -205,9 +205,15 @@ public class MonitorService extends Service {
 
     /**
      * Show / update a notification
-     * @param text
+     * @param text The notification string
      */
     private void showNotification(String text) {
+        String lastTime = getLastServerUploadTime();
+        if (lastTime == null){
+            lastTime = getString(R.string.export_time_never);
+        }
+        String lastExport = getString(R.string.export_last_upload) +  ": " + lastTime;
+
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, MainActivity.class)
                 , 0);
@@ -217,12 +223,24 @@ public class MonitorService extends Service {
                 .setTicker(text)
                 .setWhen(System.currentTimeMillis())
                 .setContentTitle(text)
-                .setContentText(getText(R.string.MonitorServiceLabel))
+                .setContentText(lastExport)
                 .setContentIntent(contentIntent)
                 .setOngoing(true)
                 .build();
 
         mNM.notify(NOTIFICATION_ID, notification);
+    }
+
+    /**
+     * Update the notification bar with the most recent message
+     */
+    public void updateNotification(){
+        Log.d(TAG, "UPDATE NOTIFICATION");
+        if (preferences.getBoolean("data_collection_enabled", true)){
+            showNotification(getString(R.string.DataCollectionRunning));
+        } else {
+            showNotification(getString(R.string.DataCollectionStopped));
+        }
     }
 
 

@@ -172,6 +172,7 @@ class ExportDatabaseToServerTask extends AsyncTask<Void, ExportDatabaseToServerT
                 // Update Text view
                 TextView lastUpload = (TextView) m_activity.findViewById(R.id.lastUpload);
                 lastUpload.setText(m_context.getString(R.string.export_last_upload) +  ": " + m_service.getLastServerUploadTime());
+                m_service.updateNotification();
                 break;
             default:
                 Helper.showUserMessage(m_context, m_context.getString(R.string.export_server_unexpected_error), m_context.getString(R.string.export_progress_title));

@@ -1,6 +1,11 @@
 Changelog
 =========
 
+### 2017-07-20, Versiom 0.14, Version Code 15
+
+- Removed setting for disabling the data collection (gaps datasets are always bad...)
+- Show more information in the notification bar
+
 ### 2017-07-20, Version 0.14, Version Code 14
 
 - Use Keyed-Hash Message Authentication Code

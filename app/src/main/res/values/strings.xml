@@ -2,7 +2,6 @@
     <string name="app_name">ResourceMonitor</string>
     <string name="MonitorServiceStarted">Collecting data</string>
     <string name="MonitorServiceStopped">disabled</string>
-    <string name="MonitorServiceLabel">Tab to change</string>
     <string name="settings_enable_data_collection">Enable Data Collection</string>
     <string name="ui_settings_category_title">Settings</string>
     <string name="ui_uuid">UUID:</string>

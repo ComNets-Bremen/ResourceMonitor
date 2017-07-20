@@ -4,7 +4,6 @@
     <string name="DataCollectionRunning">Messwertaufnahme läuft</string>
     <string name="DataCollectionStopped">Messwertaufnahme gestoppt</string>
     <string name="settings_enable_data_collection">Messwertaufnahme</string>
-    <string name="MonitorServiceLabel">Klicken für Einstellungen</string>
     <string name="MonitorServiceStarted">Messwertaufnahme läuft</string>
     <string name="MonitorServiceStopped">Messwertaufnahme deaktiviert</string>
     <string name="button_ok">OK</string>

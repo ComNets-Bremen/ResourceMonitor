@@ -49,6 +49,13 @@ public class MainActivity extends AppCompatActivity
             preferences.edit().putString("uuid", UUID.randomUUID().toString()).apply();
         Log.d(TAG, "UUID: " + preferences.getString("uuid", "NONE"));
 
+        // We removed the opportunity to disable the data collection. Ensure that it is always enabled.
+        // TODO: Remove after some updates as it should be always switched on
+
+        if (!preferences.getBoolean("data_collection_enabled", true)){
+            preferences.edit().putBoolean("data_collection_enabled", true).apply();
+        }
+
         // Ensure background service is running
         Intent serviceIntent = new Intent(this, MonitorService.class);
         startService(serviceIntent);
@@ -262,6 +269,7 @@ public class MainActivity extends AppCompatActivity
                 lastTime = getString(R.string.export_time_never);
             }
             lastUpload.setText(getString(R.string.export_last_upload) +  ": " + lastTime);
+            mService.updateNotification();
             // TODO: Update more settings?
         }
 

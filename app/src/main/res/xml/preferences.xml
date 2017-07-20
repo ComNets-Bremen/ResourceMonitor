@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen  xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
     <CheckBoxPreference
         android:key="data_collection_enabled"
         android:title="@string/settings_enable_data_collection"
         android:summary="@string/settings_data_collection_summary"
-        android:defaultValue="true"/>
+        android:defaultValue="true"
+        android:enabled="false"/>
+        //-->
 </PreferenceScreen>
 
