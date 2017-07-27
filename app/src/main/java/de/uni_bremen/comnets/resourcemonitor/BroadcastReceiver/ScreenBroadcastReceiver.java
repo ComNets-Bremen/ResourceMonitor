@@ -11,7 +11,7 @@ import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
 /**
  * BroadcastReceiver for the screen status
  */
-public class ScreenBroadcastReceiver extends ResourceBroadcastReceiver {
+public class ScreenBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 
     public ScreenBroadcastReceiver(SQLiteDatabase db){
         super(db);

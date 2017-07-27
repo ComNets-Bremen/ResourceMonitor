@@ -15,7 +15,7 @@ import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
  * BroadcastReceiver for the number of transmitted bytes.
  * Triggered if WiFi / cellular interface changes the state
  */
-public class ByteCountBroadcastReceiver extends ResourceBroadcastReceiver {
+public class ByteCountBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 
     public ByteCountBroadcastReceiver(SQLiteDatabase db){
         super(db);

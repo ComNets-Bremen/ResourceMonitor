@@ -16,7 +16,7 @@ import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
 /**
  * BroadcastReceiver for cellular events
  */
-public class CellularBroadcastReceiver extends ResourceBroadcastReceiver {
+public class CellularBroadcastReceiver extends AbstractResourceBroadcastReceiver {
     public CellularBroadcastReceiver(SQLiteDatabase db){
         super(db);
     }

@@ -13,7 +13,7 @@ import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
 /**
  * BroadcastReceiver for the WiFi network status
  */
-public class WiFiBroadcastReceiver extends ResourceBroadcastReceiver {
+public class WiFiBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 
     public WiFiBroadcastReceiver(SQLiteDatabase db) {
         super(db);

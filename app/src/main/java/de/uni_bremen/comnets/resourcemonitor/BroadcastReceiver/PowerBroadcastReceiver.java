@@ -12,7 +12,7 @@ import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
 /**
  * BroadcastReceiver for the Energy sources used by this device
  */
-public class PowerBroadcastReceiver extends ResourceBroadcastReceiver {
+public class PowerBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 
     public PowerBroadcastReceiver(SQLiteDatabase db){
         super(db);

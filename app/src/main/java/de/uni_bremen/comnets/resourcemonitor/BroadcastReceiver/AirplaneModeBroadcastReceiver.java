@@ -12,7 +12,7 @@ import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
 /**
  * BroadcastReceiver for the FlightMode
  */
-public class AirplaneModeBroadcastReceiver extends ResourceBroadcastReceiver {
+public class AirplaneModeBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 
     public AirplaneModeBroadcastReceiver(SQLiteDatabase db){
         super(db);

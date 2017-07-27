@@ -16,10 +16,10 @@ import android.util.Log;
  * - Generic TAG for logging
  */
 
-public abstract class ResourceBroadcastReceiver extends BroadcastReceiver {
+public abstract class AbstractResourceBroadcastReceiver extends BroadcastReceiver {
 
     public String TAG;
-    private ResourceBroadcastReceiver mReceiver = null;
+    private AbstractResourceBroadcastReceiver mReceiver = null;
     private ContentValues lastContentValues;
 
     SQLiteDatabase writableDb;
@@ -28,7 +28,7 @@ public abstract class ResourceBroadcastReceiver extends BroadcastReceiver {
      * Constructor, db needed
      * @param db A writable database
      */
-    public ResourceBroadcastReceiver(SQLiteDatabase db){
+    public AbstractResourceBroadcastReceiver(SQLiteDatabase db){
         super();
         lastContentValues = new ContentValues();
         writableDb = db;

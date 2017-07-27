@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
@@ -13,7 +12,7 @@ import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
 /**
  * BroadcastReceiver for Bluetooth events
  */
-public class BluetoothBroadcastReceiver extends ResourceBroadcastReceiver {
+public class BluetoothBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 
     public BluetoothBroadcastReceiver(SQLiteDatabase db){
         super(db);
