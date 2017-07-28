@@ -10,6 +10,7 @@ import android.net.TrafficStats;
 import android.net.wifi.WifiManager;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
+import de.uni_bremen.comnets.resourcemonitor.MonitorService;
 
 /**
  * BroadcastReceiver for the number of transmitted bytes.
@@ -17,8 +18,8 @@ import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
  */
 public class ByteCountBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 
-    public ByteCountBroadcastReceiver(SQLiteDatabase db){
-        super(db);
+    public ByteCountBroadcastReceiver(MonitorService monitorService, SQLiteDatabase db){
+        super(monitorService, db);
     }
 
     @Override

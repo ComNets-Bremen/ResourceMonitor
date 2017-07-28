@@ -8,14 +8,15 @@ import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
+import de.uni_bremen.comnets.resourcemonitor.MonitorService;
 
 /**
  * BroadcastReceiver for Bluetooth events
  */
 public class BluetoothBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 
-    public BluetoothBroadcastReceiver(SQLiteDatabase db){
-        super(db);
+    public BluetoothBroadcastReceiver(MonitorService monitorService, SQLiteDatabase db){
+        super(monitorService, db);
     }
 
     @Override

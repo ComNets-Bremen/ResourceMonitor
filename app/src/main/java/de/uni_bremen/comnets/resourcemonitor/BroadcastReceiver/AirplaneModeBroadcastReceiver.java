@@ -8,14 +8,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.Settings;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
+import de.uni_bremen.comnets.resourcemonitor.MonitorService;
 
 /**
  * BroadcastReceiver for the FlightMode
  */
 public class AirplaneModeBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 
-    public AirplaneModeBroadcastReceiver(SQLiteDatabase db){
-        super(db);
+    public AirplaneModeBroadcastReceiver(MonitorService monitorService, SQLiteDatabase db){
+        super(monitorService, db);
     }
 
     @Override

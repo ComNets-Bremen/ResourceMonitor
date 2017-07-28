@@ -7,6 +7,8 @@ import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import de.uni_bremen.comnets.resourcemonitor.MonitorService;
+
 /**
  * Abstract class for BroadcastReceivers on changed devices parameters. Offers
  *
@@ -21,6 +23,7 @@ public abstract class AbstractResourceBroadcastReceiver extends BroadcastReceive
     public String TAG;
     private AbstractResourceBroadcastReceiver mReceiver = null;
     private ContentValues lastContentValues;
+    private MonitorService mService = null;
 
     SQLiteDatabase writableDb;
 
@@ -28,10 +31,11 @@ public abstract class AbstractResourceBroadcastReceiver extends BroadcastReceive
      * Constructor, db needed
      * @param db A writable database
      */
-    public AbstractResourceBroadcastReceiver(SQLiteDatabase db){
+    public AbstractResourceBroadcastReceiver(MonitorService monitorService, SQLiteDatabase db){
         super();
         lastContentValues = new ContentValues();
         writableDb = db;
+        mService = monitorService;
         TAG = this.getClass().getSimpleName();
     }
 
@@ -58,6 +62,7 @@ public abstract class AbstractResourceBroadcastReceiver extends BroadcastReceive
             row = writableDb.insert(tableName, null, contentValues);
             Log.d(TAG, "INSERT row " + row + ": " + contentValues);
             lastContentValues = contentValues;
+            mService.setDatasetStored();
         }
 
         return row;

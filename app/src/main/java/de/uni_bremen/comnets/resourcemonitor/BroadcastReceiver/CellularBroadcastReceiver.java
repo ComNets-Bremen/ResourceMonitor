@@ -11,14 +11,15 @@ import android.net.NetworkInfo;
 import android.os.Build;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
+import de.uni_bremen.comnets.resourcemonitor.MonitorService;
 
 
 /**
  * BroadcastReceiver for cellular events
  */
 public class CellularBroadcastReceiver extends AbstractResourceBroadcastReceiver {
-    public CellularBroadcastReceiver(SQLiteDatabase db){
-        super(db);
+    public CellularBroadcastReceiver(MonitorService monitorService, SQLiteDatabase db){
+        super(monitorService, db);
     }
 
     @Override

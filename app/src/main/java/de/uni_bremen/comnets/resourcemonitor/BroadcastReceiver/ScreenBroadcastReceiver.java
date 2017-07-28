@@ -7,14 +7,15 @@ import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
+import de.uni_bremen.comnets.resourcemonitor.MonitorService;
 
 /**
  * BroadcastReceiver for the screen status
  */
 public class ScreenBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 
-    public ScreenBroadcastReceiver(SQLiteDatabase db){
-        super(db);
+    public ScreenBroadcastReceiver(MonitorService monitorService, SQLiteDatabase db){
+        super(monitorService, db);
     }
 
     @Override

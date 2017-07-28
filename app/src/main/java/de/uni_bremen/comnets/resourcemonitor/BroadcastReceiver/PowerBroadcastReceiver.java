@@ -8,14 +8,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.BatteryManager;
 
 import de.uni_bremen.comnets.resourcemonitor.EnergyMonitorContract;
+import de.uni_bremen.comnets.resourcemonitor.MonitorService;
 
 /**
  * BroadcastReceiver for the Energy sources used by this device
  */
 public class PowerBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 
-    public PowerBroadcastReceiver(SQLiteDatabase db){
-        super(db);
+    public PowerBroadcastReceiver(MonitorService monitorService, SQLiteDatabase db){
+        super(monitorService, db);
     }
 
     @Override
