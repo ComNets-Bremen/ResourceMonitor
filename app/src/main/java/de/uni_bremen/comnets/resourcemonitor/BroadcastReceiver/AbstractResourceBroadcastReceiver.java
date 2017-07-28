@@ -84,7 +84,7 @@ public abstract class AbstractResourceBroadcastReceiver extends BroadcastReceive
             //mReceiver = new WiFiBroadcastReceiver(writableDb);
 
             try {
-                mReceiver = this.getClass().getConstructor(SQLiteDatabase.class).newInstance(writableDb);
+                mReceiver = this.getClass().getConstructor(MonitorService.class, SQLiteDatabase.class).newInstance(mService, writableDb);
             } catch (Exception e) {
                 e.printStackTrace();
             }
