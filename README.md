@@ -27,6 +27,7 @@ TODO
 - Benefit for the user:
     - Set an email address and send automatic reports like "This is your
       pattern from the last week" as a pdf document.
+- Upload data should be limited to e.g. 2.5 MB per upload
 
 Data Format
 -----------
