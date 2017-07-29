@@ -35,6 +35,12 @@ Data Format
 ResourceMonitor exports the collected data as gzip compressed json. The format
 is described in detail in [DataFormat.md](DataFormat.md).
 
+Data Analysis
+-------------
+
+A simple analysis script can be found in the directory [analyze](analyze). The
+script is just kind of proof of concept. Feel free to adapt and extend!
+
 Changelog
 ---------
 
