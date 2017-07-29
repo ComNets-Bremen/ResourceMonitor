@@ -131,6 +131,17 @@ class ResourceDataHandler():
     def getMinMax(self):
         return self.timeMin, self.timeMax
 
+    # Returns the maximum gap between two battery percentage values in seconds
+    def getMaxBatteryGap(self):
+        x, y = self.getDatasets("BatteryStatus", "percentage")
+        delta = 0
+        lastx = x[0]
+        for v in x:
+            delta = max(delta, (v - lastx).total_seconds())
+            lastx = v
+
+        return delta
+
     # Get the percentages the device was in a certain state
     def getStatePercentages(self, field, fieldType, minDate, maxDate):
         completeTimespan = maxDate - minDate

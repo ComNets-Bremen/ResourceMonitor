@@ -202,6 +202,7 @@ for key in resourceDataHandlers:
     print "ScreenStatus", "screen_status", resourceDataHandlers[key].getStatePercentages("ScreenStatus", "screen_status", xMin, xMax)
     print "WiFiStatus/wifi_status", resourceDataHandlers[key].getStatePercentages("WiFiStatus", "wifi_status", xMin, xMax)
     print "CellularStatus/cellular_type", resourceDataHandlers[key].getStatePercentages("CellularStatus", "cellular_type", xMin, xMax)
+    print "Max Battery gap", resourceDataHandlers[key].getMaxBatteryGap()
 
     # WiFi Codes:
     # AUTHENTICATING: 1
