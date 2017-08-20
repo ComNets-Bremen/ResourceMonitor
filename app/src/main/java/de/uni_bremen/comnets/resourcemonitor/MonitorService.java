@@ -12,7 +12,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v4.content.FileProvider;
@@ -48,10 +50,12 @@ public class MonitorService extends Service {
 
     public static final String TAG = MonitorService.class.getSimpleName();
 
-    NotificationManager mNM;
+    NotificationManager mNM = null;
     SharedPreferences preferences;
     SQLiteDatabase writableDb;
     EnergyMonitorDbHelper energyMonitorDbHelper;
+    String lastDataItemStored = null;
+    String lastNotification = null;
 
     private int NOTIFICATION_ID = R.string.MonitorServiceStarted;
     private boolean dataCollectionRunning = false;
@@ -125,6 +129,28 @@ public class MonitorService extends Service {
     }
 
     /**
+     * Called if a dataset was succesfully stored by a broadcast receiver
+     */
+    public void setDatasetStored(){
+
+        Calendar c = Calendar.getInstance();
+        lastDataItemStored = DateUtils.formatDateTime(
+                getApplicationContext(),
+                c.getTimeInMillis(),
+                DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME
+        );
+    }
+
+    /**
+     * Returns the timestamp when the last data item was stored
+     *
+     * @return String with the timestamp of null if no value is available
+     */
+    public String getLastDataItemStored(){
+        return lastDataItemStored;
+    }
+
+    /**
      * Binder for the communication with the foreground activity
      */
     public class MonitorServiceBinder extends Binder {
@@ -139,20 +165,35 @@ public class MonitorService extends Service {
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate()");
-        mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+/*
+        // Ensure that the notification is again activated if doze is there and app not in exception list
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            if (!pm.isIgnoringBatteryOptimizations(getPackageName())){
+                // We have doze and User is not in exceptions...
+                preferences.edit().putBoolean("show_notification_bar", true).apply();
+            }
+        }
+*/
+
+        if (preferences.getBoolean("show_notification_bar", true)) {
+            mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        }
 
         energyMonitorDbHelper = new EnergyMonitorDbHelper(getApplicationContext());
         writableDb = energyMonitorDbHelper.getWritableDatabase();
         Log.d(TAG, "db path: " +writableDb.getPath());
 
-        powerBroadcastReceiver = new PowerBroadcastReceiver(writableDb);
-        screenBroadcastReceiver = new ScreenBroadcastReceiver(writableDb);
-        wiFiBroadcastReceiver = new WiFiBroadcastReceiver(writableDb);
-        airplaneModeBroadcastReceiver = new AirplaneModeBroadcastReceiver(writableDb);
-        byteCountBroadcastReceiver = new ByteCountBroadcastReceiver(writableDb);
-        bluetoothBroadcastReceiver = new BluetoothBroadcastReceiver(writableDb);
-        cellularBroadcastReceiver = new CellularBroadcastReceiver(writableDb);
+        powerBroadcastReceiver = new PowerBroadcastReceiver(this, writableDb);
+        screenBroadcastReceiver = new ScreenBroadcastReceiver(this, writableDb);
+        wiFiBroadcastReceiver = new WiFiBroadcastReceiver(this, writableDb);
+        airplaneModeBroadcastReceiver = new AirplaneModeBroadcastReceiver(this, writableDb);
+        byteCountBroadcastReceiver = new ByteCountBroadcastReceiver(this, writableDb);
+        bluetoothBroadcastReceiver = new BluetoothBroadcastReceiver(this, writableDb);
+        cellularBroadcastReceiver = new CellularBroadcastReceiver(this, writableDb);
 
         boolean dataCollectionEnabled = preferences.getBoolean("data_collection_enabled", true);
         if(dataCollectionEnabled){
@@ -185,7 +226,9 @@ public class MonitorService extends Service {
         Log.d(TAG, "onDestroy()");
         stopDataCollection();
         energyMonitorDbHelper.close();
-        mNM.cancelAll();
+        if (mNM != null) {
+            mNM.cancelAll();
+        }
         //restartService();
     }
 
@@ -202,12 +245,23 @@ public class MonitorService extends Service {
 
     private final IBinder mBinder = new MonitorServiceBinder();
 
+    /**
+     * Show last notification
+     */
+    private void showNotification(){
+        showNotification(lastNotification);
+    }
 
     /**
      * Show / update a notification
      * @param text The notification string
      */
     private void showNotification(String text) {
+        lastNotification = text;
+
+        if (mNM == null){
+            return;
+        }
         String lastTime = getLastServerUploadTime();
         if (lastTime == null){
             lastTime = getString(R.string.export_time_never);
@@ -255,12 +309,39 @@ public class MonitorService extends Service {
             } else if (!dataCollectionEnabled && dataCollectionRunning){
                 stopDataCollection();
             }
+        } else if (key.equals("show_notification_bar")){
+            //if(!Helper.isPowerSaving(this)){
+                boolean showNotificationBar = preferences.getBoolean("show_notification_bar", true);
+                if (showNotificationBar && mNM == null){
+                    Log.d(TAG, "Enable Notification Bar");
+                    mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                } else if (!showNotificationBar && mNM != null){
+                    Log.d(TAG, "Disable Notification Bar");
+                    mNM.cancelAll();
+                    mNM = null;
+                }
+            //} else {
+            //    if (!preferences.getBoolean("show_notification_bar", true))
+            //    Toast.makeText(this, getText(R.string.cannot_deactivate_icon), Toast.LENGTH_LONG).show();
+            //    preferences.edit().putBoolean("show_notification_bar", true).apply();
+            //}
+            showNotification();
+
         }
     }
 
     /**
+     * Checks whether the app is showing a notification or not
+     *
+     * @return true if notification is enabled
+     */
+    public boolean isNotificationEnabled(){
+        return mNM != null;
+    }
+
+    /**
      * Return a string with some DB statistics
-     * @return
+     * @return  Get a string containing the statistics
      */
     String getDbStats(){
         return EnergyMonitorDbHelper.getDbStatistics(writableDb);

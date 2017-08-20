@@ -8,5 +8,13 @@
         android:defaultValue="true"
         android:enabled="false"/>
         //-->
+
+    <CheckBoxPreference
+        android:key="show_notification_bar"
+        android:title="@string/settings_show_notification_bar"
+        android:summary="@string/settings_show_notification_bar_summary"
+        android:defaultValue="true"
+        android:enabled="true"/>
+
 </PreferenceScreen>
 

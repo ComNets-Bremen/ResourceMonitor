@@ -12,7 +12,7 @@
             <item android:id="@+id/action_about_developer" android:title="@string/action_about_developer" android:orderInCategory="600" app:showAsAction="never" />
             <item android:id="@+id/action_export_file" android:title="@string/action_export_file" android:orderInCategory="700" app:showAsAction="never" />
             <item android:id="@+id/action_github" android:title="@string/action_github" android:orderInCategory="800" app:showAsAction="never" />
-            <item android:id="@+id/action_settings" android:title="@string/action_settings" android:orderInCategory="900" app:showAsAction="never" android:enabled="false" android:visible="false"/>
+            <item android:id="@+id/action_settings" android:title="@string/action_settings" android:orderInCategory="900" app:showAsAction="never" android:enabled="true" android:visible="true"/>
         </menu>
     </item>
 </menu>

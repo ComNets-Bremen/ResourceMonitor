@@ -4,10 +4,14 @@ import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import de.uni_bremen.comnets.resourcemonitor.MonitorService;
+
+import static de.uni_bremen.comnets.resourcemonitor.Helper.isPowerSaving;
 
 /**
  * Abstract class for BroadcastReceivers on changed devices parameters. Offers
@@ -57,6 +61,13 @@ public abstract class AbstractResourceBroadcastReceiver extends BroadcastReceive
     public long storeValues(String tableName, ContentValues contentValues){
         long row = -1;
 
+        /*
+        if (isPowerSaving(mService) && ! mService.isNotificationEnabled()){
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mService);
+            preferences.edit().putBoolean("show_notification_bar", true).apply();
+            mService.updatedSetting("show_notification_bar");
+        }
+*/
         // Do not store duplicated values
         if (!lastContentValues.equals(contentValues)){
             row = writableDb.insert(tableName, null, contentValues);

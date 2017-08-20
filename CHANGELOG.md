@@ -1,7 +1,13 @@
 Changelog
 =========
 
-### 2017-07-20, Versiom 0.14, Version Code 15
+### 2017-08-20, Version 0.16, Version Code 16
+
+- Rename the abstract receiver class
+- Show time of last data acquisition
+- Allow user to disable the notification bar message
+
+### 2017-07-20, Version 0.15, Version Code 15
 
 - Removed setting for disabling the data collection (gaps datasets are always bad...)
 - Show more information in the notification bar

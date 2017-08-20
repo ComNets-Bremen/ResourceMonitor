@@ -57,4 +57,8 @@
     <string name="export_server_thanks">Danke, dass Sie uns Daten gesendet haben.</string>
     <string name="export_time_never">Nie</string>
     <string name="action_manual">Anleitung</string>
+    <string name="last_item_to_db">Letzte Messung</string>
+    <string name="settings_show_notification_bar">Zeige Benachrichtigung</string>
+    <string name="settings_show_notification_bar_summary">Zeige ein App-Symbol im Benachrichtigungsbereich.</string>
+    <string name="cannot_deactivate_icon">Kann die Benachrichtigung nicht deaktivieren: Android würde die Messwertaufnahme stoppen.</string>
 </resources>

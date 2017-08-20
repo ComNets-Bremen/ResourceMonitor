@@ -2,6 +2,7 @@ package de.uni_bremen.comnets.resourcemonitor;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -9,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -222,7 +224,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        mService.updatedSetting(key);
+        if (mService != null) {
+            mService.updatedSetting(key);
+        }
     }
 
 
@@ -263,17 +267,63 @@ public class MainActivity extends AppCompatActivity
         if (mBound) {
             tv.setText(mService.getDbStats());
             mService.updatedSetting("data_collection_enabled");
+            mService.updatedSetting("show_notification_bar");
             TextView lastUpload = (TextView) findViewById(R.id.lastUpload);
             String lastTime = mService.getLastServerUploadTime();
             if (lastTime == null){
                 lastTime = getString(R.string.export_time_never);
             }
             lastUpload.setText(getString(R.string.export_last_upload) +  ": " + lastTime);
+
+            TextView lastDataItem = (TextView) findViewById(R.id.lastDataCollected);
+            String lastCollectedItem = mService.getLastDataItemStored();
+            if (lastCollectedItem == null) {
+                lastCollectedItem = getString(R.string.export_time_never);
+            }
+            lastDataItem.setText(getString(R.string.last_item_to_db) + ": " + lastCollectedItem);
+
             mService.updateNotification();
             // TODO: Update more settings?
         }
 
     }
+
+/*
+    private void requestDozePermissions(){
+        if (Helper.isPowerSaving(this) &&
+                !preferences.getBoolean("show_notification_bar", true)
+                ) {
+            // User requested to disable icon without adding doze exception for this app. We should inform him how to do that
+
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+
+                String text = "";
+
+                try {
+                    InputStream ioHelp = getResources().openRawResource(R.raw.doze_info);
+                    byte[] b = new byte[ioHelp.available()];
+                    ioHelp.read(b);
+                    text = new String(b);
+                } catch (IOException e) {
+                    text = getResources().getString(R.string.dialog_not_available);
+                }
+
+                DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Intent intent = new Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).setData(Uri.parse("package:" + getPackageName()));
+                        startActivity(intent);
+                    }
+                };
+
+                Helper.showHTMLUserMessage(this, text, getString(R.string.dialog_help_title), listener);
+
+
+                preferences.edit().putBoolean("show_notification_bar", true).apply();
+                mService.updatedSetting("show_notification_bar");
+            }
+        }
+    }
+    */
 
 }
 

@@ -63,4 +63,8 @@
     <string name="export_server_thanks">Thank you for sharing the data!</string>
     <string name="export_time_never">Never</string>
     <string name="action_manual">App manual</string>
+    <string name="last_item_to_db">Last measurement</string>
+    <string name="settings_show_notification_bar">Show Notification Bar</string>
+    <string name="settings_show_notification_bar_summary">Show an app icon in the notification bar.</string>
+    <string name="cannot_deactivate_icon">Cannot deactivate notification: Android might stop the data acquisition.</string>
 </resources>
