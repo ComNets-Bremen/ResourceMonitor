@@ -1,6 +1,11 @@
 Changelog
 =========
 
+### 2017-09-15, Version 0.17, Version Code 17
+
+- Be smarter for the data upload: Only send data which has not been transmitted
+  yet
+
 ### 2017-08-20, Version 0.16, Version Code 16
 
 - Rename the abstract receiver class

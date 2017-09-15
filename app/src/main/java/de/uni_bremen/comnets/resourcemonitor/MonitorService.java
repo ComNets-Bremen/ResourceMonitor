@@ -75,7 +75,7 @@ public class MonitorService extends Service {
      * @return      The missing data
      */
     public JSONObject exportDataForServer(JSONObject job) {
-        return db2Json();
+        return db2Json(job);
     }
 
     /**
@@ -348,33 +348,104 @@ public class MonitorService extends Service {
     }
 
     /**
+     * Helper function to use the result array and to reduce the amount of transmitted data
+     *
+     * @param range     The range object from the server
+     * @param tableName The table name
+     * @return          The where part of the query object. null if not successful / no data available.
+     */
+    private String getWhereForQuery(JSONObject range, String tableName){
+        if ((range != null ) && (range.has(tableName))){
+            long maximum = -1;
+            try {
+                JSONObject tableJsonObject = range.getJSONObject(tableName);
+                if (tableJsonObject != null && !tableJsonObject.isNull("max")){
+                    maximum = tableJsonObject.getLong("max");
+                } else {
+                    maximum = -1;
+                }
+            } catch (org.json.JSONException e) {
+                e.printStackTrace();
+                maximum = -1;
+            }
+            Log.d(TAG, "Max in table " + tableName + ": " +  maximum);
+            if (maximum > 0){
+                return "_id > " + maximum;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Exports the complete database to a json object.
      *
      * @return JSONObject database as json
      */
-    public JSONObject db2Json(){
+    public JSONObject db2Json(JSONObject exportRange){
+        if (exportRange == null){
+            Log.d(TAG, "No range requested");
+        } else {
+            Log.d(TAG, "Range: " + exportRange);
+        }
         JSONObject jsonObject = new JSONObject();
+
+        // Battery
         Cursor  batteryStatusCursor = writableDb.query(
                 EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME,
-                null, null,null, null, null, null);
+                null,
+                getWhereForQuery(exportRange, EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME),
+                null,
+                null,
+                null,
+                null);
         Cursor  byteCountCursor = writableDb.query(
                 EnergyMonitorContract.TrafficStatsEntry.TABLE_NAME,
-                null, null,null, null, null, null);
+                null,
+                getWhereForQuery(exportRange, EnergyMonitorContract.TrafficStatsEntry.TABLE_NAME),
+                null,
+                null,
+                null,
+                null);
         Cursor  bluetoothCursor = writableDb.query(
                 EnergyMonitorContract.BluetoothStatusEntry.TABLE_NAME,
-                null, null,null, null, null, null);
+                null,
+                getWhereForQuery(exportRange, EnergyMonitorContract.BluetoothStatusEntry.TABLE_NAME),
+                null,
+                null,
+                null,
+                null);
         Cursor  flightModeCursor = writableDb.query(
                 EnergyMonitorContract.AirplaneModeEntry.TABLE_NAME,
-                null, null,null, null, null, null);
+                null,
+                getWhereForQuery(exportRange, EnergyMonitorContract.AirplaneModeEntry.TABLE_NAME),
+                null,
+                null,
+                null,
+                null);
         Cursor  wifiCursor = writableDb.query(
                 EnergyMonitorContract.WiFiStatusEntry.TABLE_NAME,
-                null, null,null, null, null, null);
+                null,
+                getWhereForQuery(exportRange, EnergyMonitorContract.WiFiStatusEntry.TABLE_NAME),
+                null,
+                null,
+                null,
+                null);
         Cursor  screenStatusCursor = writableDb.query(
                 EnergyMonitorContract.ScreenStatusEntry.TABLE_NAME,
-                null, null,null, null, null, null);
+                null,
+                getWhereForQuery(exportRange, EnergyMonitorContract.ScreenStatusEntry.TABLE_NAME),
+                null,
+                null,
+                null,
+                null);
         Cursor  cellularStatusCursor = writableDb.query(
                 EnergyMonitorContract.CellularStatusEntry.TABLE_NAME,
-                null, null,null, null, null, null);
+                null,
+                getWhereForQuery(exportRange, EnergyMonitorContract.CellularStatusEntry.TABLE_NAME),
+                null,
+                null,
+                null,
+                null);
 
         try {
             jsonObject.put(EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME, EnergyMonitorDbHelper.cursorToJson(batteryStatusCursor));
@@ -403,6 +474,8 @@ public class MonitorService extends Service {
             e.printStackTrace();
         }
 
+        Log.d(TAG, "Json object size: " +  jsonObject.toString().length());
+
         return jsonObject;
     }
 
@@ -413,7 +486,7 @@ public class MonitorService extends Service {
      */
     public File exportData(){
 
-        JSONObject jsonObject = db2Json();
+        JSONObject jsonObject = db2Json(null);
 
         try {
             File f = new File(getFilesDir(),
