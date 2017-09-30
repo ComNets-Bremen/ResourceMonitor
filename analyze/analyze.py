@@ -41,6 +41,8 @@ argparser.add_argument('--objects', action="store_true", help="Print json object
 argparser.add_argument('--xmin', default=None, type=str, help="Minimum datetime for x axis and analysis")
 argparser.add_argument('--xmax', default=None, type=str, help="Minimum datetime for x axis and analysis")
 argparser.add_argument('-z', "--gzip", action="store_true", help="Input file is gzip compressed")
+argparser.add_argument('-d', "--date", action="store_true", help="Show dates in x axis")
+
 
 #argparser.add_argument('--label', metavar="Label to use", default=None, type=str, help="Add label to the output")
 #argparser.add_argument('--timelimit', metavar='timelimit', type=float, default=None, help="Stop reading values after n seconds")
@@ -183,7 +185,10 @@ mobiledataAxis.yaxis.set_major_formatter(FuncFormatter(graphHelper.trueFalse_for
 mobiledataAxis.set_title("Mobile Data Connected")
 mobiledataAxis.set_ylim([trueMin, trueMax])
 
-mobiledataAxis.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+if args.date:
+    mobiledataAxis.xaxis.set_major_formatter(mdates.DateFormatter('%d.%m. %H:%M'))
+else:
+    mobiledataAxis.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
 
 mobiledataAxis.set_xlim([xMin, xMax])
 
