@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2017-09-30, Version 0.18, Version Code 18
+
+- Minor changes in the export function
+
 ### 2017-09-15, Version 0.17, Version Code 17
 
 - Be smarter for the data upload: Only send data which has not been transmitted
