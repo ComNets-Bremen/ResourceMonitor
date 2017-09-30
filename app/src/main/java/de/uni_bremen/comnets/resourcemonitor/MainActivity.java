@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity
      * Export the database to the ComNets server
      */
     private void exportDatabaseToServer(){
-        new ExportDatabaseToServerTask(this, this, mService).execute();
+        new ExportDatabaseToServerTask(this, this, mService, false).execute();
     }
 
     /**
