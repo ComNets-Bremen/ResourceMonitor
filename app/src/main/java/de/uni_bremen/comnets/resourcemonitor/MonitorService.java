@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.zip.GZIPOutputStream;
 
@@ -87,14 +88,9 @@ public class MonitorService extends Service {
         // We store the data into the preferences. Maybe store statistics into DB as well?
 
         Calendar c = Calendar.getInstance();
-        String lastUploadDateString = DateUtils.formatDateTime(
-                getApplicationContext(),
-                c.getTimeInMillis(),
-                DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME
-        );
 
         SharedPreferences.Editor prefedit = preferences.edit();
-        prefedit.putString("LastSuccessfulUpload_Time", lastUploadDateString);
+        prefedit.putLong("LastSuccessfulUpload_Time", c.getTimeInMillis());
         Iterator<?> keys = serverUploadResult.keys();
         int totalChangedItems = 0;
         // Get amount of changed items from all returned fields.
@@ -117,7 +113,26 @@ public class MonitorService extends Service {
      * @return String with the time or null if never uploaded data
      */
     public String getLastServerUploadTime() {
-        return preferences.getString("LastSuccessfulUpload_Time", null);
+        //return preferences.getString("LastSuccessfulUpload_Time", null);
+
+        long timestamp = -1;
+
+        // Fallback for old version where the time was stored as a string
+        if (preferences.getAll().get("LastSuccessfulUpload_Time")instanceof String){
+            return preferences.getString("LastSuccessfulUpload_Time", getString(R.string.export_time_never));
+        }
+
+        timestamp = preferences.getLong("LastSuccessfulUpload_Time", -1);
+
+        if (timestamp < 0){
+            return getString(R.string.export_time_never);
+        }
+
+        return DateUtils.formatDateTime(
+                getApplicationContext(),
+                timestamp,
+                DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME
+        );
     }
 
     /**
@@ -263,9 +278,6 @@ public class MonitorService extends Service {
             return;
         }
         String lastTime = getLastServerUploadTime();
-        if (lastTime == null){
-            lastTime = getString(R.string.export_time_never);
-        }
         String lastExport = getString(R.string.export_last_upload) +  ": " + lastTime;
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
