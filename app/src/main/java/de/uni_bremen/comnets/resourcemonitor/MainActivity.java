@@ -265,7 +265,12 @@ public class MainActivity extends AppCompatActivity
     private void updateUi() {
         TextView tv = (TextView) findViewById(R.id.statusText);
         if (mBound) {
-            tv.setText(mService.getDbStats());
+            //tv.setText(mService.getDbStats()); // Show number of db entries
+            String dischargeInfoText = "";
+            dischargeInfoText += getString(R.string.info_text_total_time) + ": " + -100.0 * mService.getBatteryStats(-1, -1) + " " + getString(R.string.info_discharge_unit) + "\n";
+            dischargeInfoText += getString(R.string.info_text_7d_time) + ": " + -100.0 * mService.getBatteryStats(System.currentTimeMillis()-60*60*24*7*1000, -1) + " " + getString(R.string.info_discharge_unit) + "\n";
+            dischargeInfoText += getString(R.string.info_text_24h_time) + ": " + -100.0 * mService.getBatteryStats(System.currentTimeMillis()-60*60*24*1000, -1) + " " + getString(R.string.info_discharge_unit);
+            tv.setText(dischargeInfoText);
             mService.updatedSetting("data_collection_enabled");
             mService.updatedSetting("show_notification_bar");
             TextView lastUpload = (TextView) findViewById(R.id.lastUpload);

@@ -10,15 +10,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
-import android.os.PowerManager;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
-import android.support.v4.content.FileProvider;
-import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -28,10 +22,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.zip.GZIPOutputStream;
 
@@ -359,33 +352,10 @@ public class MonitorService extends Service {
         return EnergyMonitorDbHelper.getDbStatistics(writableDb);
     }
 
-    /**
-     * Helper function to use the result array and to reduce the amount of transmitted data
-     *
-     * @param range     The range object from the server
-     * @param tableName The table name
-     * @return          The where part of the query object. null if not successful / no data available.
-     */
-    private String getWhereForQuery(JSONObject range, String tableName){
-        if ((range != null ) && (range.has(tableName))){
-            long maximum = -1;
-            try {
-                JSONObject tableJsonObject = range.getJSONObject(tableName);
-                if (tableJsonObject != null && !tableJsonObject.isNull("max")){
-                    maximum = tableJsonObject.getLong("max");
-                } else {
-                    maximum = -1;
-                }
-            } catch (org.json.JSONException e) {
-                e.printStackTrace();
-                maximum = -1;
-            }
-            Log.d(TAG, "Max in table " + tableName + ": " +  maximum);
-            if (maximum > 0){
-                return "_id > " + maximum;
-            }
-        }
-        return null;
+
+    public double getBatteryStats(long minTime, long maxTime){
+        List<BatteryChangeObject> bat = EnergyMonitorDbHelper.getDischargeBehaviour(writableDb, minTime, maxTime);
+        return BatteryChangeObject.averageDischarge(bat);
     }
 
     /**
@@ -405,7 +375,7 @@ public class MonitorService extends Service {
         Cursor  batteryStatusCursor = writableDb.query(
                 EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME,
                 null,
-                getWhereForQuery(exportRange, EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME),
+                EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME),
                 null,
                 null,
                 null,
@@ -413,7 +383,7 @@ public class MonitorService extends Service {
         Cursor  byteCountCursor = writableDb.query(
                 EnergyMonitorContract.TrafficStatsEntry.TABLE_NAME,
                 null,
-                getWhereForQuery(exportRange, EnergyMonitorContract.TrafficStatsEntry.TABLE_NAME),
+                EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.TrafficStatsEntry.TABLE_NAME),
                 null,
                 null,
                 null,
@@ -421,7 +391,7 @@ public class MonitorService extends Service {
         Cursor  bluetoothCursor = writableDb.query(
                 EnergyMonitorContract.BluetoothStatusEntry.TABLE_NAME,
                 null,
-                getWhereForQuery(exportRange, EnergyMonitorContract.BluetoothStatusEntry.TABLE_NAME),
+                EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.BluetoothStatusEntry.TABLE_NAME),
                 null,
                 null,
                 null,
@@ -429,7 +399,7 @@ public class MonitorService extends Service {
         Cursor  flightModeCursor = writableDb.query(
                 EnergyMonitorContract.AirplaneModeEntry.TABLE_NAME,
                 null,
-                getWhereForQuery(exportRange, EnergyMonitorContract.AirplaneModeEntry.TABLE_NAME),
+                EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.AirplaneModeEntry.TABLE_NAME),
                 null,
                 null,
                 null,
@@ -437,7 +407,7 @@ public class MonitorService extends Service {
         Cursor  wifiCursor = writableDb.query(
                 EnergyMonitorContract.WiFiStatusEntry.TABLE_NAME,
                 null,
-                getWhereForQuery(exportRange, EnergyMonitorContract.WiFiStatusEntry.TABLE_NAME),
+                EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.WiFiStatusEntry.TABLE_NAME),
                 null,
                 null,
                 null,
@@ -445,7 +415,7 @@ public class MonitorService extends Service {
         Cursor  screenStatusCursor = writableDb.query(
                 EnergyMonitorContract.ScreenStatusEntry.TABLE_NAME,
                 null,
-                getWhereForQuery(exportRange, EnergyMonitorContract.ScreenStatusEntry.TABLE_NAME),
+                EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.ScreenStatusEntry.TABLE_NAME),
                 null,
                 null,
                 null,
@@ -453,7 +423,7 @@ public class MonitorService extends Service {
         Cursor  cellularStatusCursor = writableDb.query(
                 EnergyMonitorContract.CellularStatusEntry.TABLE_NAME,
                 null,
-                getWhereForQuery(exportRange, EnergyMonitorContract.CellularStatusEntry.TABLE_NAME),
+                EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.CellularStatusEntry.TABLE_NAME),
                 null,
                 null,
                 null,

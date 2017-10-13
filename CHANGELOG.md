@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2017-10-13, Version 0.19, Version Code 19
+
+- Show the current discharge behaviour on the UI
+
 ### 2017-09-30, Version 0.18, Version Code 18
 
 - Minor changes in the export function

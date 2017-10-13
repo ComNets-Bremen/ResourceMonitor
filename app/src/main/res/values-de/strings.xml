@@ -20,7 +20,7 @@
     <string name="ui_export_button">Daten an ComNets senden</string>
     <string name="ui_info_button">Info</string>
     <string name="ui_settings_category_title">Einstellungen</string>
-    <string name="ui_status_title">Datenbankeinträge</string>
+    <string name="ui_status_title">Entladeverhalten</string>
     <string name="ui_uuid">UUID:</string>
     <string name="warn_connect_service">Kann keine Verbindung zum Hintergrundienst herstellen</string>
     <string name="txt_version_code">Versionscode</string>
@@ -61,4 +61,8 @@
     <string name="settings_show_notification_bar">Zeige Benachrichtigung</string>
     <string name="settings_show_notification_bar_summary">Zeige ein App-Symbol im Benachrichtigungsbereich.</string>
     <string name="cannot_deactivate_icon">Kann die Benachrichtigung nicht deaktivieren: Android würde die Messwertaufnahme stoppen.</string>
+    <string name="info_discharge_unit">%/Stunde</string>
+    <string name="info_text_24h_time">Letzte 24 Stunden</string>
+    <string name="info_text_7d_time">Letzte Woche</string>
+    <string name="info_text_total_time">Gesamte Zeit</string>
 </resources>
