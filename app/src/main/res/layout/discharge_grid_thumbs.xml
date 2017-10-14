@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:columnCount="2"
+    android:rowCount="2"
+    android:orientation="horizontal"
+    android:padding="4dip"
+    >
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#c0c0c0"
+        android:layout_columnSpan="2"/>
+
+    <TextView
+        android:text="@string/ui_24h_to_alltime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="fill_horizontal"
+        android:gravity="center_vertical"
+        />
+
+    <ImageView
+        android:layout_width="50dip"
+        android:layout_height="50dip"
+        android:id="@+id/ui_thumb_allTime"
+        android:src="@drawable/thumb_grey"
+        android:contentDescription="@string/ui_24h_to_alltime"
+        android:scaleX="1"
+        android:scaleY="1"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#c0c0c0"
+        android:layout_columnSpan="2"/>
+
+    <TextView
+        android:text="@string/ui_24h_to_7d"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="fill_horizontal"
+        android:gravity="center_vertical"
+
+        />
+    <ImageView
+        android:layout_width="50dip"
+        android:layout_height="50dip"
+        android:id="@+id/ui_thumb_7d"
+        android:src="@drawable/thumb_grey"
+        android:contentDescription="@string/ui_24h_to_alltime"
+        android:scaleX="1"
+        android:scaleY="1"
+        />
+</GridLayout>
