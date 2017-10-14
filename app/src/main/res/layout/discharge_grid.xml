@@ -1,106 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/dischargeTableLayout"
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="2dip"
-    android:gravity="center_horizontal"
+    android:columnCount="3"
+    android:rowCount="4"
+    android:orientation="horizontal"
+    tools:context=".MainActivity"
+    android:stretchMode="columnWidth"
+    android:gravity="center"
+    android:padding="5dip"
     >
-    <TableRow
-        android:id="@+id/dischargeTableRow1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:padding="5dip">
-        <TextView
-            android:layout_width="wrap_content"
-            />
-        <TextView
-            android:text="@string/dischargeHeadingPercentage"
-            android:layout_width="wrap_content"
-            />
-        <TextView
-            android:text="@string/dischargeHeadingTimerspan"
-            android:layout_width="wrap_content"
-            />
-    </TableRow>
 
-    <TableRow
-        android:id="@+id/dischargeTableRowTotal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:padding="5dip">
-        <TextView
-            android:id="@+id/dischargeTableTotal"
-            android:text="@string/dischargeTable_total"
-            android:layout_width="wrap_content"
-            />
-        <TextView
-            android:id="@+id/dischargeTableTotalPercent"
-            android:text=""
-            android:layout_width="wrap_content"
-            />
-        <TextView
-            android:id="@+id/dischargeTableTotalTime"
-            android:text=""
-            android:layout_width="wrap_content"
-            />
-    </TableRow>
+    <TextView
+        android:layout_width="wrap_content"
+        />
+    <TextView
+        android:text="@string/dischargeHeadingPercentage"
+        android:layout_width="wrap_content"
+        style="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:padding="5dip"
+        />
+    <TextView
+        android:text="@string/dischargeHeadingTimerspan"
+        android:layout_width="wrap_content"
+        style="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:padding="5dip"
+        />
 
-    <TableRow
-    android:id="@+id/dischargeTableRow7d"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textAlignment="center"
-    android:padding="5dip">
+
+    <TextView
+        android:id="@+id/dischargeTableTotal"
+        android:text="@string/dischargeTable_total"
+        android:layout_width="wrap_content"
+        style="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:padding="5dip"
+        />
+    <TextView
+        android:id="@+id/dischargeTableTotalPercent"
+        android:text=""
+        android:layout_width="wrap_content"
+        android:padding="5dip"
+        />
+    <TextView
+        android:id="@+id/dischargeTableTotalTime"
+        android:text=""
+        android:layout_width="wrap_content"
+        android:padding="5dip"
+        />
+
+
+
     <TextView
         android:id="@+id/dischargeTable7d"
         android:text="@string/dischargeTable_7d"
         android:layout_width="wrap_content"
+        style="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:padding="5dip"
         />
     <TextView
         android:id="@+id/dischargeTable7dPercent"
         android:text=""
         android:layout_width="wrap_content"
+        android:padding="5dip"
         />
     <TextView
         android:id="@+id/dischargeTable7dTime"
         android:text=""
         android:layout_width="wrap_content"
+        android:padding="5dip"
         />
-    </TableRow>
 
-    <TableRow
-    android:id="@+id/dischargeTableRow24h"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textAlignment="center"
-    android:padding="5dip">
+
+
     <TextView
         android:id="@+id/discharge24hTotal"
         android:text="@string/dischargeTable_24h"
         android:layout_width="wrap_content"
+        style="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:padding="5dip"
         />
     <TextView
         android:id="@+id/dischargeTable24hPercent"
         android:text=""
         android:layout_width="wrap_content"
+        android:padding="5dip"
         />
     <TextView
         android:id="@+id/dischargeTable24hTime"
         android:text=""
         android:layout_width="wrap_content"
+        android:padding="5dip"
         />
-</TableRow>
-
-
-</TableLayout>
-<!--
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-</LinearLayout>
-
-//-->
+</GridLayout>

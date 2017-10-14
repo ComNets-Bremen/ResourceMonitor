@@ -112,27 +112,35 @@ class BatteryChangeObject {
     }
 
     /**
+     * Get period of time covered by the given list of object
+     *
+     * @param   changeObjects a list of @BatteryChangeObject
+     * @return  The time covered by the object in milliseconds
+     */
+    static long getTotalDischargeTime(List<BatteryChangeObject> changeObjects){
+        long totalTimeMillis = 0;
+        for (BatteryChangeObject bco : changeObjects){
+            if (bco.isValid() && bco.getDeltaPercent() < 0.0 && !bco.isCharging()){
+                totalTimeMillis += bco.getDeltaT();
+            }
+        }
+        return totalTimeMillis;
+    }
+
+    /**
      * Calculate the average discharge of all given objects
      *
      * @param chargeObjects A list of charge objects
      * @return The average discharge as percent per hour
      */
     static double averageDischarge(List<BatteryChangeObject> chargeObjects){
-        long totalTimeMillis = 0;
-
-        for (BatteryChangeObject bco : chargeObjects){
-            if (bco.isValid() && bco.getDeltaPercent() < 0.0 && !bco.isCharging()){
-                totalTimeMillis += bco.getDeltaT();
-            }
-        }
+        long totalTimeMillis = getTotalDischargeTime(chargeObjects);
 
         double percentageTime = 0;
-        double percentageTotal = 0;
 
         for (BatteryChangeObject bco : chargeObjects){
             if (bco.isValid() && bco.getDeltaPercent() < 0.0 && !bco.isCharging()){
                 double percentageOfTotal = (double) bco.getDeltaT() / (double) totalTimeMillis;
-                percentageTotal += percentageOfTotal;
                 percentageTime += bco.getPercentPerHour() * percentageOfTotal;
             }
         }

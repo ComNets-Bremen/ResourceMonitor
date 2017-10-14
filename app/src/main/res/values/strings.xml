@@ -71,4 +71,21 @@
     <string name="info_discharge_unit">%/hour</string>
     <string name="info_text_7d_time">Last week</string>
     <string name="info_text_24h_time">Last 24 hours</string>
+    <string name="date_year_plural">years</string>
+    <string name="date_year_singular">year</string>
+    <string name="date_day_plural">days</string>
+    <string name="date_day_singular">day</string>
+    <string name="date_hour_plural">hours</string>
+    <string name="date_hour_singular">hours</string>
+    <string name="date_minute_plural">minutes</string>
+    <string name="date_minute_singular">minute</string>
+    <string name="date_second_plural">seconds</string>
+    <string name="date_second_singular">second</string>
+    <string name="dischargeHeadingPercentage">Discharge</string>
+    <string name="dischargeHeadingTimerspan">Discharge Time</string>
+    <string name="dischargeTable_total">Total</string>
+    <string name="dischargeTable_7d">7 days</string>
+    <string name="dischargeTable_24h">24 hours</string>
+    <string name="ui_24h_to_alltime">The average discharge during the last 24 hours compared to all available data.</string>
+    <string name="ui_24h_to_7d">The average discharge during the last 24 hours compared to the last 7 days.</string>
 </resources>

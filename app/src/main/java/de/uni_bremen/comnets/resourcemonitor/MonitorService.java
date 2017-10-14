@@ -353,9 +353,15 @@ public class MonitorService extends Service {
     }
 
 
-    public double getBatteryStats(long minTime, long maxTime){
-        List<BatteryChangeObject> bat = EnergyMonitorDbHelper.getDischargeBehaviour(writableDb, minTime, maxTime);
-        return BatteryChangeObject.averageDischarge(bat);
+    /**
+     * Get some battery discharge characteristics.
+     *
+     * @param minTime   Minimum time in milliseconds
+     * @param maxTime   Maximum time in milliseconds
+     * @return          List of Battery objects
+     */
+    public List<BatteryChangeObject> getBatteryStats(long minTime, long maxTime){
+        return EnergyMonitorDbHelper.getDischargeBehaviour(writableDb, minTime, maxTime);
     }
 
     /**

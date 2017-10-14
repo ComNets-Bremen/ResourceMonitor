@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2017-10-14, Version 0.20, Version Code 20
+
+- Improved the UI output regarding the discharge behaviour
+
 ### 2017-10-13, Version 0.19, Version Code 19
 
 - Show the current discharge behaviour on the UI

@@ -3,6 +3,7 @@ package de.uni_bremen.comnets.resourcemonitor;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.PeriodicSync;
 import android.os.Build;
 import android.os.PowerManager;
 import android.text.Html;
@@ -106,5 +107,134 @@ public class Helper {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Create a human readable string from a period of time, i.e. 12 days, 15 hours, 12 seconds
+     *
+     * @param timespan      The timespan in milliseconds
+     * @param shortValues   Shold short values be used ("s" vs "second")
+     * @param ctx           The application context
+     * @return              A string with the requested information
+     */
+    public static String timePeriodFormat(long timespan, boolean shortValues, Context ctx){
+        long SECOND = 1000;
+        long MINUTE = SECOND * 60;
+        long HOUR = MINUTE * 60;
+        long DAY = HOUR * 24;
+        long YEAR = DAY * 365;
+
+        StringBuilder sb = new StringBuilder();
+
+        int years =  (int) Math.floor((double) timespan / (double) YEAR);
+        Log.d(TAG, "Year: " + years);
+        timespan -= years * YEAR;
+
+        if (years > 0) {
+            sb.append(years);
+            if (shortValues) {
+                sb.append("y");
+            } else {
+                sb.append(" ");
+                if (years > 1) {
+                    sb.append(ctx.getString(R.string.date_year_plural));
+                } else {
+                    sb.append(ctx.getString(R.string.date_year_singular));
+                }
+            }
+            sb.append(" ");
+        }
+
+        int days = (int) Math.floor((double) timespan / (double) DAY);
+        Log.d(TAG, "Day: " + days);
+        timespan -= days * DAY;
+
+        if (days > 0) {
+            sb.append(days);
+
+            if (shortValues) {
+                sb.append("d");
+            } else {
+                sb.append(" ");
+                if (days > 1) {
+                    sb.append(ctx.getString(R.string.date_day_plural));
+                } else {
+                    sb.append(ctx.getString(R.string.date_day_singular));
+                }
+            }
+            sb.append(" ");
+        }
+
+        int hours = (int) Math.floor((double) timespan / (double) HOUR);
+        Log.d(TAG, "Hour: " + hours);
+        timespan -= hours * HOUR;
+
+        if (hours > 0) {
+            sb.append(hours);
+
+            if (shortValues) {
+                sb.append("h");
+            } else {
+                sb.append(" ");
+                if (hours > 1) {
+                    sb.append(ctx.getString(R.string.date_hour_plural));
+                } else {
+                    sb.append(ctx.getString(R.string.date_hour_singular));
+                }
+
+            }
+            sb.append(" ");
+        }
+
+        int minutes = (int) Math.floor((double) timespan / (double) MINUTE);
+        Log.d(TAG, "Minute: " + minutes);
+        timespan -= minutes * MINUTE;
+
+        if (minutes > 0) {
+            sb.append(minutes);
+            if (shortValues){
+                sb.append("m");
+            } else {
+                sb.append(" ");
+                if (minutes > 1) {
+                    sb.append(ctx.getString(R.string.date_minute_plural));
+                } else {
+                    sb.append(ctx.getString(R.string.date_minute_singular));
+                }
+            }
+            sb.append(" ");
+        }
+
+        int seconds = (int) Math.round((double) timespan / (double) SECOND);
+        Log.d(TAG, "Second: " + seconds);
+
+        if (seconds > 0) {
+            sb.append(seconds);
+
+            if (shortValues){
+                sb.append("s");
+            } else {
+                sb.append(" ");
+                if (seconds > 1) {
+                    sb.append(ctx.getString(R.string.date_second_plural));
+                } else {
+                    sb.append(ctx.getString(R.string.date_second_singular));
+                }
+            }
+        }
+
+        return sb.toString().trim();
+    }
+
+    /**
+     * Round a number to a given number of decimal places
+     *
+     * @param number    Number to be rounded
+     * @param digits    Digits to be rounded
+     * @return          The resulting number
+     */
+    static double decimalRound(double number, int digits){
+        return Math.round(number*Math.pow(10, digits)) / Math.pow(10, digits);
+
     }
 }

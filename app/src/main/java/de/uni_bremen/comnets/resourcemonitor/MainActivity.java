@@ -18,11 +18,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -263,14 +265,66 @@ public class MainActivity extends AppCompatActivity
      * Update the user interface after changes
      */
     private void updateUi() {
-        TextView tv = (TextView) findViewById(R.id.statusText);
         if (mBound) {
-            //tv.setText(mService.getDbStats()); // Show number of db entries
-            String dischargeInfoText = "";
-            dischargeInfoText += getString(R.string.info_text_total_time) + ": " + -100.0 * mService.getBatteryStats(-1, -1) + " " + getString(R.string.info_discharge_unit) + "\n";
-            dischargeInfoText += getString(R.string.info_text_7d_time) + ": " + -100.0 * mService.getBatteryStats(System.currentTimeMillis()-60*60*24*7*1000, -1) + " " + getString(R.string.info_discharge_unit) + "\n";
-            dischargeInfoText += getString(R.string.info_text_24h_time) + ": " + -100.0 * mService.getBatteryStats(System.currentTimeMillis()-60*60*24*1000, -1) + " " + getString(R.string.info_discharge_unit);
-            tv.setText(dischargeInfoText);
+
+            // Total time
+            List<BatteryChangeObject> dischargeTotalList = mService.getBatteryStats(-1, -1);
+            double dischargeTotal = Helper.decimalRound(-100.0 * BatteryChangeObject.averageDischarge(dischargeTotalList), 3);
+            String dischargeTimeTotal = Helper.timePeriodFormat(BatteryChangeObject.getTotalDischargeTime(dischargeTotalList), true, this);
+
+            TextView tvDischargeTotalPercentage = (TextView) findViewById(R.id.dischargeTableTotalPercent);
+            tvDischargeTotalPercentage.setText(String.valueOf(dischargeTotal) + " " + getString(R.string.info_discharge_unit));
+
+            TextView tvDischargeTotalTime = (TextView) findViewById(R.id.dischargeTableTotalTime);
+            tvDischargeTotalTime.setText(String.valueOf(dischargeTimeTotal));
+
+
+            // Last 7 days
+            List<BatteryChangeObject> discharge7dList = mService.getBatteryStats(System.currentTimeMillis()-60*60*24*7*1000, -1);
+            double discharge7d = Helper.decimalRound(-100.0 * BatteryChangeObject.averageDischarge(discharge7dList), 3);
+            String dischargeTime7d = Helper.timePeriodFormat(BatteryChangeObject.getTotalDischargeTime(discharge7dList), true, this);
+
+            TextView tvDischarge7dPercentage = (TextView) findViewById(R.id.dischargeTable7dPercent);
+            tvDischarge7dPercentage.setText(String.valueOf(discharge7d) + " " + getString(R.string.info_discharge_unit));
+
+            TextView tvDischarge7dTime = (TextView) findViewById(R.id.dischargeTable7dTime);
+            tvDischarge7dTime.setText(String.valueOf(dischargeTime7d));
+
+
+            // Last 24 hours
+            List<BatteryChangeObject> discharge24hList = mService.getBatteryStats(System.currentTimeMillis()-60*60*24*1000, -1);
+            double discharge24h = Helper.decimalRound(-100.0 * BatteryChangeObject.averageDischarge(discharge24hList), 3);
+            String dischargeTime24h = Helper.timePeriodFormat(BatteryChangeObject.getTotalDischargeTime(discharge24hList), true, this);
+
+            TextView tvDischarge24hPercentage = (TextView) findViewById(R.id.dischargeTable24hPercent);
+            tvDischarge24hPercentage.setText(String.valueOf(discharge24h) + " " + getString(R.string.info_discharge_unit));
+
+            TextView tvDischarge24hTime = (TextView) findViewById(R.id.dischargeTable24hTime);
+            tvDischarge24hTime.setText(String.valueOf(dischargeTime24h));
+
+
+            ImageView allTime = (ImageView) findViewById(R.id.ui_thumb_allTime);
+
+            if (discharge24h <= dischargeTotal) {
+                allTime.setImageResource(R.drawable.thumb_green);
+            } else {
+                allTime.setImageResource(R.drawable.thumb_red);
+            }
+
+            ImageView last7days = (ImageView) findViewById(R.id.ui_thumb_7d);
+
+            if (discharge24h <= discharge7d) {
+                last7days.setImageResource(R.drawable.thumb_green);
+            } else {
+                last7days.setImageResource(R.drawable.thumb_red);
+            }
+
+
+            /*
+
+            ImageView emotionView = (ImageView) findViewById(R.id.emotionView);
+            emotionView.setImageResource(R.drawable.happy);
+             */
             mService.updatedSetting("data_collection_enabled");
             mService.updatedSetting("show_notification_bar");
             TextView lastUpload = (TextView) findViewById(R.id.lastUpload);

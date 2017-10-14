@@ -65,4 +65,21 @@
     <string name="info_text_24h_time">Letzte 24 Stunden</string>
     <string name="info_text_7d_time">Letzte Woche</string>
     <string name="info_text_total_time">Gesamte Zeit</string>
+    <string name="date_day_plural">Tage</string>
+    <string name="date_day_singular">Tag</string>
+    <string name="date_hour_plural">Stunden</string>
+    <string name="date_hour_singular">Stunde</string>
+    <string name="date_minute_plural">Minuten</string>
+    <string name="date_minute_singular">Minute</string>
+    <string name="date_second_plural">Sekunden</string>
+    <string name="date_second_singular">Sekunde</string>
+    <string name="date_year_plural">Jahre</string>
+    <string name="date_year_singular">Jahr</string>
+    <string name="dischargeHeadingPercentage">Entladung</string>
+    <string name="dischargeHeadingTimerspan">Entladezeit</string>
+    <string name="dischargeTable_24h">24 Stunden</string>
+    <string name="dischargeTable_7d">7 Tage</string>
+    <string name="dischargeTable_total">Gesamt</string>
+    <string name="ui_24h_to_7d">Die Durchschnittliche Entladung der Batterie der letzten 24 Stunden im Vergleich zu den letzten 7 Tagen.</string>
+    <string name="ui_24h_to_alltime">Die Durchschnittliche Entladung der Batterie der letzten 24 Stunden im Vergleich zu allen verfügbaren Messwerten.</string>
 </resources>
