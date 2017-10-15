@@ -120,7 +120,7 @@ class BatteryChangeObject {
     static long getTotalDischargeTime(List<BatteryChangeObject> changeObjects){
         long totalTimeMillis = 0;
         for (BatteryChangeObject bco : changeObjects){
-            if (bco.isValid() && bco.getDeltaPercent() < 0.0 && !bco.isCharging()){
+            if (bco.isValid() && bco.getDeltaPercent() <= 0.0 && !bco.isCharging()){
                 totalTimeMillis += bco.getDeltaT();
             }
         }
@@ -139,7 +139,7 @@ class BatteryChangeObject {
         double percentageTime = 0;
 
         for (BatteryChangeObject bco : chargeObjects){
-            if (bco.isValid() && bco.getDeltaPercent() < 0.0 && !bco.isCharging()){
+            if (bco.isValid() && bco.getDeltaPercent() <= 0.0 && !bco.isCharging()){
                 double percentageOfTotal = (double) bco.getDeltaT() / (double) totalTimeMillis;
                 percentageTime += bco.getPercentPerHour() * percentageOfTotal;
             }

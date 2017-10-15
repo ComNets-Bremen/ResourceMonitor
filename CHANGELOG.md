@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2017-10-15, Version 0.21, Version Code 21
+
+- Minor change in battery percentage calculation
+
 ### 2017-10-14, Version 0.20, Version Code 20
 
 - Improved the UI output regarding the discharge behaviour
