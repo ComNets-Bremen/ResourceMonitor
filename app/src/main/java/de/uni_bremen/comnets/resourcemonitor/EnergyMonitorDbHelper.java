@@ -81,7 +81,8 @@ public class EnergyMonitorDbHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Return a list of battery change states containing the start and the end of the current phase. The phases can be limited by unix timestamps
+     * Return a list of battery change states containing the start and the end of the current phase.
+     * Only discharging events are returned. The phases can be limited by unix timestamps
      *
      * @param db        A database instance to read the data from
      * @param minTime   Minimum time, -1 if unused
@@ -103,14 +104,15 @@ public class EnergyMonitorDbHelper extends SQLiteOpenHelper {
                 EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_PERCENTAGE + ", " +
                 EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_IS_CHARGING + ","  +
                 "strftime(\"%s\", " + EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_TIME + ") * 1000.0 AS " + EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_TIME +
-                " FROM " + EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME;
+                " FROM " + EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME +
+                " WHERE " + EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_IS_CHARGING + " == 0 ";
 
         if (minTime > 0 && maxTime > 0) {  // Both are valid
-            selectQuery += " WHERE " + EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_TIME + " < DATETIME(" + maxTime + "/1000.0, \"unixepoch\") AND " + EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_TIME + " > DATETIME(" + minTime + "/1000.0, \"unixepoch\")";
+            selectQuery += " AND " + EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_TIME + " < DATETIME(" + maxTime / 1000.0 + ", \"unixepoch\") AND " + EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_TIME + " > DATETIME(" + minTime / 1000.0 + ", \"unixepoch\")";
         } else if(minTime < 0 && maxTime > 0){ // Only limited by maxTime
-            selectQuery += " WHERE " + EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_TIME + " < DATETIME(" + maxTime + "/1000.0, \"unixepoch\")";
+            selectQuery += " AND " + EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_TIME + " < DATETIME(" + maxTime / 1000.0 + ", \"unixepoch\")";
         } else if (minTime > 0 && maxTime < 0) { // Only limited by minTime
-            selectQuery += " WHERE " + EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_TIME + " > DATETIME(" + minTime + "/1000.0, \"unixepoch\")";
+            selectQuery += " AND " + EnergyMonitorContract.BatteryStatusEntry.COLUMN_NAME_TIME + " > DATETIME(" + minTime / 1000.0 + ", \"unixepoch\")";
         }
 
         //Log.d(TAG, selectQuery);

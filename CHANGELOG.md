@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2017-10-16, Version 0,22, Version Code 22
+
+- Minor performance improvements in the SQL queries
+
 ### 2017-10-15, Version 0.21, Version Code 21
 
 - Minor change in battery percentage calculation
