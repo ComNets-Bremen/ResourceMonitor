@@ -81,11 +81,13 @@
     <string name="date_minute_singular">minute</string>
     <string name="date_second_plural">seconds</string>
     <string name="date_second_singular">second</string>
-    <string name="dischargeHeadingPercentage">Discharge</string>
-    <string name="dischargeHeadingTimerspan">Discharge Time</string>
+    <string name="dischargeHeadingPercentage">Capacity</string>
+    <string name="dischargeHeadingTimerspan">Timespan</string>
     <string name="dischargeTable_total">Total</string>
     <string name="dischargeTable_7d">7 days</string>
     <string name="dischargeTable_24h">24 hours</string>
     <string name="ui_24h_to_alltime">The average discharge during the last 24 hours compared to all available data.</string>
     <string name="ui_24h_to_7d">The average discharge during the last 24 hours compared to the last 7 days.</string>
+    <string name="dischargeTable_3h">3 hours</string>
+    <string name="dischargeHeading">Discharge</string>
 </resources>

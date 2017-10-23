@@ -6,6 +6,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -16,6 +20,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -32,6 +38,8 @@ public class MainActivity extends AppCompatActivity
                 implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
+
+    private static final int ROUND_DECIMAL_PLACES = 1;
 
     MonitorService mService;
     boolean mBound = false;
@@ -269,38 +277,67 @@ public class MainActivity extends AppCompatActivity
 
             // Total time
             List<BatteryChangeObject> dischargeTotalList = mService.getBatteryStats(-1, -1);
-            double dischargeTotal = Helper.decimalRound(-100.0 * BatteryChangeObject.averageDischarge(dischargeTotalList), 3);
-            String dischargeTimeTotal = Helper.timePeriodFormat(BatteryChangeObject.getTotalDischargeTime(dischargeTotalList), true, this);
+            double dischargeTotal = Helper.decimalRound(-100.0 * BatteryChangeObject.averageDischarge(dischargeTotalList), ROUND_DECIMAL_PLACES);
+            //String dischargeTimeTotal = Helper.timePeriodFormat(BatteryChangeObject.getTotalDischargeTime(dischargeTotalList), true, this);
+            float dischargeTimePercentageTotal = (float) BatteryChangeObject.getTotalDischargeTime(dischargeTotalList) / (float) BatteryChangeObject.getTotalTime(dischargeTotalList);
 
             TextView tvDischargeTotalPercentage = (TextView) findViewById(R.id.dischargeTableTotalPercent);
             tvDischargeTotalPercentage.setText(String.valueOf(dischargeTotal) + " " + getString(R.string.info_discharge_unit));
 
             TextView tvDischargeTotalTime = (TextView) findViewById(R.id.dischargeTableTotalTime);
-            tvDischargeTotalTime.setText(String.valueOf(dischargeTimeTotal));
+            tvDischargeTotalTime.setText(String.valueOf(Math.round(dischargeTimePercentageTotal*100.0) + " %"));
+
+            SurfaceView svDischargeTimeTotal = (SurfaceView) findViewById(R.id.dischargeTableTotalSurface);
+            Helper.setPercentageOnSurfaceView(svDischargeTimeTotal, dischargeTimePercentageTotal);
+
+
 
 
             // Last 7 days
             List<BatteryChangeObject> discharge7dList = mService.getBatteryStats(System.currentTimeMillis()-60*60*24*7*1000, -1);
-            double discharge7d = Helper.decimalRound(-100.0 * BatteryChangeObject.averageDischarge(discharge7dList), 3);
-            String dischargeTime7d = Helper.timePeriodFormat(BatteryChangeObject.getTotalDischargeTime(discharge7dList), true, this);
+            double discharge7d = Helper.decimalRound(-100.0 * BatteryChangeObject.averageDischarge(discharge7dList), ROUND_DECIMAL_PLACES);
+            //String dischargeTime7d = Helper.timePeriodFormat(BatteryChangeObject.getTotalDischargeTime(discharge7dList), true, this);
+            float dischargeTimePercentage7d = (float) BatteryChangeObject.getTotalDischargeTime(discharge7dList) / (float) BatteryChangeObject.getTotalTime(discharge7dList);
 
             TextView tvDischarge7dPercentage = (TextView) findViewById(R.id.dischargeTable7dPercent);
             tvDischarge7dPercentage.setText(String.valueOf(discharge7d) + " " + getString(R.string.info_discharge_unit));
 
             TextView tvDischarge7dTime = (TextView) findViewById(R.id.dischargeTable7dTime);
-            tvDischarge7dTime.setText(String.valueOf(dischargeTime7d));
+            tvDischarge7dTime.setText(String.valueOf(Math.round(dischargeTimePercentage7d*100.0) + " %"));
+
+            SurfaceView svDischargeTime7d = (SurfaceView) findViewById(R.id.dischargeTable7dSurface);
+            Helper.setPercentageOnSurfaceView(svDischargeTime7d, dischargeTimePercentage7d);
 
 
             // Last 24 hours
             List<BatteryChangeObject> discharge24hList = mService.getBatteryStats(System.currentTimeMillis()-60*60*24*1000, -1);
-            double discharge24h = Helper.decimalRound(-100.0 * BatteryChangeObject.averageDischarge(discharge24hList), 3);
-            String dischargeTime24h = Helper.timePeriodFormat(BatteryChangeObject.getTotalDischargeTime(discharge24hList), true, this);
+            double discharge24h = Helper.decimalRound(-100.0 * BatteryChangeObject.averageDischarge(discharge24hList), ROUND_DECIMAL_PLACES);
+            //String dischargeTime24h = Helper.timePeriodFormat(BatteryChangeObject.getTotalDischargeTime(discharge24hList), true, this);
+            float dischargeTimePercentage24h = (float) BatteryChangeObject.getTotalDischargeTime(discharge24hList) / (float) BatteryChangeObject.getTotalTime(discharge24hList);
 
             TextView tvDischarge24hPercentage = (TextView) findViewById(R.id.dischargeTable24hPercent);
             tvDischarge24hPercentage.setText(String.valueOf(discharge24h) + " " + getString(R.string.info_discharge_unit));
 
             TextView tvDischarge24hTime = (TextView) findViewById(R.id.dischargeTable24hTime);
-            tvDischarge24hTime.setText(String.valueOf(dischargeTime24h));
+            tvDischarge24hTime.setText(String.valueOf(Math.round(dischargeTimePercentage24h*100.0) + " %"));
+
+            SurfaceView svDischargeTime24h = (SurfaceView) findViewById(R.id.dischargeTable24hSurface);
+            Helper.setPercentageOnSurfaceView(svDischargeTime24h, dischargeTimePercentage24h);
+
+            // Last 3 hours
+            List<BatteryChangeObject> discharge3hList = mService.getBatteryStats(System.currentTimeMillis()-60*60*3*1000, -1);
+            double discharge3h = Helper.decimalRound(-100.0 * BatteryChangeObject.averageDischarge(discharge3hList), ROUND_DECIMAL_PLACES);
+            //String dischargeTime24h = Helper.timePeriodFormat(BatteryChangeObject.getTotalDischargeTime(discharge24hList), true, this);
+            float dischargeTimePercentage3h = (float) BatteryChangeObject.getTotalDischargeTime(discharge3hList) / (float) BatteryChangeObject.getTotalTime(discharge3hList);
+
+            TextView tvDischarge3hPercentage = (TextView) findViewById(R.id.dischargeTable3hPercent);
+            tvDischarge3hPercentage.setText(String.valueOf(discharge3h) + " " + getString(R.string.info_discharge_unit));
+
+            TextView tvDischarge3hTime = (TextView) findViewById(R.id.dischargeTable3hTime);
+            tvDischarge3hTime.setText(String.valueOf(Math.round(dischargeTimePercentage3h*100.0) + " %"));
+
+            SurfaceView svDischargeTime3h = (SurfaceView) findViewById(R.id.dischargeTable3hSurface);
+            Helper.setPercentageOnSurfaceView(svDischargeTime3h, dischargeTimePercentage3h);
 
 
             ImageView allTime = (ImageView) findViewById(R.id.ui_thumb_allTime);

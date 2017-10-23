@@ -4,6 +4,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.PeriodicSync;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Build;
 import android.os.PowerManager;
 import android.text.Html;
@@ -11,6 +17,8 @@ import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.widget.TextView;
 
 /**
@@ -236,5 +244,45 @@ public class Helper {
     static double decimalRound(double number, int digits){
         return Math.round(number*Math.pow(10, digits)) / Math.pow(10, digits);
 
+    }
+
+    /**
+     * Draw a pie chart for a given percentage
+     *
+     * @param c             The canvas
+     * @param percentage    The percentage
+     * @param width         Width
+     * @param height        Height
+     * @return              Th canvas object
+     */
+    public static Canvas getCanvasCircle(Canvas c, double percentage, int width, int height) {
+        Paint pRed = new Paint();
+        Paint pGreen = new Paint();
+        pRed.setColor(Color.LTGRAY);
+        pGreen.setColor(Color.argb(255, 72, 143,0));
+        long radius = Math.round(Math.min(height, width)*0.4);
+        final RectF arc = new RectF(width/2 - radius, height/2 - radius, width/2 + radius, height/2 +radius);
+
+        //Log.d(TAG, "Width: " + width + " Height: " + height);
+        c.drawCircle(width/2, height/2, radius, pRed);
+
+        c.drawArc(arc,-90,360*((float) percentage),true,pGreen);
+
+        return c;
+    }
+
+    /**
+     * Set a pie chart to the given surface view
+     *
+     * @param sv            The surface view
+     * @param percentage    The percentage
+     */
+    public static void setPercentageOnSurfaceView(SurfaceView sv, double percentage) {
+        SurfaceHolder sh = sv.getHolder();
+        sv.setZOrderOnTop(true);
+        sh.setFormat(PixelFormat.TRANSLUCENT);
+        Canvas cv = sh.lockCanvas();
+        cv = Helper.getCanvasCircle(cv, percentage, sv.getWidth(), sv.getHeight());
+        sh.unlockCanvasAndPost(cv);
     }
 }

@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:columnCount="3"
-    android:rowCount="4"
+    android:columnCount="4"
+    android:rowCount="6"
     android:orientation="horizontal"
-    tools:context=".MainActivity"
-    android:stretchMode="columnWidth"
-    android:gravity="center"
+    android:layout_gravity="center_horizontal"
     android:padding="5dip"
     >
+
+    <!--
+    <TextView
+        android:layout_width="wrap_content"
+        />
+
+    <TextView
+        android:text="@string/dischargeHeading"
+        android:layout_width="wrap_content"
+        style="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:padding="5dip"
+        android:layout_columnSpan="3"
+        android:textAlignment="center"
+        />
+    //-->
 
     <TextView
         android:layout_width="wrap_content"
@@ -26,7 +38,9 @@
         android:layout_width="wrap_content"
         style="@style/Base.TextAppearance.AppCompat.Subhead"
         android:padding="5dip"
+        android:layout_columnSpan="2"
         />
+
 
 
     <TextView
@@ -47,6 +61,11 @@
         android:text=""
         android:layout_width="wrap_content"
         android:padding="5dip"
+        />
+    <SurfaceView
+        android:id="@+id/dischargeTableTotalSurface"
+        android:layout_width="30dip"
+        android:layout_height="30dip"
         />
 
 
@@ -70,6 +89,11 @@
         android:layout_width="wrap_content"
         android:padding="5dip"
         />
+    <SurfaceView
+        android:id="@+id/dischargeTable7dSurface"
+        android:layout_width="30dip"
+        android:layout_height="30dip"
+        />
 
 
 
@@ -91,5 +115,36 @@
         android:text=""
         android:layout_width="wrap_content"
         android:padding="5dip"
+        />
+    <SurfaceView
+        android:id="@+id/dischargeTable24hSurface"
+        android:layout_width="30dip"
+        android:layout_height="30dip"
+        />
+
+
+    <TextView
+        android:id="@+id/discharge3htotal"
+        android:text="@string/dischargeTable_3h"
+        android:layout_width="wrap_content"
+        style="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:padding="5dip"
+        />
+    <TextView
+        android:id="@+id/dischargeTable3hPercent"
+        android:text=""
+        android:layout_width="wrap_content"
+        android:padding="5dip"
+        />
+    <TextView
+        android:id="@+id/dischargeTable3hTime"
+        android:text=""
+        android:layout_width="wrap_content"
+        android:padding="5dip"
+        />
+    <SurfaceView
+        android:id="@+id/dischargeTable3hSurface"
+        android:layout_width="30dip"
+        android:layout_height="30dip"
         />
 </GridLayout>

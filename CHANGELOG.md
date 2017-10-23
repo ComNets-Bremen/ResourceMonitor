@@ -1,7 +1,11 @@
 Changelog
 =========
 
-### 2017-10-16, Version 0,22, Version Code 22
+### 2017-10-24, Version 0.23, Version Code 23
+
+- Improved the time span shown in the UI
+
+### 2017-10-16, Version 0.22, Version Code 22
 
 - Minor performance improvements in the SQL queries
 

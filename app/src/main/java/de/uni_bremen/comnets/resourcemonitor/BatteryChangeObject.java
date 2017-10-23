@@ -63,6 +63,24 @@ class BatteryChangeObject {
     }
 
     /**
+     * Get the start time of the current interval
+     *
+     * @return the start time as a java timestamp
+     */
+    public long getStartTime(){
+        return this.startTime;
+    }
+
+    /**
+     * Get the stop time of the current interval
+     *
+     * @return the stop time as a java timestamp
+     */
+    public long getStopTime(){
+        return this.stopTime;
+    }
+
+    /**
      * Get the average discharge per hour for the period
      *
      * @return the discharge per hour in percent
@@ -125,6 +143,35 @@ class BatteryChangeObject {
             }
         }
         return totalTimeMillis;
+    }
+
+    /**
+     * Return the total time of the given list
+     *
+     * @param changeObjects a list of @BatteryChangeObjects
+     * @return The timespan in milliseconds
+     */
+    static long getTotalTime(List<BatteryChangeObject> changeObjects){
+        long minTime = -1;
+        long maxTime = -1;
+        for (BatteryChangeObject bco : changeObjects){
+            if (bco.isValid()){
+                if (minTime < 0){
+                    minTime = bco.getStartTime();
+                }
+                if (maxTime < 0){
+                    maxTime = bco.getStopTime();
+                }
+
+                minTime = Math.min(minTime, bco.getStartTime());
+                maxTime = Math.max(maxTime, bco.getStopTime());
+            }
+        }
+        if (minTime > 0 && maxTime > 0){
+            return maxTime - minTime;
+        }
+        // Error. No valid values
+        return -1;
     }
 
     /**
