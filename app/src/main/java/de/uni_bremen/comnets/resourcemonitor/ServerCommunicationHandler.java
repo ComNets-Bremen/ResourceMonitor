@@ -35,6 +35,8 @@ public class ServerCommunicationHandler {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    private static final int TIMEOUT = 30000;
+
     private Context context;
 
     private URL uploadUrl = null;
@@ -102,6 +104,7 @@ public class ServerCommunicationHandler {
                 Log.d(TAG, "Token URL: " + url);
 
                 connection = (HttpURLConnection) requestUrl.openConnection();
+                connection.setConnectTimeout(TIMEOUT);
                 InputStream is = new BufferedInputStream(connection.getInputStream());
                 BufferedReader streamReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
                 StringBuilder sb = new StringBuilder();
@@ -147,6 +150,7 @@ public class ServerCommunicationHandler {
 
         try {
             connection = (HttpURLConnection) rangeUrl.openConnection();
+            connection.setConnectTimeout(TIMEOUT);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("X-CLIENTID", uuid);
 
@@ -193,6 +197,7 @@ public class ServerCommunicationHandler {
 
         try {
             connection = (HttpURLConnection) uploadUrl.openConnection();
+            connection.setConnectTimeout(TIMEOUT);
 
             connection.setRequestProperty("X-CLIENTID", uuid);
             connection.setRequestProperty("Content-type", "application/json");

@@ -12,11 +12,13 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
 import android.os.PowerManager;
+import android.support.annotation.ColorInt;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.TextView;
@@ -255,34 +257,35 @@ public class Helper {
      * @param height        Height
      * @return              Th canvas object
      */
-    public static Canvas getCanvasCircle(Canvas c, double percentage, int width, int height) {
+    public static Canvas getCanvasCircle(Context context, Canvas c, double percentage, int width, int height) {
         Paint pRed = new Paint();
         Paint pGreen = new Paint();
         pRed.setColor(Color.LTGRAY);
+        pRed.setAntiAlias(true);
         pGreen.setColor(Color.argb(255, 72, 143,0));
+        pGreen.setAntiAlias(true);
         long radius = Math.round(Math.min(height, width)*0.4);
         final RectF arc = new RectF(width/2 - radius, height/2 - radius, width/2 + radius, height/2 +radius);
 
-        //Log.d(TAG, "Width: " + width + " Height: " + height);
-        c.drawCircle(width/2, height/2, radius, pRed);
 
-        c.drawArc(arc,-90,360*((float) percentage),true,pGreen);
+        @ColorInt int color = Color.WHITE;
+
+        TypedValue a = new TypedValue();
+        context.getTheme().resolveAttribute(android.R.attr.windowBackground, a, true);
+        if (a.type >= TypedValue.TYPE_FIRST_COLOR_INT && a.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+            // windowBackground is a color
+            color = a.data;
+        }
+        if (c != null) {
+            c.drawColor(color);
+
+
+            //Log.d(TAG, "Width: " + width + " Height: " + height);
+            c.drawCircle(width / 2, height / 2, radius, pRed);
+
+            c.drawArc(arc, -90, 360 * ((float) percentage), true, pGreen);
+        }
 
         return c;
-    }
-
-    /**
-     * Set a pie chart to the given surface view
-     *
-     * @param sv            The surface view
-     * @param percentage    The percentage
-     */
-    public static void setPercentageOnSurfaceView(SurfaceView sv, double percentage) {
-        SurfaceHolder sh = sv.getHolder();
-        sv.setZOrderOnTop(true);
-        sh.setFormat(PixelFormat.TRANSLUCENT);
-        Canvas cv = sh.lockCanvas();
-        cv = Helper.getCanvasCircle(cv, percentage, sv.getWidth(), sv.getHeight());
-        sh.unlockCanvasAndPost(cv);
     }
 }

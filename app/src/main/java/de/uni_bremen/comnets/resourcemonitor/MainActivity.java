@@ -15,9 +15,11 @@ import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
@@ -287,10 +289,8 @@ public class MainActivity extends AppCompatActivity
             TextView tvDischargeTotalTime = (TextView) findViewById(R.id.dischargeTableTotalTime);
             tvDischargeTotalTime.setText(String.valueOf(Math.round(dischargeTimePercentageTotal*100.0) + " %"));
 
-            SurfaceView svDischargeTimeTotal = (SurfaceView) findViewById(R.id.dischargeTableTotalSurface);
-            Helper.setPercentageOnSurfaceView(svDischargeTimeTotal, dischargeTimePercentageTotal);
-
-
+            SimplePieChart svDischargeTimeTotal = (SimplePieChart) findViewById(R.id.dischargeTableTotalSurface);
+            svDischargeTimeTotal.setPercentage(dischargeTimePercentageTotal);
 
 
             // Last 7 days
@@ -305,9 +305,8 @@ public class MainActivity extends AppCompatActivity
             TextView tvDischarge7dTime = (TextView) findViewById(R.id.dischargeTable7dTime);
             tvDischarge7dTime.setText(String.valueOf(Math.round(dischargeTimePercentage7d*100.0) + " %"));
 
-            SurfaceView svDischargeTime7d = (SurfaceView) findViewById(R.id.dischargeTable7dSurface);
-            Helper.setPercentageOnSurfaceView(svDischargeTime7d, dischargeTimePercentage7d);
-
+            SimplePieChart svDischargeTime7d = (SimplePieChart) findViewById(R.id.dischargeTable7dSurface);
+            svDischargeTime7d.setPercentage(dischargeTimePercentage7d);
 
             // Last 24 hours
             List<BatteryChangeObject> discharge24hList = mService.getBatteryStats(System.currentTimeMillis()-60*60*24*1000, -1);
@@ -321,8 +320,9 @@ public class MainActivity extends AppCompatActivity
             TextView tvDischarge24hTime = (TextView) findViewById(R.id.dischargeTable24hTime);
             tvDischarge24hTime.setText(String.valueOf(Math.round(dischargeTimePercentage24h*100.0) + " %"));
 
-            SurfaceView svDischargeTime24h = (SurfaceView) findViewById(R.id.dischargeTable24hSurface);
-            Helper.setPercentageOnSurfaceView(svDischargeTime24h, dischargeTimePercentage24h);
+            SimplePieChart svDischargeTime24h = (SimplePieChart) findViewById(R.id.dischargeTable24hSurface);
+            svDischargeTime24h.setPercentage(dischargeTimePercentage24h);
+
 
             // Last 3 hours
             List<BatteryChangeObject> discharge3hList = mService.getBatteryStats(System.currentTimeMillis()-60*60*3*1000, -1);
@@ -336,8 +336,8 @@ public class MainActivity extends AppCompatActivity
             TextView tvDischarge3hTime = (TextView) findViewById(R.id.dischargeTable3hTime);
             tvDischarge3hTime.setText(String.valueOf(Math.round(dischargeTimePercentage3h*100.0) + " %"));
 
-            SurfaceView svDischargeTime3h = (SurfaceView) findViewById(R.id.dischargeTable3hSurface);
-            Helper.setPercentageOnSurfaceView(svDischargeTime3h, dischargeTimePercentage3h);
+            SimplePieChart svDischargeTime3h = (SimplePieChart) findViewById(R.id.dischargeTable3hSurface);
+            svDischargeTime3h.setPercentage(dischargeTimePercentage3h);
 
 
             ImageView allTime = (ImageView) findViewById(R.id.ui_thumb_allTime);

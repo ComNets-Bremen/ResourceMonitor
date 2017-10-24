@@ -1,6 +1,11 @@
 Changelog
 =========
 
+### 2017-10-24, Version 0.24, Version Code 24
+
+- Improved pie chart
+- Bugfix in upload: timeout set to 30 seconds
+
 ### 2017-10-24, Version 0.23, Version Code 23
 
 - Improved the time span shown in the UI

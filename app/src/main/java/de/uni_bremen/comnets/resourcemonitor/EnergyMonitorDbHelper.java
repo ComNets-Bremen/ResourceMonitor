@@ -90,12 +90,12 @@ public class EnergyMonitorDbHelper extends SQLiteOpenHelper {
      * @return          A list of @BatteryChangeObject
      */
     public static List<BatteryChangeObject> getDischargeBehaviour(SQLiteDatabase db, long minTime, long maxTime){
-
+/*
         if (minTime > 0)
             Log.d(TAG, "Min: " + new Date(minTime));
         if (maxTime > 0)
             Log.d(TAG, "Max: " + new Date(maxTime));
-
+*/
         // We need a raw query to select a proper time period (string date from SQL vs. epoch time).
         // So let's create some SQL here...
 

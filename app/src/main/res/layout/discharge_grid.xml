@@ -62,7 +62,7 @@
         android:layout_width="wrap_content"
         android:padding="5dip"
         />
-    <SurfaceView
+    <de.uni_bremen.comnets.resourcemonitor.SimplePieChart
         android:id="@+id/dischargeTableTotalSurface"
         android:layout_width="30dip"
         android:layout_height="30dip"
@@ -89,7 +89,7 @@
         android:layout_width="wrap_content"
         android:padding="5dip"
         />
-    <SurfaceView
+    <de.uni_bremen.comnets.resourcemonitor.SimplePieChart
         android:id="@+id/dischargeTable7dSurface"
         android:layout_width="30dip"
         android:layout_height="30dip"
@@ -116,7 +116,7 @@
         android:layout_width="wrap_content"
         android:padding="5dip"
         />
-    <SurfaceView
+    <de.uni_bremen.comnets.resourcemonitor.SimplePieChart
         android:id="@+id/dischargeTable24hSurface"
         android:layout_width="30dip"
         android:layout_height="30dip"
@@ -142,7 +142,7 @@
         android:layout_width="wrap_content"
         android:padding="5dip"
         />
-    <SurfaceView
+    <de.uni_bremen.comnets.resourcemonitor.SimplePieChart
         android:id="@+id/dischargeTable3hSurface"
         android:layout_width="30dip"
         android:layout_height="30dip"
