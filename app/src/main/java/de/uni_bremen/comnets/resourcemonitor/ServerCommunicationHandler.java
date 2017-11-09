@@ -37,6 +37,14 @@ public class ServerCommunicationHandler {
 
     private static final int TIMEOUT = 30000;
 
+    public static final int CHECK_URL       = 1;
+    public static final int CHECK_NETWORK   = 2;
+    public static final int REQUEST_TOKEN   = 3;
+    public static final int REQUEST_RANGE   = 4;
+    public static final int EXPORT_DB       = 5;
+    public static final int UPLOAD_DB       = 6;
+    public static final int DONE            = 7;
+
     private Context context;
 
     private URL uploadUrl = null;
@@ -75,6 +83,10 @@ public class ServerCommunicationHandler {
      */
     public Boolean isNetworkAvailable(){
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager == null){
+            Log.e(TAG, "Cannot get ConnectivityManager instance");
+            return false;
+        }
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }

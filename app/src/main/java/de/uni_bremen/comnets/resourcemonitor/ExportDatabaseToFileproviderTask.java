@@ -8,29 +8,31 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 /**
  * Class to export the database using an Android intent via mail or file sharing service
  */
 
-public class ExportDatabaseTask extends AsyncTask<Void, Void, Uri> {
+public class ExportDatabaseToFileproviderTask extends AsyncTask<Void, Void, Uri> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private Intent m_intent;
     private String m_dialogTitle;
-    private Context m_context;
-    private Activity m_activity;
-    private MonitorService m_monitorService;
-    private ProgressDialog progressDialog;
+    private WeakReference<Context> m_context = null;
+    private WeakReference<Activity> m_activity = null;
+    private WeakReference<MonitorService> m_monitorService = null;
+    private ProgressDialog progressDialog = null;
 
-    ExportDatabaseTask(Context context, Activity activity, MonitorService monitorService, Intent intent, String dialogTitle){
+    ExportDatabaseToFileproviderTask(Context context, Activity activity, MonitorService monitorService, Intent intent, String dialogTitle){
         super();
-        m_context = context;
-        m_monitorService = monitorService;
-        m_activity = activity;
+        m_context = new WeakReference<Context>(context);
+        m_monitorService = new WeakReference<MonitorService>(monitorService);
+        m_activity = new WeakReference<Activity>(activity);
         m_intent = intent;
         m_dialogTitle = dialogTitle;
     }
@@ -38,22 +40,55 @@ public class ExportDatabaseTask extends AsyncTask<Void, Void, Uri> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        progressDialog = ProgressDialog.show(m_activity, m_context.getString(R.string.export_progress_title), m_context.getString(R.string.export_progress_text), false);
+        if (m_context != null && m_activity != null) {
+            progressDialog = ProgressDialog.show(m_activity.get(), m_context.get().getString(R.string.export_progress_title), m_context.get().getString(R.string.export_progress_text), false);
+        }
     }
 
     @Override
     protected Uri doInBackground(Void... params) {
-        File f = m_monitorService.exportData();
-        return  FileProvider.getUriForFile(m_context, BuildConfig.APPLICATION_ID + ".fileprovider", f);
+        if (m_monitorService != null && m_context != null) {
+            File f = m_monitorService.get().exportData();
+            return FileProvider.getUriForFile(m_context.get(), BuildConfig.APPLICATION_ID + ".fileprovider", f);
+        }
+        return null;
     }
 
     @Override
     protected void onPostExecute(Uri uri) {
         super.onPostExecute(uri);
-        progressDialog.dismiss();
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
         Log.d(TAG, "URI: " + uri);
-        m_intent.putExtra(Intent.EXTRA_STREAM, uri);
-        m_intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        m_context.startActivity(Intent.createChooser(m_intent, m_dialogTitle));
+        if (uri != null && m_context != null && m_intent != null){
+            m_intent.putExtra(Intent.EXTRA_STREAM, uri);
+            m_intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            m_context.get().startActivity(Intent.createChooser(m_intent, m_dialogTitle));
+        } else {
+            Log.e(TAG, "Error creating the export dialog");
+        }
+
+        recycle();
+    }
+
+    /**
+     * Tidy up the weak references
+     */
+    private void recycle(){
+        if (m_context != null){
+            m_context.clear();
+            m_context = null;
+        }
+
+        if (m_activity != null){
+            m_activity.clear();
+            m_activity = null;
+        }
+
+        if (m_monitorService != null){
+            m_monitorService.clear();
+            m_monitorService = null;
+        }
     }
 }

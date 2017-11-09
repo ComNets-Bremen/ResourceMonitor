@@ -1,6 +1,27 @@
 Changelog
 =========
 
+### 2017-11-09, Version 0.27, Version Code 27
+
+- Minor fix: do not display the manual each time the app is opened
+
+### 2017-11-09, Version 0.26, Version Code 26
+
+- Fixed some context memory leakage problems
+- Added comments to the source code
+- Don't show the upload button if the automatic upload is enabled
+- Remove the upload button if the automatic upload is enabled
+- Allow to show the manual dialog after important changes
+- Adapt the manual for the recent changes
+
+### 2017-11-08, Version 0.25, Version Code 25
+
+- Updated string handling (format string)
+- gradle and build tools updated
+- minor fixes (context leakage)
+- Upload background job
+- Use firebase and play services to schedule jobs
+
 ### 2017-10-24, Version 0.24, Version Code 24
 
 - Improved pie chart

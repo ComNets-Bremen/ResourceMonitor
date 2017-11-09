@@ -32,6 +32,7 @@ import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.BluetoothBroadcas
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.ByteCountBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.CellularBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.AirplaneModeBroadcastReceiver;
+import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.DataUploadBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.PowerBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.ScreenBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.WiFiBroadcastReceiver;
@@ -43,15 +44,21 @@ import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.WiFiBroadcastRece
 public class MonitorService extends Service {
 
     public static final String TAG = MonitorService.class.getSimpleName();
+    public static final String UPLOAD_DONE_BROADCAST_ACTION = TAG + ".UPLOAD_DONE";
+    private static final int NOTIFICATION_ID = R.string.MonitorServiceStarted;
 
     NotificationManager mNM = null;
     SharedPreferences preferences;
     SQLiteDatabase writableDb;
-    EnergyMonitorDbHelper energyMonitorDbHelper;
+    static EnergyMonitorDbHelper energyMonitorDbHelper = null;
     String lastDataItemStored = null;
     String lastNotification = null;
 
-    private int NOTIFICATION_ID = R.string.MonitorServiceStarted;
+    // Settings for the background upload intervals
+    public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT  = 60*60*12; // (in seconds) At maximum every 12 hours (externally triggered) for the upload
+    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*24; // (in seconds) every 24 hours
+    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*48; // (in seconds) every 48 hours
+
     private boolean dataCollectionRunning = false;
 
     PowerBroadcastReceiver powerBroadcastReceiver = null;
@@ -62,6 +69,10 @@ public class MonitorService extends Service {
     BluetoothBroadcastReceiver bluetoothBroadcastReceiver = null;
     CellularBroadcastReceiver cellularBroadcastReceiver = null;
 
+    DataUploadBroadcastReceiver dataUploadBroadcastReceiver = null;
+
+    AutomaticDataUploadJob uploadJob =  null;
+
     /**
      * Export data to json
      *
@@ -70,6 +81,28 @@ public class MonitorService extends Service {
      */
     public JSONObject exportDataForServer(JSONObject job) {
         return db2Json(job);
+    }
+
+    /**
+     * Get the uuid for the given App context
+     *
+     * @param context the context
+     * @return the UUID, null if not available
+     */
+    public static String getUUID(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context).getString("uuid", null);
+    }
+
+    /**
+     * Get a readable db instance
+     *
+     * @return a readable db instance
+     */
+    public static SQLiteDatabase getReadableDb(){
+        if (energyMonitorDbHelper != null){
+            return energyMonitorDbHelper.getReadableDatabase();
+        }
+        return null;
     }
 
     /**
@@ -99,6 +132,66 @@ public class MonitorService extends Service {
         }
         prefedit.putInt("LastSuccessfulUpload_Changed", totalChangedItems);
         prefedit.apply();
+    }
+
+    /**
+     * Get the timestamp of the last data upload
+     *
+     * @param context   The application context
+     * @return          The timestamp, -1 if not available
+     */
+    public static long getLastServerUploadTimestamp(Context context){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if (prefs.getAll().get("LastSuccessfulUpload_Time")instanceof Long){
+            return prefs.getLong("LastSuccessfulUpload_Time", -1);
+        }
+        return -1;
+    }
+
+    /**
+     * Set the last upload code to the preferences
+     *
+     * @param status The status code
+     */
+    public void setLastServerUploadStatuscode(int status){
+        preferences.edit().putInt("LastSuccessfulUpload_Code", status).apply();
+        Intent intent = new Intent(UPLOAD_DONE_BROADCAST_ACTION);
+        sendBroadcast(intent);
+    }
+
+    /**
+     * Get the last status update code from the preferences
+     *
+     * @return The status code
+     */
+    public int getLastServerUploadStatuscode(){
+        return preferences.getInt("LastSuccessfulUpload_Code", -1);
+    }
+
+    /**
+     * Get the last status code as plain text
+     *
+     * @return The string representing the last status
+     */
+    public String getLastServerUploadStatusText(){
+        switch (getLastServerUploadStatuscode()){
+            case ServerCommunicationHandler.CHECK_URL:
+                return getString(R.string.export_server_check_url_failed);
+            case ServerCommunicationHandler.CHECK_NETWORK:
+                return getString(R.string.export_server_check_network_failed);
+            case ServerCommunicationHandler.REQUEST_TOKEN:
+                return getString(R.string.export_server_request_token_failed);
+            case ServerCommunicationHandler.REQUEST_RANGE:
+                return getString(R.string.export_server_check_existing_datasets_failed);
+            case ServerCommunicationHandler.EXPORT_DB:
+                return getString(R.string.export_server_export_data_failed);
+            case ServerCommunicationHandler.UPLOAD_DB:
+                return  getString(R.string.export_server_upload_data_failed);
+            case ServerCommunicationHandler.DONE:
+                return  getString(R.string.export_server_done);
+            default:
+                return "-";
+        }
     }
 
     /**
@@ -191,7 +284,9 @@ public class MonitorService extends Service {
             mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         }
 
-        energyMonitorDbHelper = new EnergyMonitorDbHelper(getApplicationContext());
+        if (energyMonitorDbHelper == null) {
+            energyMonitorDbHelper = new EnergyMonitorDbHelper(getApplicationContext());
+        }
         writableDb = energyMonitorDbHelper.getWritableDatabase();
         Log.d(TAG, "db path: " +writableDb.getPath());
 
@@ -203,6 +298,8 @@ public class MonitorService extends Service {
         bluetoothBroadcastReceiver = new BluetoothBroadcastReceiver(this, writableDb);
         cellularBroadcastReceiver = new CellularBroadcastReceiver(this, writableDb);
 
+        dataUploadBroadcastReceiver = new DataUploadBroadcastReceiver(this, writableDb);
+
         boolean dataCollectionEnabled = preferences.getBoolean("data_collection_enabled", true);
         if(dataCollectionEnabled){
             startDataCollection();
@@ -210,14 +307,25 @@ public class MonitorService extends Service {
             // Should not be started but ensure all notifications are correct
             stopDataCollection();
         }
+
+        dataUploadBroadcastReceiver.register(this);
+
+        boolean automaticDataUploadEnabled = preferences.getBoolean("automatic_data_upload", true);
+
+        uploadJob = new AutomaticDataUploadJob();
+
+        Log.d(TAG, "Automatic Data upload enabled? " + automaticDataUploadEnabled);
+        if(automaticDataUploadEnabled) {
+            if (uploadJob != null) {
+                uploadJob.start(this);
+            } else {
+                Log.e(TAG, "No upload job instance");
+            }
+        }
     }
 
     /**
      * Got start command
-     * @param intent
-     * @param flags
-     * @param startId
-     * @return
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -233,11 +341,19 @@ public class MonitorService extends Service {
     public void onDestroy(){
         Log.d(TAG, "onDestroy()");
         stopDataCollection();
-        energyMonitorDbHelper.close();
+        if (energyMonitorDbHelper != null) {
+            energyMonitorDbHelper.close();
+        }
         if (mNM != null) {
             mNM.cancelAll();
         }
         //restartService();
+
+        // Stop automatic data upload
+        if (uploadJob.isStarted()){
+            uploadJob.stop();
+        }
+        dataUploadBroadcastReceiver.unregister(this);
     }
 
 
@@ -271,7 +387,7 @@ public class MonitorService extends Service {
             return;
         }
         String lastTime = getLastServerUploadTime();
-        String lastExport = getString(R.string.export_last_upload) +  ": " + lastTime;
+        String lastExport = getString(R.string.export_last_upload, lastTime, getLastServerUploadStatusText());
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, MainActivity.class)
@@ -332,6 +448,20 @@ public class MonitorService extends Service {
             //}
             showNotification();
 
+        } else if (key.equals("automatic_data_upload")) {
+            boolean automaticDataUploadEnabled = preferences.getBoolean("automatic_data_upload", true);
+
+            Log.d(TAG, "Automatic Data upload enabled? " + automaticDataUploadEnabled);
+
+            if (uploadJob.isStarted() && !automaticDataUploadEnabled){
+                uploadJob.stop();
+                Log.d(TAG, "Automatic upload stopped");
+            } else if (!uploadJob.isStarted() && automaticDataUploadEnabled){
+                uploadJob.start(this);
+                Log.d(TAG, "Automatic upload started");
+            }
+
+            // TODO enable and disable the corresponding button?
         }
     }
 
@@ -467,8 +597,12 @@ public class MonitorService extends Service {
         return jsonObject;
     }
 
+    public void exportDbToServer(){
+        Log.d(TAG, "Export db to server");
+    }
+
     /**
-     * Export the db json object via mail
+     * Export the db json object
      *
      * @return A file handler to the created file
      */
@@ -538,5 +672,44 @@ public class MonitorService extends Service {
         Toast.makeText(this, "Sending restart intend", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent("de.uni_bremen.comnets.resourcemonitor.restart");
         sendBroadcast(intent);
+    }
+
+    /**
+     * Upload the data to the server
+     *
+     * @param context    The context
+     */
+    public void uploadToServer(Context context){
+
+        // TODO: Last upload status
+        if (context == null){
+            // Background upload
+            try {
+                long lastUpload = getLastServerUploadTimestamp(getApplicationContext());
+                if (System.currentTimeMillis() < lastUpload + MIN_DATA_UPLOAD_INTERVAL_LIMIT*1000) {
+                    Log.d(TAG, "Just uploaded data. Skipping this upload");
+                    return;
+                }
+                new ExportDatabaseToServerTask(getApplicationContext(), this, true).execute();
+                Log.d(TAG, "Background Upload done");
+            } catch (Exception e){
+                e.printStackTrace();
+                // TODO: Handle, fix and report exceptions of the background upload
+            }
+
+
+        } else {
+            new ExportDatabaseToServerTask(context, this, false).execute();
+            Log.d(TAG, "Foreground Upload done");
+        }
+        updateNotification();
+
+    }
+
+    /**
+     * Upload the data to the server without UI interaction
+     */
+    public void uploadToServer(){
+        uploadToServer(null);
     }
 }

@@ -50,8 +50,8 @@
     <string name="export_server_check_existing_datasets">Checking for existing datasets</string>
     <string name="export_server_export_data">Exporting Data</string>
     <string name="export_server_upload_data">Uploading Data</string>
-    <string name="export_server_done">Export done</string>
-    <string name="export_server_unexpected_error">An unexpected error ocurred</string>
+    <string name="export_server_done">Export successful</string>
+    <string name="export_server_unexpected_error">An unexpected error occurred</string>
     <string name="export_server_check_url_failed">Invalid URLs configured</string>
     <string name="export_server_check_network_failed">No Internet Connection available</string>
     <string name="export_server_request_token_failed">Failed to request a token</string>
@@ -59,16 +59,16 @@
     <string name="export_server_export_data_failed">Export data failed</string>
     <string name="export_server_upload_data_failed">Data upload failed</string>
     <string name="export_server_changed_items">Uploaded datasets</string>
-    <string name="export_last_upload">Last data upload</string>
+    <string name="export_last_upload">Last data upload: %1$s (%2$s)</string>
     <string name="export_server_thanks">Thank you for sharing the data!</string>
     <string name="export_time_never">Never</string>
     <string name="action_manual">App manual</string>
-    <string name="last_item_to_db">Last measurement</string>
+    <string name="last_item_to_db">Last measurement: %1$s</string>
     <string name="settings_show_notification_bar">Show Notification Bar</string>
     <string name="settings_show_notification_bar_summary">Show an app icon in the notification bar.</string>
     <string name="cannot_deactivate_icon">Cannot deactivate notification: Android might stop the data acquisition.</string>
     <string name="info_text_total_time">Total time</string>
-    <string name="info_discharge_unit">%/hour</string>
+    <string name="info_discharge_unit">%1$s %%/hour</string>
     <string name="info_text_7d_time">Last week</string>
     <string name="info_text_24h_time">Last 24 hours</string>
     <string name="date_year_plural">years</string>
@@ -90,4 +90,6 @@
     <string name="ui_24h_to_7d">The average discharge during the last 24 hours compared to the last 7 days.</string>
     <string name="dischargeTable_3h">3 hours</string>
     <string name="dischargeHeading">Discharge</string>
+    <string name="settings_automatic_data_upload">Automatic Data Upload</string>
+    <string name="settings_automatic_data_upload_summary">The data is uploaded automatically if certain conditions like unmetered Internet connection, battery not low etc. apply</string>
 </resources>

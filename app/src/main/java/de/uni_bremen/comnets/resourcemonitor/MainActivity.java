@@ -1,29 +1,21 @@
 package de.uni_bremen.comnets.resourcemonitor;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
-import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -41,12 +33,15 @@ public class MainActivity extends AppCompatActivity
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final int ROUND_DECIMAL_PLACES = 1;
+    private static final int ROUND_DECIMAL_PLACES = 1;  // Round decimal numbers
+    private static final int USER_MANUAL_VERSION = 1;   // Increased if the manual is updated and should be shown again to the user
+
+    private BroadcastReceiver updateUiBroadcastReceiver = null;
 
     MonitorService mService;
     boolean mBound = false;
 
-    SharedPreferences preferences;
+    SharedPreferences preferences = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,24 +84,43 @@ public class MainActivity extends AppCompatActivity
         TextView uuidText = (TextView) findViewById(R.id.uuidText);
         uuidText.setText((uuidText.getText() + " " + preferences.getString("uuid", "None")));
 
+        // Remove boolean value for first start. We now use an int and we don't want to keep unused prefs...
+        if (preferences.contains("firstStart")){
+            preferences.edit().remove("firstStart").apply();
+        }
+
         // Show dialog only on first startup
-        if (preferences.getBoolean("firstStart", true)){
-            preferences.edit().putBoolean("firstStart", false).apply();
+        if (preferences.getInt("user_manual_version", 0) < USER_MANUAL_VERSION){
+            preferences.edit().putInt("user_manual_version", USER_MANUAL_VERSION).apply();
             showManualDialog();
         }
 
+        updateUiBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                updateUi();
+            }
+        };
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
+        // Ensure background service is up and running
         Intent intent = new Intent(this, MonitorService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
+        // Receive broadcasts to update the UI
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MonitorService.UPLOAD_DONE_BROADCAST_ACTION);
+        registerReceiver(updateUiBroadcastReceiver, intentFilter);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        unregisterReceiver(updateUiBroadcastReceiver);
         if (mBound){
             unbindService(mConnection);
             mBound = false;
@@ -248,7 +262,7 @@ public class MainActivity extends AppCompatActivity
     private void exportDatabaseToAnywhere(){
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("*/*");
-        new ExportDatabaseTask(this, this, mService, intent, getResources().getText(R.string.dialog_export_provider).toString()).execute();
+        new ExportDatabaseToFileproviderTask(this, this, mService, intent, getResources().getText(R.string.dialog_export_provider).toString()).execute();
     }
 
     /**
@@ -261,14 +275,15 @@ public class MainActivity extends AppCompatActivity
         emailTxIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.mail_subject));
         emailTxIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.mail_message));
 
-        new ExportDatabaseTask(this, this, mService, emailTxIntent, getResources().getText(R.string.dialog_mail_provider).toString()).execute();
+        new ExportDatabaseToFileproviderTask(this, this, mService, emailTxIntent, getResources().getText(R.string.dialog_mail_provider).toString()).execute();
     }
 
     /**
      * Export the database to the ComNets server
      */
     private void exportDatabaseToServer(){
-        new ExportDatabaseToServerTask(this, this, mService, false).execute();
+        //new ExportDatabaseToServerTask(this, this, mService, false).execute();
+        mService.uploadToServer(this);
     }
 
     /**
@@ -284,7 +299,7 @@ public class MainActivity extends AppCompatActivity
             float dischargeTimePercentageTotal = (float) BatteryChangeObject.getTotalDischargeTime(dischargeTotalList) / (float) BatteryChangeObject.getTotalTime(dischargeTotalList);
 
             TextView tvDischargeTotalPercentage = (TextView) findViewById(R.id.dischargeTableTotalPercent);
-            tvDischargeTotalPercentage.setText(String.valueOf(dischargeTotal) + " " + getString(R.string.info_discharge_unit));
+            tvDischargeTotalPercentage.setText(getString(R.string.info_discharge_unit, String.valueOf(dischargeTotal)));
 
             TextView tvDischargeTotalTime = (TextView) findViewById(R.id.dischargeTableTotalTime);
             tvDischargeTotalTime.setText(String.valueOf(Math.round(dischargeTimePercentageTotal*100.0) + " %"));
@@ -300,7 +315,7 @@ public class MainActivity extends AppCompatActivity
             float dischargeTimePercentage7d = (float) BatteryChangeObject.getTotalDischargeTime(discharge7dList) / (float) BatteryChangeObject.getTotalTime(discharge7dList);
 
             TextView tvDischarge7dPercentage = (TextView) findViewById(R.id.dischargeTable7dPercent);
-            tvDischarge7dPercentage.setText(String.valueOf(discharge7d) + " " + getString(R.string.info_discharge_unit));
+            tvDischarge7dPercentage.setText(getString(R.string.info_discharge_unit, String.valueOf(discharge7d)));
 
             TextView tvDischarge7dTime = (TextView) findViewById(R.id.dischargeTable7dTime);
             tvDischarge7dTime.setText(String.valueOf(Math.round(dischargeTimePercentage7d*100.0) + " %"));
@@ -315,7 +330,7 @@ public class MainActivity extends AppCompatActivity
             float dischargeTimePercentage24h = (float) BatteryChangeObject.getTotalDischargeTime(discharge24hList) / (float) BatteryChangeObject.getTotalTime(discharge24hList);
 
             TextView tvDischarge24hPercentage = (TextView) findViewById(R.id.dischargeTable24hPercent);
-            tvDischarge24hPercentage.setText(String.valueOf(discharge24h) + " " + getString(R.string.info_discharge_unit));
+            tvDischarge24hPercentage.setText(getString(R.string.info_discharge_unit, String.valueOf(discharge24h)));
 
             TextView tvDischarge24hTime = (TextView) findViewById(R.id.dischargeTable24hTime);
             tvDischarge24hTime.setText(String.valueOf(Math.round(dischargeTimePercentage24h*100.0) + " %"));
@@ -331,7 +346,7 @@ public class MainActivity extends AppCompatActivity
             float dischargeTimePercentage3h = (float) BatteryChangeObject.getTotalDischargeTime(discharge3hList) / (float) BatteryChangeObject.getTotalTime(discharge3hList);
 
             TextView tvDischarge3hPercentage = (TextView) findViewById(R.id.dischargeTable3hPercent);
-            tvDischarge3hPercentage.setText(String.valueOf(discharge3h) + " " + getString(R.string.info_discharge_unit));
+            tvDischarge3hPercentage.setText(getString(R.string.info_discharge_unit, String.valueOf(discharge3h)));
 
             TextView tvDischarge3hTime = (TextView) findViewById(R.id.dischargeTable3hTime);
             tvDischarge3hTime.setText(String.valueOf(Math.round(dischargeTimePercentage3h*100.0) + " %"));
@@ -356,30 +371,35 @@ public class MainActivity extends AppCompatActivity
                 last7days.setImageResource(R.drawable.thumb_red);
             }
 
-
-            /*
-
-            ImageView emotionView = (ImageView) findViewById(R.id.emotionView);
-            emotionView.setImageResource(R.drawable.happy);
-             */
+            // Settings might have changed. Inform the background service if there are changes
             mService.updatedSetting("data_collection_enabled");
             mService.updatedSetting("show_notification_bar");
+            mService.updatedSetting("automatic_data_upload");
             TextView lastUpload = (TextView) findViewById(R.id.lastUpload);
             String lastTime = mService.getLastServerUploadTime();
             if (lastTime == null){
                 lastTime = getString(R.string.export_time_never);
             }
-            lastUpload.setText(getString(R.string.export_last_upload) +  ": " + lastTime);
+
+            lastUpload.setText(getString(R.string.export_last_upload, lastTime, mService.getLastServerUploadStatusText()));
 
             TextView lastDataItem = (TextView) findViewById(R.id.lastDataCollected);
             String lastCollectedItem = mService.getLastDataItemStored();
             if (lastCollectedItem == null) {
                 lastCollectedItem = getString(R.string.export_time_never);
             }
-            lastDataItem.setText(getString(R.string.last_item_to_db) + ": " + lastCollectedItem);
+            lastDataItem.setText(getString(R.string.last_item_to_db, lastCollectedItem));
 
-            mService.updateNotification();
+            // Disable upload button if automatic upload is enabled
+            Button exportButton = (Button) findViewById(R.id.exportButton);
+            if (preferences.getBoolean("automatic_data_upload", true)){
+                exportButton.setVisibility(View.GONE);
+            } else{
+                exportButton.setVisibility(View.VISIBLE);
+            }
+
             // TODO: Update more settings?
+            mService.updateNotification();
         }
 
     }

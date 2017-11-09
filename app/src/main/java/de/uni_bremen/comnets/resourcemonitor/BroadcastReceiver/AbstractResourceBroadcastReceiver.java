@@ -29,7 +29,7 @@ public abstract class AbstractResourceBroadcastReceiver extends BroadcastReceive
     private ContentValues lastContentValues;
     private MonitorService mService = null;
 
-    SQLiteDatabase writableDb;
+    private SQLiteDatabase writableDb;
 
     /**
      * Constructor, db needed
@@ -116,5 +116,23 @@ public abstract class AbstractResourceBroadcastReceiver extends BroadcastReceive
             context.unregisterReceiver(mReceiver);
             mReceiver = null;
         }
+    }
+
+    /**
+     * Get the instance of the MonitorService
+     *
+     * @return  The MonitorService instance
+     */
+    protected MonitorService getMonitorServiceInstance(){
+        return mService;
+    }
+
+    /**
+     * Get the writable database instance
+     *
+     * @return The database instance
+     */
+    protected SQLiteDatabase getWritableDbInstance(){
+        return writableDb;
     }
 }

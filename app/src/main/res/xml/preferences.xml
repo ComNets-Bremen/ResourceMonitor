@@ -16,5 +16,12 @@
         android:defaultValue="true"
         android:enabled="true"/>
 
+    <CheckBoxPreference
+        android:key="automatic_data_upload"
+        android:title="@string/settings_automatic_data_upload"
+        android:summary="@string/settings_automatic_data_upload_summary"
+        android:defaultValue="true"
+        android:enabled="true"/>
+
 </PreferenceScreen>
 

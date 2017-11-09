@@ -1,27 +1,23 @@
 package de.uni_bremen.comnets.resourcemonitor;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.TextView;
 
 import org.json.JSONObject;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Class to upload data to the server
  */
-class ExportDatabaseToServerTask extends AsyncTask<Void, ExportDatabaseToServerTask.ExportDatabaseStatus, ExportDatabaseToServerTask.ExportDatabaseStatus> {
+class ExportDatabaseToServerTask extends AsyncTask<Void, Integer, Integer> {
 
-    // Status for a) update the progress dialog and b) return status messages
-    enum ExportDatabaseStatus {CHECK_URL, CHECK_NETWORK, REQUEST_TOKEN, REQUEST_RANGE, EXPORT_DB, UPLOAD_DB, DONE}
-
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = ExportDatabaseToServerTask.class.getSimpleName();
     private ProgressDialog progressDialog = null;
-    private Context m_context;
-    private MonitorService m_service;
-    private Activity m_activity;
+    private WeakReference<Context> m_context = null;
+    private WeakReference<MonitorService> m_service = null;
     private Boolean m_background;
 
     /* TODO
@@ -34,176 +30,207 @@ class ExportDatabaseToServerTask extends AsyncTask<Void, ExportDatabaseToServerT
      * Default constructor, possibility to run as background service
      *
      * @param context   The app context
-     * @param activity  The activity for output
      * @param mService  The background service instance
-     * @param doInBrackground   Run the task in the background
+     * @param doInBackground   Run the task in the background
      */
-    public ExportDatabaseToServerTask(Context context, Activity activity, MonitorService mService, Boolean doInBrackground){
-        m_context = context;
-        m_service = mService;
-        m_activity = activity;
-        m_background = doInBrackground;
+    public ExportDatabaseToServerTask(Context context, MonitorService mService, Boolean doInBackground){
+        m_context = new WeakReference<Context>(context);
+        m_service = new WeakReference<MonitorService>(mService);
+        m_background = doInBackground;
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        if (!m_background) {
-            progressDialog = ProgressDialog.show(m_context, m_context.getString(R.string.export_progress_title), m_context.getString(R.string.export_server_start));
+        if (!m_background && m_context != null) {
+            progressDialog = ProgressDialog.show(m_context.get(), m_context.get().getString(R.string.export_progress_title), m_context.get().getString(R.string.export_server_start));
         }
     }
 
     @Override
-    protected ExportDatabaseStatus doInBackground(Void... params) {
-        ServerCommunicationHandler sch = new ServerCommunicationHandler(m_context);
+    protected Integer doInBackground(Void... params) {
+        ServerCommunicationHandler sch = new ServerCommunicationHandler(m_context.get());
 
-        publishProgress(ExportDatabaseStatus.CHECK_URL);
+        publishProgress(ServerCommunicationHandler.CHECK_URL);
 
         if (!sch.areUrlsValid()){
-            return ExportDatabaseStatus.CHECK_URL;
+            return ServerCommunicationHandler.CHECK_URL;
         }
 
-        publishProgress(ExportDatabaseStatus.CHECK_NETWORK);
+        publishProgress(ServerCommunicationHandler.CHECK_NETWORK);
         if (!sch.isNetworkAvailable()){
             Log.d(TAG, "No network available");
-            return ExportDatabaseStatus.CHECK_NETWORK;
+            return ServerCommunicationHandler.CHECK_NETWORK;
         }
 
-        publishProgress(ExportDatabaseStatus.REQUEST_TOKEN);
+        publishProgress(ServerCommunicationHandler.REQUEST_TOKEN);
         String token = sch.requestToken(false);
         if (token == null){
             Log.d(TAG, "Cannot get token");
-            return ExportDatabaseStatus.REQUEST_TOKEN;
+            return ServerCommunicationHandler.REQUEST_TOKEN;
         }
         Log.d(TAG, "TOKEN: " + token);
 
-        publishProgress(ExportDatabaseStatus.REQUEST_RANGE);
+        publishProgress(ServerCommunicationHandler.REQUEST_RANGE);
         JSONObject job = sch.requestDataRange(token);
         if (job == null){
             // Mayne an issue with the token? request a new one and try again.
             token = sch.requestToken(true);
             if (token== null) {
                 Log.d(TAG, "Cannot get new token");
-                return ExportDatabaseStatus.REQUEST_RANGE;
+                return ServerCommunicationHandler.REQUEST_RANGE;
             }
             job = sch.requestDataRange(token);
             if(job == null) {
                 Log.d(TAG, "Error getting existing range");
-                return ExportDatabaseStatus.REQUEST_RANGE;
+                return ServerCommunicationHandler.REQUEST_RANGE;
             }
         }
 
-        publishProgress(ExportDatabaseStatus.EXPORT_DB);
-        JSONObject serverData = m_service.exportDataForServer(job);
+        publishProgress(ServerCommunicationHandler.EXPORT_DB);
+        JSONObject serverData = null;
+        if (m_service != null) {
+            serverData = m_service.get().exportDataForServer(job);
+        }
         if (serverData == null){
             Log.d(TAG, "Error exporting data");
-            return ExportDatabaseStatus.EXPORT_DB;
+            return ServerCommunicationHandler.EXPORT_DB;
         }
 
-        publishProgress(ExportDatabaseStatus.UPLOAD_DB);
+        publishProgress(ServerCommunicationHandler.UPLOAD_DB);
         JSONObject uploadResult = sch.uploadData(serverData, token);
         if (uploadResult == null){
             Log.d(TAG, "Upload failed");
-            return ExportDatabaseStatus.EXPORT_DB;
+            return ServerCommunicationHandler.EXPORT_DB;
         }
 
-        m_service.setServerUploadResult(uploadResult);
+        if (m_service != null) {
+            m_service.get().setServerUploadResult(uploadResult);
+        }
 
-        publishProgress(ExportDatabaseStatus.DONE);
+        publishProgress(ServerCommunicationHandler.DONE);
 
-        return ExportDatabaseStatus.DONE;
+        return ServerCommunicationHandler.DONE;
     }
 
-    protected void onProgressUpdate(ExportDatabaseStatus... values) {
+    protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
-        if (!m_background) {
+        if (!m_background && m_context != null) {
+            Context c = m_context.get();
             switch (values[0]) {
-                case CHECK_URL:
+                case ServerCommunicationHandler.CHECK_URL:
                     Log.d(TAG, "Checking URLs");
-                    progressDialog.setMessage(m_context.getString(R.string.export_server_check_url));
+                    progressDialog.setMessage(c.getString(R.string.export_server_check_url));
                     break;
-                case CHECK_NETWORK:
+                case ServerCommunicationHandler.CHECK_NETWORK:
                     Log.d(TAG, "Checking Network");
-                    progressDialog.setMessage(m_context.getString(R.string.export_server_check_network));
+                    progressDialog.setMessage(c.getString(R.string.export_server_check_network));
                     break;
-                case REQUEST_TOKEN:
+                case ServerCommunicationHandler.REQUEST_TOKEN:
                     Log.d(TAG, "Requesting Token");
-                    progressDialog.setMessage(m_context.getString(R.string.export_server_request_token));
+                    progressDialog.setMessage(c.getString(R.string.export_server_request_token));
                     break;
-                case REQUEST_RANGE:
+                case ServerCommunicationHandler.REQUEST_RANGE:
                     Log.d(TAG, "Requesting existing datasets");
-                    progressDialog.setMessage(m_context.getString(R.string.export_server_check_existing_datasets));
+                    progressDialog.setMessage(c.getString(R.string.export_server_check_existing_datasets));
                     break;
-                case EXPORT_DB:
+                case ServerCommunicationHandler.EXPORT_DB:
                     Log.d(TAG, "Exporting Data");
-                    progressDialog.setMessage(m_context.getString(R.string.export_server_export_data));
+                    progressDialog.setMessage(c.getString(R.string.export_server_export_data));
                     break;
-                case UPLOAD_DB:
+                case ServerCommunicationHandler.UPLOAD_DB:
                     Log.d(TAG, "Uploading data");
-                    progressDialog.setMessage(m_context.getString(R.string.export_server_upload_data));
+                    progressDialog.setMessage(c.getString(R.string.export_server_upload_data));
                     break;
-                case DONE:
+                case ServerCommunicationHandler.DONE:
                     Log.d(TAG, "DONE");
-                    progressDialog.setMessage(m_context.getString(R.string.export_server_done));
+                    progressDialog.setMessage(c.getString(R.string.export_server_done));
                     break;
                 default:
                     Log.d(TAG, "Unknown status code");
-                    progressDialog.setMessage(m_context.getString(R.string.export_server_unexpected_error));
+                    progressDialog.setMessage(c.getString(R.string.export_server_unexpected_error));
             }
         }
     }
 
-    protected void onPostExecute(ExportDatabaseStatus status) {
+    protected void onPostExecute(Integer status) {
         super.onPostExecute(status);
         if (progressDialog != null) {
             progressDialog.dismiss();
+            Log.d(TAG, "DISMISS");
         }
 
-        // TODO: Store errors somewhere?
+        Context c = null;
+        if (m_context != null){
+            c = m_context.get();
+        }
+
         switch(status){
-            case CHECK_URL:
-                if (!m_background) {
-                    Helper.showUserMessage(m_context, m_context.getString(R.string.export_server_check_url_failed), m_context.getString(R.string.export_progress_title));
+            case ServerCommunicationHandler.CHECK_URL:
+                if (!m_background && c != null) {
+                    Helper.showUserMessage(c, c.getString(R.string.export_server_check_url_failed), c.getString(R.string.export_progress_title));
                 }
                 break;
-            case CHECK_NETWORK:
-                if (!m_background) {
-                    Helper.showUserMessage(m_context, m_context.getString(R.string.export_server_check_network_failed), m_context.getString(R.string.export_progress_title));
+            case ServerCommunicationHandler.CHECK_NETWORK:
+                if (!m_background && c != null) {
+                    Helper.showUserMessage(c, c.getString(R.string.export_server_check_network_failed), c.getString(R.string.export_progress_title));
                 }
                 break;
-            case REQUEST_TOKEN:
-                if (!m_background) {
-                    Helper.showUserMessage(m_context, m_context.getString(R.string.export_server_request_token_failed), m_context.getString(R.string.export_progress_title));
+            case ServerCommunicationHandler.REQUEST_TOKEN:
+                if (!m_background && c != null) {
+                    Helper.showUserMessage(c, c.getString(R.string.export_server_request_token_failed), c.getString(R.string.export_progress_title));
                 }
                 break;
-            case REQUEST_RANGE:
-                if (!m_background) {
-                    Helper.showUserMessage(m_context, m_context.getString(R.string.export_server_check_existing_datasets_failed), m_context.getString(R.string.export_progress_title));
+            case ServerCommunicationHandler.REQUEST_RANGE:
+                if (!m_background && c != null) {
+                    Helper.showUserMessage(c, c.getString(R.string.export_server_check_existing_datasets_failed), c.getString(R.string.export_progress_title));
                 }
                 break;
-            case EXPORT_DB:
-                if (!m_background) {
-                    Helper.showUserMessage(m_context, m_context.getString(R.string.export_server_export_data_failed), m_context.getString(R.string.export_progress_title));
+            case ServerCommunicationHandler.EXPORT_DB:
+                if (!m_background && c != null) {
+                    Helper.showUserMessage(c, c.getString(R.string.export_server_export_data_failed), c.getString(R.string.export_progress_title));
                 }
                 break;
-            case UPLOAD_DB:
-                if (!m_background) {
-                    Helper.showUserMessage(m_context, m_context.getString(R.string.export_server_upload_data_failed), m_context.getString(R.string.export_progress_title));
+            case ServerCommunicationHandler.UPLOAD_DB:
+                if (!m_background && c != null) {
+                    Helper.showUserMessage(c, c.getString(R.string.export_server_upload_data_failed), c.getString(R.string.export_progress_title));
                 }
                 break;
-            case DONE:
-                if (!m_background) {
-                    Helper.showUserMessage(m_context, m_context.getString(R.string.export_server_done) + "\n" + m_context.getString(R.string.export_server_changed_items) + ": " + m_service.getLastServerUploadItems() + "\n\n" + m_context.getString(R.string.export_server_thanks), m_context.getString(R.string.export_progress_title));
+            case ServerCommunicationHandler.DONE:
+                if (!m_background && m_service != null && c != null) {
+                    Helper.showUserMessage(c, c.getString(R.string.export_server_done) + "\n" + c.getString(R.string.export_server_changed_items) + ": " + m_service.get().getLastServerUploadItems() + "\n\n" + c.getString(R.string.export_server_thanks), c.getString(R.string.export_progress_title));
                 }
-                // Update Text view
-                TextView lastUpload = (TextView) m_activity.findViewById(R.id.lastUpload);
-                lastUpload.setText(m_context.getString(R.string.export_last_upload) +  ": " + m_service.getLastServerUploadTime());
-                m_service.updateNotification();
+                if (m_service != null) {
+                    m_service.get().updateNotification();
+                }
                 break;
             default:
                 if (!m_background) {
-                    Helper.showUserMessage(m_context, m_context.getString(R.string.export_server_unexpected_error), m_context.getString(R.string.export_progress_title));
+                    Helper.showUserMessage(c, c.getString(R.string.export_server_unexpected_error), c.getString(R.string.export_progress_title));
                 }
+        }
+
+        if (m_service != null){
+            // Store last status
+            m_service.get().setLastServerUploadStatuscode(status);
+        }
+
+        // Ensure everything is tidied up after usage
+        recycle();
+    }
+
+    /**
+     * Tidy up the weak references
+     */
+    private void recycle(){
+        if (m_context != null){
+            m_context.clear();
+            m_context = null;
+        }
+
+        if (m_service != null){
+            m_service.clear();
+            m_service = null;
         }
     }
 }

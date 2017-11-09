@@ -43,7 +43,7 @@
     <string name="export_server_check_network_failed">Keine Internetverbindung verfügbar</string>
     <string name="export_server_check_url">Checke Server URLs</string>
     <string name="export_server_check_url_failed">Fehlerhafte URLs konfiguriert</string>
-    <string name="export_server_done">Export abgeschlossen</string>
+    <string name="export_server_done">Export erfolgreich</string>
     <string name="export_server_export_data">Exportiere Daten</string>
     <string name="export_server_export_data_failed">Export fehlgeschlagen</string>
     <string name="export_server_request_token">Empfange Token</string>
@@ -53,15 +53,15 @@
     <string name="export_server_upload_data">Daten werden übertragen</string>
     <string name="export_server_upload_data_failed">Datenübertragung fehlgeschlagen</string>
     <string name="export_server_changed_items">Datensätze</string>
-    <string name="export_last_upload">Letzer Upload</string>
+    <string name="export_last_upload">Letzter Upload: %1$s (%2$s)</string>
     <string name="export_server_thanks">Danke, dass Sie uns Daten gesendet haben.</string>
     <string name="export_time_never">Nie</string>
     <string name="action_manual">Anleitung</string>
-    <string name="last_item_to_db">Letzte Messung</string>
+    <string name="last_item_to_db">Letzte Messung: %1$s</string>
     <string name="settings_show_notification_bar">Zeige Benachrichtigung</string>
     <string name="settings_show_notification_bar_summary">Zeige ein App-Symbol im Benachrichtigungsbereich.</string>
     <string name="cannot_deactivate_icon">Kann die Benachrichtigung nicht deaktivieren: Android würde die Messwertaufnahme stoppen.</string>
-    <string name="info_discharge_unit">%/Stunde</string>
+    <string name="info_discharge_unit">%1$s %%/Stunde</string>
     <string name="info_text_24h_time">Letzte 24 Stunden</string>
     <string name="info_text_7d_time">Letzte Woche</string>
     <string name="info_text_total_time">Gesamte Zeit</string>
@@ -84,4 +84,6 @@
     <string name="ui_24h_to_alltime">Die Durchschnittliche Entladung der Batterie der letzten 24 Stunden im Vergleich zu allen verfügbaren Messwerten.</string>
     <string name="dischargeTable_3h">3 Stunden</string>
     <string name="dischargeHeading">Entladen</string>
+    <string name="settings_automatic_data_upload">Automatischer Datenupload</string>
+    <string name="settings_automatic_data_upload_summary">Die Messwerte werden automatisch hoch geladen, wenn es die Umstände zulassen (unlimitierte Datenverbindung, Batterie ist voll etc.).</string>
 </resources>
