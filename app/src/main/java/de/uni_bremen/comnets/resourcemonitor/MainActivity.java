@@ -22,6 +22,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -204,6 +206,15 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.action_manual:
                 showManualDialog();
+                return true;
+
+            case R.id.action_license:
+                //showLicenseDialog();
+                Intent intent = new Intent(this, OssLicensesMenuActivity.class);
+                String title = getString(R.string.dialog_licenses_title);
+                intent.putExtra("title", title);
+                startActivity(intent);
+
                 return true;
             case R.id.action_settings:
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);

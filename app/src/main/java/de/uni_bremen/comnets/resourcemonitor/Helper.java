@@ -21,6 +21,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 /**
@@ -101,6 +102,27 @@ public class Helper {
      */
     static void showHTMLUserMessage(Context context, String text, String title) {
         showHTMLUserMessage(context, text, title, null);
+    }
+
+    /**
+     * Show HTML text using a WebView
+     * @param context   The context
+     * @param text      The HTML text
+     * @param title     The title of the dialog
+     * @param listener  A DialogInterface.OnClickListener
+     */
+    static void showWebviewAlert(Context context, String text, String title, DialogInterface.OnClickListener listener){
+        WebView webView = new WebView(context);
+        webView.loadData(text, "text/html", "utf-8");
+        webView.setClickable(true);
+
+        AlertDialog dlgAlert = new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setPositiveButton(context.getText(R.string.button_ok), listener)
+                .setView(webView)
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .create();
+        dlgAlert.show();
     }
 
     /**

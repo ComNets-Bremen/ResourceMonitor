@@ -410,7 +410,6 @@ public class MonitorService extends Service {
      * Update the notification bar with the most recent message
      */
     public void updateNotification(){
-        Log.d(TAG, "UPDATE NOTIFICATION");
         if (preferences.getBoolean("data_collection_enabled", true)){
             showNotification(getString(R.string.DataCollectionRunning));
         } else {

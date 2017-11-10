@@ -92,4 +92,6 @@
     <string name="dischargeHeading">Discharge</string>
     <string name="settings_automatic_data_upload">Automatic Data Upload</string>
     <string name="settings_automatic_data_upload_summary">The data is uploaded automatically if certain conditions like unmetered Internet connection, battery not low etc. apply</string>
+    <string name="action_license">Licenses</string>
+    <string name="dialog_licenses_title">Licenses</string>
 </resources>

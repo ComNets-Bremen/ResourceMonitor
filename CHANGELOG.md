@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2017-11-10, Version 0.28, Version Code 28
+
+- Show licenses properly
+
 ### 2017-11-09, Version 0.27, Version Code 27
 
 - Minor fix: do not display the manual each time the app is opened

@@ -86,4 +86,6 @@
     <string name="dischargeHeading">Entladen</string>
     <string name="settings_automatic_data_upload">Automatischer Datenupload</string>
     <string name="settings_automatic_data_upload_summary">Die Messwerte werden automatisch hoch geladen, wenn es die Umstände zulassen (unlimitierte Datenverbindung, Batterie ist voll etc.).</string>
+    <string name="action_license">Lizenzen</string>
+    <string name="dialog_licenses_title">Lizenzen</string>
 </resources>
