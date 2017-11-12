@@ -55,9 +55,9 @@ public class MonitorService extends Service {
     String lastNotification = null;
 
     // Settings for the background upload intervals
-    public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT  = 60*60*12; // (in seconds) At maximum every 12 hours (externally triggered) for the upload
-    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*24; // (in seconds) every 24 hours
-    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*48; // (in seconds) every 48 hours
+    public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT  = 60*60; // (in seconds) At maximum once per hour (externally triggered) for the upload
+    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*2; // (in seconds) every 2 hours
+    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*4; // (in seconds) every 4 hours
 
     private boolean dataCollectionRunning = false;
 

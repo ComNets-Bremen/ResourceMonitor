@@ -128,11 +128,12 @@ public class AutomaticDataUploadJob extends JobService {
                                 MonitorService.MAX_PERIOD_DATA_UPLOAD_INTERVAL
                         )
                 )
-                .setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
+                //.setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
+                .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR)
                 .setConstraints(
                         //Constraint.DEVICE_CHARGING,
-                        Constraint.ON_UNMETERED_NETWORK,
-                        Constraint.DEVICE_IDLE
+                        Constraint.ON_UNMETERED_NETWORK
+                        //Constraint.DEVICE_IDLE
                 )
                 .build();
     }

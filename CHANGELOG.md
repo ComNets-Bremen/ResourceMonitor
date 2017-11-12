@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2017-11-12, Version 0.29, Version Code 29
+
+- Adapted upload timing parameters
+
 ### 2017-11-10, Version 0.28, Version Code 28
 
 - Show licenses properly
