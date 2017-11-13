@@ -94,4 +94,11 @@
     <string name="settings_automatic_data_upload_summary">The data is uploaded automatically if certain conditions like unmetered Internet connection, battery not low etc. apply</string>
     <string name="action_license">Licenses</string>
     <string name="dialog_licenses_title">Licenses</string>
+    <string name="ui_automatic_upload_enabled">Automatic data upload enabled</string>
+    <string name="ui_automatic_upload_disabled">Automatic data upload disabled</string>
+    <string name="settings_automatic_data_upload_on_metered_connection">Require an Unmetered Connection</string>
+    <string name="settings_automatic_data_upload_on_metered_connection_summary">Only upload the data if an unmetered connection is available.</string>
+    <string name="upload_failed_multiple_times" >The data upload failed multiple times. Maybe think about disabling the automatic upload and manually upload the data if an internet connection is available.</string>
+    <string name="upload_failed_multiple_times_title" >Upload failed multiple times</string>
+    <string name="txt_failed_uploads">Failed uploads</string>
 </resources>

@@ -2,6 +2,8 @@ package de.uni_bremen.comnets.resourcemonitor;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.firebase.jobdispatcher.Constraint;
@@ -51,7 +53,7 @@ public class AutomaticDataUploadJob extends JobService {
         Log.d(TAG, "Start upload job");
         if (jobDispatcher == null){
             jobDispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
-            Job uploadJob = AutomaticDataUploadJob.buildJob(jobDispatcher, UPLOAD_JOB_TAG);
+            Job uploadJob = AutomaticDataUploadJob.buildJob(jobDispatcher, UPLOAD_JOB_TAG, context);
             jobDispatcher.mustSchedule(uploadJob);
         } else {
             Log.d(TAG, "Already running");
@@ -114,10 +116,14 @@ public class AutomaticDataUploadJob extends JobService {
      *
      * @param dispatcher    The dispatcher
      * @param tag           The tag of the newly generated job
+     * @param context       The context
      * @return              The new job
      */
-    static Job buildJob(FirebaseJobDispatcher dispatcher, String tag){
-        return dispatcher.newJobBuilder()
+    static Job buildJob(FirebaseJobDispatcher dispatcher, String tag, Context context){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean useUnmeteredConnection = preferences.getBoolean("automatic_data_upload_only_on_unmetered_connection", true);
+
+        Job.Builder builder = dispatcher.newJobBuilder()
                 .setService(AutomaticDataUploadJob.class)
                 .setTag(tag)
                 .setReplaceCurrent(true)
@@ -129,12 +135,19 @@ public class AutomaticDataUploadJob extends JobService {
                         )
                 )
                 //.setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
-                .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR)
-                .setConstraints(
-                        //Constraint.DEVICE_CHARGING,
-                        Constraint.ON_UNMETERED_NETWORK
-                        //Constraint.DEVICE_IDLE
-                )
-                .build();
+                .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR);
+
+        if (useUnmeteredConnection) {
+            builder.setConstraints(
+                    //Constraint.DEVICE_CHARGING,
+                    Constraint.ON_UNMETERED_NETWORK
+                    //Constraint.DEVICE_IDLE
+            );
+            Log.d(TAG, "Upload on unmetered network");
+        } else {
+            Log.d(TAG, "Upload on metered network");
+        }
+
+        return builder.build();
     }
 }

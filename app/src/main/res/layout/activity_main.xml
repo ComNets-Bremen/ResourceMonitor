@@ -31,18 +31,21 @@
         <include
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            layout="@layout/discharge_grid" />
+            layout="@layout/discharge_grid"
+            />
 
         <include
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            layout="@layout/discharge_grid_thumbs" />
+            layout="@layout/discharge_grid_thumbs"
+            />
 
         <Button
             android:id="@+id/exportButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/ui_export_button" />
+            android:text="@string/ui_export_button"
+            />
 
         <TextView
             android:layout_width="match_parent"
@@ -56,6 +59,15 @@
             android:layout_height="wrap_content"
             android:id="@+id/lastDataCollected"
             android:text=""
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/automaticUploadEnabled"
+            android:text=""
+            android:textStyle="bold"
+            android:textAlignment="center"
             />
 
         <ImageView

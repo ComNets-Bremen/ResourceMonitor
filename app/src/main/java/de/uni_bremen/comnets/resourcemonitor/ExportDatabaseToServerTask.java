@@ -2,7 +2,9 @@ package de.uni_bremen.comnets.resourcemonitor;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -14,7 +16,11 @@ import java.lang.ref.WeakReference;
  */
 class ExportDatabaseToServerTask extends AsyncTask<Void, Integer, Integer> {
 
+    public static final String FAILED_UPLOADS = "failed_uploads";
+    public static final int MAX_NUM_FAILED_UPLOADS = 10;
+
     private static final String TAG = ExportDatabaseToServerTask.class.getSimpleName();
+
     private ProgressDialog progressDialog = null;
     private WeakReference<Context> m_context = null;
     private WeakReference<MonitorService> m_service = null;
@@ -208,6 +214,22 @@ class ExportDatabaseToServerTask extends AsyncTask<Void, Integer, Integer> {
                 if (!m_background) {
                     Helper.showUserMessage(c, c.getString(R.string.export_server_unexpected_error), c.getString(R.string.export_progress_title));
                 }
+        }
+
+        if (m_context != null) {
+            // Store number of failed uploads to show notifications
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(m_context.get());
+            int countFailedUploads = preferences.getInt(FAILED_UPLOADS, 0);
+            if (status != ServerCommunicationHandler.DONE) {
+                countFailedUploads++;
+                preferences.edit().putInt(FAILED_UPLOADS, countFailedUploads).apply();
+                Log.d(TAG, "Failed uploads: " + countFailedUploads);
+            } else {
+                if (countFailedUploads != 0){
+                    preferences.edit().putInt(FAILED_UPLOADS, 0).apply();
+                    Log.d(TAG, "Failed uploads reset to 0");
+                }
+            }
         }
 
         if (m_service != null){

@@ -23,5 +23,12 @@
         android:defaultValue="true"
         android:enabled="true"/>
 
+    <CheckBoxPreference
+        android:key="automatic_data_upload_only_on_unmetered_connection"
+        android:title="@string/settings_automatic_data_upload_on_metered_connection"
+        android:summary="@string/settings_automatic_data_upload_on_metered_connection_summary"
+        android:defaultValue="true"
+        android:enabled="true"/>
+
 </PreferenceScreen>
 

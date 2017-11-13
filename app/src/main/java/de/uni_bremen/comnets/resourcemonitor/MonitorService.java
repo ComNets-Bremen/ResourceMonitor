@@ -56,8 +56,8 @@ public class MonitorService extends Service {
 
     // Settings for the background upload intervals
     public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT  = 60*60; // (in seconds) At maximum once per hour (externally triggered) for the upload
-    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*2; // (in seconds) every 2 hours
-    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*4; // (in seconds) every 4 hours
+    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*24; // (in seconds) every 2 hours
+    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*48; // (in seconds) every 4 hours
 
     private boolean dataCollectionRunning = false;
 
@@ -459,8 +459,13 @@ public class MonitorService extends Service {
                 uploadJob.start(this);
                 Log.d(TAG, "Automatic upload started");
             }
-
-            // TODO enable and disable the corresponding button?
+        } else if (
+                key.equals("automatic_data_upload_only_on_unmetered_connection") &&
+                uploadJob.isStarted()
+                ) {
+            Log.d(TAG, "Restart automatic upload");
+            uploadJob.stop();
+            uploadJob.start(this);
         }
     }
 

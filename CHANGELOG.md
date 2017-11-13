@@ -1,6 +1,16 @@
 Changelog
 =========
 
+### 2017-11-13, Version 0.31, Version Code 31
+
+- Settings: Allow the upload on metered and unmetered connections
+- Count number of failed uploads and show a warning message to the user
+- Show the user that the automatic upload is enabled
+
+### 2017-11-13, Version 0.30, Version Code 30
+
+- Further tuned the upload timing parameters
+
 ### 2017-11-12, Version 0.29, Version Code 29
 
 - Adapted upload timing parameters

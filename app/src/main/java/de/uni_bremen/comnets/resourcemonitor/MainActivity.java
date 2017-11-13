@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         preferences.registerOnSharedPreferenceChangeListener(this);
         updateUi();
+        checkForFailedUploads();
     }
 
     @Override
@@ -174,7 +175,8 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_version:
                 String s = getString(R.string.txt_version_name) + ": " + BuildConfig.VERSION_NAME + "\n" +
-                        getString(R.string.txt_version_code) + ": " + BuildConfig.VERSION_CODE;
+                        getString(R.string.txt_version_code) + ": " + BuildConfig.VERSION_CODE + "\n\n" +
+                        getString(R.string.txt_failed_uploads) + ": " + preferences.getInt(ExportDatabaseToServerTask.FAILED_UPLOADS, 0);
                 Helper.showUserMessage(this, s, getString(R.string.txt_version_title));
                 return true;
             case R.id.action_info:
@@ -386,6 +388,7 @@ public class MainActivity extends AppCompatActivity
             mService.updatedSetting("data_collection_enabled");
             mService.updatedSetting("show_notification_bar");
             mService.updatedSetting("automatic_data_upload");
+            mService.updatedSetting("automatic_data_upload_only_on_unmetered_connection");
             TextView lastUpload = (TextView) findViewById(R.id.lastUpload);
             String lastTime = mService.getLastServerUploadTime();
             if (lastTime == null){
@@ -401,18 +404,36 @@ public class MainActivity extends AppCompatActivity
             }
             lastDataItem.setText(getString(R.string.last_item_to_db, lastCollectedItem));
 
+            TextView automaticUpload = (TextView) findViewById(R.id.automaticUploadEnabled);
+
             // Disable upload button if automatic upload is enabled
             Button exportButton = (Button) findViewById(R.id.exportButton);
             if (preferences.getBoolean("automatic_data_upload", true)){
                 exportButton.setVisibility(View.GONE);
+                automaticUpload.setText(R.string.ui_automatic_upload_enabled);
             } else{
                 exportButton.setVisibility(View.VISIBLE);
+                automaticUpload.setText(R.string.ui_automatic_upload_disabled);
             }
 
             // TODO: Update more settings?
             mService.updateNotification();
         }
 
+    }
+
+    /**
+     * Check for failed uploads and shows a user message in case of too many
+     */
+    private void checkForFailedUploads() {
+        if (preferences.getInt(ExportDatabaseToServerTask.FAILED_UPLOADS,0) > ExportDatabaseToServerTask.MAX_NUM_FAILED_UPLOADS){
+            Helper.showUserMessage(
+                    this,
+                    getString(R.string.upload_failed_multiple_times),
+                    getString(R.string.upload_failed_multiple_times_title)
+            );
+            preferences.edit().putInt(ExportDatabaseToServerTask.FAILED_UPLOADS, 0).apply();
+        }
     }
 
 /*

@@ -88,4 +88,11 @@
     <string name="settings_automatic_data_upload_summary">Die Messwerte werden automatisch hoch geladen, wenn es die Umstände zulassen (unlimitierte Datenverbindung, Batterie ist voll etc.).</string>
     <string name="action_license">Lizenzen</string>
     <string name="dialog_licenses_title">Lizenzen</string>
+    <string name="ui_automatic_upload_enabled">Automatischer Datenupload aktiviert</string>
+    <string name="ui_automatic_upload_disabled">Automatischer Datenupload deaktiviert</string>
+    <string name="settings_automatic_data_upload_on_metered_connection">Nur über WiFi Daten versenden.</string>
+    <string name="settings_automatic_data_upload_on_metered_connection_summary">Überträgt die Daten nur, wenn eine kostenfreie Verbindung wie z.B. WiFi zur Verfügung steht.</string>
+    <string name="upload_failed_multiple_times">Der Datenupload ist mehrere Male schief gelaufen. Vielleicht sollten sie den automatischen Upload deaktivieren und die Daten manuell übertragen, wenn sie online sind.</string>
+    <string name="upload_failed_multiple_times_title">Upload mehrfach fehlgeschlagen</string>
+    <string name="txt_failed_uploads">Fehlgeschlagene Uploads</string>
 </resources>
