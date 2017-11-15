@@ -39,3 +39,7 @@ def trueFalse_formatter(x, pos):
     else:
         return "False"
 
+# Convert the weekday values (starting with 0) to human readable values
+def toHumDate(weekday):
+    weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+    return weekdays[weekday]
