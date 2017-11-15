@@ -7,6 +7,7 @@ jd@comnets.uni-bremen.de
 
 from dateutil import parser,tz
 from datetime import datetime, timedelta
+from graphHelper import toHumDate
 
 class ResourceDataHandler():
     json = None
@@ -126,6 +127,104 @@ class ResourceDataHandler():
             y.append(r[1])
 
         return x, y
+
+    # Get some hour statistics: Percentage of function x is True (display,
+    # charging etc.)
+    # Weekdays can be specified as a list of weekdays (0-6)
+    def getHourStatistics(self, field, fieldType, weekdays=range(7)):
+        datas = zip(*self.getDatasets(field, fieldType))
+        dataiter = iter(datas)
+
+        print "Weekdays: ", ", ".join([toHumDate(w) for w in weekdays])
+
+        newData = {}
+        for i in range(0,24):
+            newData[str(i)+"-"+str((i+1)%24)] = []
+
+        beginTimestamp = self.timeMin.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+        endTimestamp = self.timeMax.replace(minute=0, second=0, microsecond=0)
+
+        print endTimestamp-beginTimestamp
+
+        if endTimestamp - beginTimestamp < timedelta(hours=1):
+            # Does not make sense to calculate these stats for less than one
+            # hour
+            return None
+
+        # We store on and off times to proof that nothing got lost.
+        # The sum of both should be equal to 3600 (seconds in an hour)
+        onTimedeltas = []
+        offTimedeltas = []
+
+        currentTimestamp = beginTimestamp
+
+        # Find first valid value from the datasets, i.e. larger than the start
+        # value
+        currentDataset = next(dataiter)
+        lastDataset = currentDataset
+        while(currentDataset[0] < beginTimestamp):
+            lastDataset = currentDataset
+            currentDataset = next(dataiter)
+
+        # Iterate over the timestamp spans
+        while(currentTimestamp < endTimestamp):
+            periodOnValues  = []
+            periodOffValues = []
+
+            # Iterate over the data points
+            while(currentDataset[0] > currentTimestamp and currentDataset[0] < currentTimestamp + timedelta(hours=1)):
+                if len(periodOnValues) == 0 and  len(periodOffValues) == 0:
+                    # First datapoint in this period. Set begin of period as
+                    # starting time
+                    if lastDataset[1] == True:
+                        periodOnValues.append(currentDataset[0] - currentTimestamp)
+                    else:
+                        periodOffValues.append(currentDataset[0] - currentTimestamp)
+                else:
+                    # Got another value within this period
+                    if lastDataset[1] == True:
+                        periodOnValues.append(currentDataset[0] - lastDataset[0])
+                    else:
+                        periodOffValues.append(currentDataset[0] - lastDataset[0])
+
+                lastDataset = currentDataset
+                currentDataset = next(dataiter)
+
+            # Handled all datapoints in the current period
+            if len(periodOnValues) == 0 and len(periodOffValues) == 0:
+                # period is empty. Set it to the values of the last known
+                # dataset (i.e. always on / always off)
+                if lastDataset[1] == True:
+                    periodOnValues.append(timedelta(hours=1))
+                else:
+                    periodOffValues.append(timedelta(hours=1))
+            else:
+                # Not empty: We have to finish the last dataset to ensure the
+                # time over the last period is complete (i.e. no time missing)
+                if lastDataset[1] == True:
+                    periodOnValues.append(currentTimestamp+timedelta(hours=1) - lastDataset[0])
+                else:
+                    periodOffValues.append(currentTimestamp+timedelta(hours=1) - lastDataset[0])
+
+            onTimes = 0
+            offTimes = 0
+
+            # Sum up all data in the timestamp span
+            for t in periodOnValues:
+                onTimes += t.total_seconds()
+            for t in periodOffValues:
+                offTimes += t.total_seconds()
+
+            #print "Interval", str(currentTimestamp.hour)+"-"+str((currentTimestamp + timedelta(hours=1)).hour)
+            #print onTimes, offTimes, onTimes+offTimes, timedelta(hours=1).total_seconds()
+
+            # Ignore values not in the weekdays array
+            if currentTimestamp.weekday() in weekdays:
+                newData[str(currentTimestamp.hour)+"-"+str((currentTimestamp + timedelta(hours=1)).hour)].append(onTimes/(onTimes+offTimes))
+
+            currentTimestamp += timedelta(hours=1)
+
+        return newData
 
     # Get minimum and maximum timestamp from all datasets
     def getMinMax(self):
