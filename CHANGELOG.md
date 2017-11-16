@@ -1,6 +1,11 @@
 Changelog
 =========
 
+### 2017-11-16, Version 0.32, Version Code 32
+
+- Further adapted the upload interval: The job dispatcher seems not to work
+  properly with intervals larger than one day.
+
 ### 2017-11-13, Version 0.31, Version Code 31
 
 - Settings: Allow the upload on metered and unmetered connections
