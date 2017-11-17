@@ -5,6 +5,8 @@ Jens Dede, ComNets, University of Bremen
 jd@comnets.uni-bremen.de
 """
 
+import numpy as np
+
 # Return the value or null
 def valueOrNone(val):
     if val == "null":
@@ -38,6 +40,10 @@ def trueFalse_formatter(x, pos):
         return "True"
     else:
         return "False"
+
+# Formatter for the y-axix (minutes per hour)
+def minutePerHourFormatter(x, pos):
+    return str(int(np.round(x*60.0)))#+"min/hour"
 
 # Convert the weekday values (starting with 0) to human readable values
 def toHumDate(weekday):
