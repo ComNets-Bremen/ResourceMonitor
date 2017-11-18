@@ -1,6 +1,11 @@
 Changelog
 =========
 
+### 2017-11-18, Version 0.33, Version Code 33
+
+- Tuned the upload: Check more often if we should upload the data. Do the read
+  upload not more often than every 36 hours
+
 ### 2017-11-16, Version 0.32, Version Code 32
 
 - Further adapted the upload interval: The job dispatcher seems not to work

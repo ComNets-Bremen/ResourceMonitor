@@ -163,7 +163,6 @@ class ExportDatabaseToServerTask extends AsyncTask<Void, Integer, Integer> {
         super.onPostExecute(status);
         if (progressDialog != null) {
             progressDialog.dismiss();
-            Log.d(TAG, "DISMISS");
         }
 
         Context c = null;
@@ -223,11 +222,11 @@ class ExportDatabaseToServerTask extends AsyncTask<Void, Integer, Integer> {
             if (status != ServerCommunicationHandler.DONE) {
                 countFailedUploads++;
                 preferences.edit().putInt(FAILED_UPLOADS, countFailedUploads).apply();
-                Log.d(TAG, "Failed uploads: " + countFailedUploads);
+                //Log.d(TAG, "Failed uploads: " + countFailedUploads);
             } else {
                 if (countFailedUploads != 0){
                     preferences.edit().putInt(FAILED_UPLOADS, 0).apply();
-                    Log.d(TAG, "Failed uploads reset to 0");
+                    //Log.d(TAG, "Failed uploads reset to 0");
                 }
             }
         }

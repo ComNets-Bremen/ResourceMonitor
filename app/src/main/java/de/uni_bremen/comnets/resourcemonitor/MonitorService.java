@@ -57,9 +57,10 @@ public class MonitorService extends Service {
     // Settings for the background upload intervals
     public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT  = 60*60; // (in seconds) At maximum once per hour (externally triggered) for the upload
     // There seems to be a problem with intervals larger than one day: Jobs won't get triggered.
-    // So we use smaller intervals
-    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*12; // (in seconds) min time: twelve hours
-    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*24; // (in seconds) max time: one day
+    // So we use smaller intervals and check frequenty if we should upload the data
+    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*6; // (in seconds) min time: twelve hours
+    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*12; // (in seconds) max time: one day
+    public static final long MIN_AUTO_UPLOAD_INTERVAL       = 60*60*36; // (in seconds): Run upload job if the last one is older than this time span
 
     private boolean dataCollectionRunning = false;
 

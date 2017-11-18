@@ -83,18 +83,18 @@ public class AutomaticDataUploadJob extends JobService {
      */
     @Override
     public boolean onStartJob(JobParameters params) {
-        // Shall we upload data? Limit the upload triggers to a value defined by the MonitorService
-        if (System.currentTimeMillis() < MonitorService.getLastServerUploadTimestamp(getApplicationContext()) + MonitorService.MIN_DATA_UPLOAD_INTERVAL_LIMIT * 1000)
-        {
-            // Do nothing, just tried to upload or last upload has been performed a couple of minutes ago
-            return false; // No work going on
+        // Check if sufficient time passed by (upload if the last upload occurred more than MIN_AUTO_UPLOAD_INTERVAL seconds ago)
+        if (System.currentTimeMillis() > MonitorService.getLastServerUploadTimestamp(getApplicationContext()) + MonitorService.MIN_AUTO_UPLOAD_INTERVAL * 1000) {
+
+            // Send upload trigger
+
+            Intent intent = new Intent();
+            intent.setAction(DataUploadBroadcastReceiver.DATA_UPLOAD);
+            sendBroadcast(intent);
+            Log.d(TAG, "Sent upload intent");
+        } else {
+            Log.d(TAG, "Skipped current upload");
         }
-
-        // Send upload trigger
-
-        Intent intent = new Intent();
-        intent.setAction(DataUploadBroadcastReceiver.DATA_UPLOAD);
-        sendBroadcast(intent);
 
         return false; // Answer to question: Is still work going on?
     }
