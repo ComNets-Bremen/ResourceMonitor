@@ -1,6 +1,12 @@
 Changelog
 =========
 
+### 2018-01-18, Version 0.34, Version Code 34
+
+- Minor change of upload parameters to overcome the upload problems on some
+  devices
+- Updates some related libraries
+
 ### 2017-11-18, Version 0.33, Version Code 33
 
 - Tuned the upload: Check more often if we should upload the data. Do the read
