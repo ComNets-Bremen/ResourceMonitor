@@ -8,6 +8,7 @@ jd@comnets.uni-bremen.de
 from dateutil import parser,tz
 from datetime import datetime, timedelta
 from graphHelper import toHumDate
+import numpy as np
 
 class ResourceDataHandler():
     json = None
@@ -225,6 +226,120 @@ class ResourceDataHandler():
             currentTimestamp += timedelta(hours=1)
 
         return newData
+
+    # This function returns the probability of a value [0|1] on a second basis,
+    # which can be used as a quasi-continuous distribution
+    #
+    # @param field      The field to be used
+    # @param fieldType  The field type to be used
+    # @param weekdays   The weekdays to be used (default: all)
+    # @param stepsize   The stepsize for the output. Default: 1s
+    # @param norm       Normalize the output? Default; True
+    def getDailyTimespans(self, field, fieldType, weekdays=range(7), stepsize=1, norm=True):
+        datas = zip(*self.getDatasets(field, fieldType))
+
+        if 24*60*60%stepsize:
+            raise ValueError("A day (24*60*60 seconds) has to be dividable by stepsize")
+
+        print "Weekdays: ", ", ".join([toHumDate(w) for w in weekdays])
+
+        dataItems = []
+
+        lastItem = None
+
+        for data in datas:
+            if lastItem != None and data[1] == False and lastItem[1] == True:
+                # Starting a period: We have a last item which is on and the
+                # current item is off -> We got a valid period
+
+                if lastItem[0].day == data[0].day and \
+                        lastItem[0].month == data[0].month and \
+                        lastItem[0].year == data[0].year:
+                            # Both values are within one day (no midnight
+                            # user). We can simply calculate and add the values
+                            currentDay = np.zeros(24*60*60)
+                            startTime = (lastItem[0].hour * 60 + lastItem[0].minute) * 60 + lastItem[0].second
+                            stopTime = (data[0].hour * 60 + data[0].minute) * 60 + data[0].second
+                            currentDay[startTime:stopTime] = 1
+
+                            if lastItem[0].weekday() in weekdays:
+                                dataItems.append(currentDay)
+
+                            #else:
+                            #    print "Weekday is ignored:", toHumDate(lastItem[0].weekday())
+
+
+                else:
+                    # These values are lying between two days. Ensure the
+                    # values are added to the correct days and ignored if
+                    # requested
+
+                    # We use the following variables to check if all seconds
+                    # are added to the results. If they are unequal at the end,
+                    # something weird happened...
+                    expectedTimespan = (data[0] - lastItem[0]).total_seconds()
+                    realTimespan = 0
+
+                    # Midnight time: Here we split the two days
+                    midnightTime = lastItem[0].replace(second = 0, minute = 0, hour = 0)
+                    midnightTime += timedelta(days=1)
+
+                    startTime = (lastItem[0].hour * 60 + lastItem[0].minute) * 60 + lastItem[0].second
+                    endTime = 24*60*60 # We start counting from 0. Last time of the old day: 23:59:59
+
+                    currentDay = np.zeros(24*60*60)
+                    currentDay[startTime:endTime] = 1
+
+                    realTimespan += sum(currentDay)
+
+                    if lastItem[0].weekday() in weekdays:
+                        dataItems.append(currentDay)
+                        #print "Added at the beginning:", sum(currentDay), "seconds"
+                    #else:
+                    #    print "Weekday is ignored:", toHumDate(lastItem[0].weekday())
+
+
+                    # Handle if the screen was switches on for several days...
+                    while (midnightTime.day != data[0].day or \
+                            midnightTime.month != data[0].month or \
+                            midnightTime.year != data[0].year):
+
+                        realTimespan += 24*60*60
+
+                        if midnightTime.weekday() in weekdays:
+                            dataItems.append(np.ones(24*60*60))
+                            print "Added complete day:", midnightTime
+                        #else:
+                        #    print "Weekday is ignored:", toHumDate(lastItem[0].weekday())
+
+                        midnightTime += timedelta(days=1)
+
+                    endTime = (data[0].hour * 60 + data[0].minute) * 60 + data[0].second
+
+                    currentDay = np.zeros(24*60*60)
+                    currentDay[:endTime] = 1
+
+                    realTimespan += sum(currentDay)
+
+                    if midnightTime.weekday() in weekdays:
+                        dataItems.append(currentDay)
+                        #print "Added at the end:", sum(currentDay), "seconds"
+
+                    if realTimespan != expectedTimespan:
+                        print "There is a problem adding the times:"
+                        print "added:", realTimespan, "should be", expectedTimespan
+
+
+
+
+
+            # End of loop
+            lastItem = data
+
+        if norm:
+            dataItems = sum(dataItems ) / sum(sum(dataItems))
+
+        return range(24*60*60), dataItems
 
     # Get minimum and maximum timestamp from all datasets
     def getMinMax(self):
