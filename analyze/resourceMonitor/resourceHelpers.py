@@ -238,7 +238,7 @@ class ResourceDataHandler():
     def getDailyTimespans(self, field, fieldType, weekdays=range(7), stepsize=1, norm=True):
         datas = zip(*self.getDatasets(field, fieldType))
 
-        if 24*60*60%stepsize or stepsize > 24*60*24 or stepsize < 1:
+        if (24*60*60)%stepsize or stepsize > 24*60*60 or stepsize < 1:
             raise ValueError("A day (24*60*60 seconds) has to be dividable by stepsize")
 
         print "Weekdays: ", ", ".join([toHumDate(w) for w in weekdays])
