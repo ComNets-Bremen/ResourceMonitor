@@ -238,12 +238,12 @@ class ResourceDataHandler():
     def getDailyTimespans(self, field, fieldType, weekdays=range(7), stepsize=1, norm=True):
         datas = zip(*self.getDatasets(field, fieldType))
 
-        if 24*60*60%stepsize:
+        if 24*60*60%stepsize or stepsize > 24*60*24 or stepsize < 1:
             raise ValueError("A day (24*60*60 seconds) has to be dividable by stepsize")
 
         print "Weekdays: ", ", ".join([toHumDate(w) for w in weekdays])
 
-        dataItems = []
+        dataItems = np.zeros(24*60*60)
 
         lastItem = None
 
@@ -263,7 +263,7 @@ class ResourceDataHandler():
                             currentDay[startTime:stopTime] = 1
 
                             if lastItem[0].weekday() in weekdays:
-                                dataItems.append(currentDay)
+                                dataItems += currentDay
 
                             #else:
                             #    print "Weekday is ignored:", toHumDate(lastItem[0].weekday())
@@ -293,7 +293,7 @@ class ResourceDataHandler():
                     realTimespan += sum(currentDay)
 
                     if lastItem[0].weekday() in weekdays:
-                        dataItems.append(currentDay)
+                        dataItems += currentDay
                         #print "Added at the beginning:", sum(currentDay), "seconds"
                     #else:
                     #    print "Weekday is ignored:", toHumDate(lastItem[0].weekday())
@@ -307,7 +307,7 @@ class ResourceDataHandler():
                         realTimespan += 24*60*60
 
                         if midnightTime.weekday() in weekdays:
-                            dataItems.append(np.ones(24*60*60))
+                            dataItems += np.ones(24*60*60)
                             print "Added complete day:", midnightTime
                         #else:
                         #    print "Weekday is ignored:", toHumDate(lastItem[0].weekday())
@@ -322,7 +322,7 @@ class ResourceDataHandler():
                     realTimespan += sum(currentDay)
 
                     if midnightTime.weekday() in weekdays:
-                        dataItems.append(currentDay)
+                        dataItems += currentDay
                         #print "Added at the end:", sum(currentDay), "seconds"
 
                     if realTimespan != expectedTimespan:
@@ -330,16 +330,27 @@ class ResourceDataHandler():
                         print "added:", realTimespan, "should be", expectedTimespan
 
 
-
-
-
             # End of loop
             lastItem = data
 
-        if norm:
-            dataItems = sum(dataItems ) / sum(sum(dataItems))
+        xRange = range(24*60*60)
 
-        return range(24*60*60), dataItems
+        if stepsize != 1:
+            print "Changing stepsize"
+            xRange = np.arange(stepsize/2.0, 24*60*60, stepsize)
+            data = []
+            for i in range(0, 24*60*60, stepsize):
+                data += [sum(dataItems[i:i+stepsize]),]
+
+            dataItems = data
+
+        if norm:
+            print "Equalizing to one"
+            dataItems = dataItems / (sum(dataItems)*stepsize)
+
+        print "Number of bins (items, xRange):", len(dataItems), len(xRange)
+
+        return xRange, dataItems
 
     # Get minimum and maximum timestamp from all datasets
     def getMinMax(self):
