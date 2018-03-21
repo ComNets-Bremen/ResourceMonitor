@@ -33,7 +33,7 @@ LINEWIDTH = 0.8
 trueMin = -0.1
 trueMax = 1.1
 
-argparser = argparse.ArgumentParser(description="Analze exported files from ResourceMonitor")
+argparser = argparse.ArgumentParser(description="Analyze exported files from ResourceMonitor")
 argparser.add_argument('files', metavar='filename', type=str, nargs="+", help="Filename to process")
 argparser.add_argument('-v', "--verbose", action="store_true", help="Increase debug output")
 argparser.add_argument('--show', action="store_true", help="Show results instead of plotting them into an output file.")
