@@ -2,8 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.oss.licenses.plugin'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 26
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "de.uni_bremen.comnets.resourcemonitor"
         minSdkVersion 18
@@ -21,16 +21,16 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.firebase:firebase-jobdispatcher:0.8.4'
+    api 'com.firebase:firebase-jobdispatcher:0.8.4'
     //compile 'com.google.android.gms:play-services:11.6.0'
-    compile 'com.google.android.gms:play-services-base:11.8.0'
-    compile 'com.android.support:appcompat-v7:25.4.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:support-v4:25.4.0'
-    testCompile 'junit:junit:4.12'
-    compile 'com.google.android.gms:play-services-oss-licenses:11.8.0'
+    api 'com.google.android.gms:play-services-base:15.0.0'
+    api 'com.android.support:appcompat-v7:25.4.0'
+    api 'com.android.support.constraint:constraint-layout:1.1.0'
+    api 'com.android.support:support-v4:25.4.0'
+    //testCompile 'junit:junit:4.12'
+    api 'com.google.android.gms:play-services-oss-licenses:15.0.0'
 }
