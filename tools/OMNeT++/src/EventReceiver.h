@@ -17,7 +17,7 @@
 #define __EVENTSIMULATOR_EVENTRECEIVER_H
 
 #include <omnetpp.h>
-#include "ScreenEventMessage_m.h"
+#include "event_messages/EventMessages.h"
 #include "SimplePercentageBattery.h"
 
 using namespace omnetpp;
@@ -35,6 +35,14 @@ class EventReceiver : public cSimpleModule
 
   private:
     void handleScreenEvent(ScreenEventMessage *msg);
+    void handleBatteryEvent(BatteryEventMessage *msg);
+    void handleWiFiEvent(WiFiEventMessage *msg);
+    void handleTrafficEvent(TrafficEventMessage *msg);
+    void handleCellularEvent(CellularEventMessage *msg);
+    void handleAirplaneModeEvent(AirplaneModeEventMessage *msg);
+    void handleBluetoothEvent(BluetoothEventMessage *msg);
+    void handleUnknownEvent(BaseEventMessage *msg);
+
 
     SimplePercentageBattery battery;
 };

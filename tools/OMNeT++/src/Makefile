@@ -35,13 +35,25 @@ OBJS = \
     $O/PhoneEventInjector.o \
     $O/SimplePercentageBattery.o \
     $O/Txc.o \
-    $O/BaseEventMessage_m.o \
-    $O/ScreenEventMessage_m.o
+    $O/event_messages/AirplaneModeEventMessage_m.o \
+    $O/event_messages/BaseEventMessage_m.o \
+    $O/event_messages/BatteryEventMessage_m.o \
+    $O/event_messages/BluetoothEventMessage_m.o \
+    $O/event_messages/CellularEventMessage_m.o \
+    $O/event_messages/ScreenEventMessage_m.o \
+    $O/event_messages/TrafficEventMessage_m.o \
+    $O/event_messages/WiFiEventMessage_m.o
 
 # Message files
 MSGFILES = \
-    BaseEventMessage.msg \
-    ScreenEventMessage.msg
+    event_messages/AirplaneModeEventMessage.msg \
+    event_messages/BaseEventMessage.msg \
+    event_messages/BatteryEventMessage.msg \
+    event_messages/BluetoothEventMessage.msg \
+    event_messages/CellularEventMessage.msg \
+    event_messages/ScreenEventMessage.msg \
+    event_messages/TrafficEventMessage.msg \
+    event_messages/WiFiEventMessage.msg
 
 # SM files
 SMFILES =

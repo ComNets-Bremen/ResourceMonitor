@@ -22,7 +22,7 @@ package eventsimulator;
 simple PhoneEventInjector
 {
     parameters:
-        xml eventFilename = xmldoc("examplefile.xml");
+        xml eventFilename = xmldoc("long.xml");
     gates:
         output out[] @loose;
 }
