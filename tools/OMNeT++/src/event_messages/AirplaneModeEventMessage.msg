@@ -21,7 +21,7 @@ message BaseEventMessage;
 //
 // TODO generated message class
 //
-message ScreenEventMessage extends BaseEventMessage {
-    payloadType=EVENT_TYPE_SCREEN;
-    bool screenOn;
+message AirplaneModeEventMessage extends BaseEventMessage {
+    payloadType=EVENT_TYPE_AIRPLANE_MODE;
+    bool airplaneModeOn;
 }

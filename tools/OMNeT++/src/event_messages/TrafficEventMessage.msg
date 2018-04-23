@@ -21,7 +21,10 @@ message BaseEventMessage;
 //
 // TODO generated message class
 //
-message ScreenEventMessage extends BaseEventMessage {
-    payloadType=EVENT_TYPE_SCREEN;
-    bool screenOn;
+message TrafficEventMessage extends BaseEventMessage {
+    payloadType=EVENT_TYPE_TRAFFIC;
+    long mobile_rx;
+    long mobile_tx;
+    long total_rx;
+    long total_tx;
 }

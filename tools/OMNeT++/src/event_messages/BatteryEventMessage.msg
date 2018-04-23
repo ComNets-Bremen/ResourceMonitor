@@ -21,7 +21,12 @@ message BaseEventMessage;
 //
 // TODO generated message class
 //
-message ScreenEventMessage extends BaseEventMessage {
-    payloadType=EVENT_TYPE_SCREEN;
-    bool screenOn;
+message BatteryEventMessage extends BaseEventMessage {
+    payloadType=EVENT_TYPE_BATTERY;
+    double percentage;
+    double theoreticalAbsolutePercentage;
+    bool chg_ac;
+    bool chg_usb;
+    bool chg_wireless;
+    bool is_charging;
 }

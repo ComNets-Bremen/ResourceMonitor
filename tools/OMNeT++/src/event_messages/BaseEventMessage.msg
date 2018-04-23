@@ -25,4 +25,5 @@ enum EventType;
 message BaseEventMessage {
     simtime_t injectionTime;
     int payloadType @enum(EventType);
+    payloadType=EVENT_TYPE_UNKNOWN;
 }
