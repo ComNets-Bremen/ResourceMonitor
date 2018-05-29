@@ -1,6 +1,11 @@
 Changelog
 =========
 
+### 2018-04-23, Version 0.35, Version Code 35
+
+- Switch to current gradle and Android API
+- Use android-job for job scheduling
+
 ### 2018-01-18, Version 0.34, Version Code 34
 
 - Minor change of upload parameters to overcome the upload problems on some

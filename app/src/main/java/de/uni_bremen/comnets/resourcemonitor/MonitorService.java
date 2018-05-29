@@ -17,6 +17,8 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.evernote.android.job.JobManager;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -58,11 +60,13 @@ public class MonitorService extends Service {
     public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT  = 60*60; // (in seconds) At maximum once per hour (externally triggered) for the upload
     // There seems to be a problem with intervals larger than one day: Jobs won't get triggered.
     // So we use smaller intervals and check frequenty if we should upload the data
-    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*1;  // (in seconds) min time
-    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*6; // (in seconds) max time
+    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*12;  // (in seconds) min time
+    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*24; // (in seconds) max time
     public static final long MIN_AUTO_UPLOAD_INTERVAL       = 60*60*12; // (in seconds): Run upload job if the last one is older than this time span
 
     private boolean dataCollectionRunning = false;
+
+    private JobManager mJobManager;
 
     PowerBroadcastReceiver powerBroadcastReceiver = null;
     ScreenBroadcastReceiver screenBroadcastReceiver = null;
@@ -74,7 +78,7 @@ public class MonitorService extends Service {
 
     DataUploadBroadcastReceiver dataUploadBroadcastReceiver = null;
 
-    AutomaticDataUploadJob uploadJob =  null;
+    int uploadJobId = -1;
 
     /**
      * Export data to json
@@ -311,20 +315,21 @@ public class MonitorService extends Service {
             stopDataCollection();
         }
 
+        JobManager.create(this).addJobCreator(new AndroidJobDataUploadJobCreator(this));
+        mJobManager = JobManager.instance();
+
         dataUploadBroadcastReceiver.register(this);
 
         boolean automaticDataUploadEnabled = preferences.getBoolean("automatic_data_upload", true);
 
-        uploadJob = new AutomaticDataUploadJob();
-
-        Log.d(TAG, "Automatic Data upload enabled? " + automaticDataUploadEnabled);
-        if(automaticDataUploadEnabled) {
-            if (uploadJob != null) {
-                uploadJob.start(this);
-            } else {
-                Log.e(TAG, "No upload job instance");
-            }
+        if (automaticDataUploadEnabled && uploadJobId < 0) {
+            Log.d(TAG, "Start upload");
+            uploadJobId = AndroidJobDataUploadJob.scheduleJob(this);
+        } else {
+            Log.d(TAG, "No upload");
         }
+
+
     }
 
     /**
@@ -353,8 +358,9 @@ public class MonitorService extends Service {
         //restartService();
 
         // Stop automatic data upload
-        if (uploadJob.isStarted()){
-            uploadJob.stop();
+        if (uploadJobId > 0){
+            AndroidJobDataUploadJob.cancelJob(uploadJobId);
+            uploadJobId = -1;
         }
         dataUploadBroadcastReceiver.unregister(this);
     }
@@ -455,20 +461,21 @@ public class MonitorService extends Service {
 
             Log.d(TAG, "Automatic Data upload enabled? " + automaticDataUploadEnabled);
 
-            if (uploadJob.isStarted() && !automaticDataUploadEnabled){
-                uploadJob.stop();
+            if (uploadJobId > 0 && !automaticDataUploadEnabled){
+                AndroidJobDataUploadJob.cancelJob(uploadJobId);
+                uploadJobId = -1;
                 Log.d(TAG, "Automatic upload stopped");
-            } else if (!uploadJob.isStarted() && automaticDataUploadEnabled){
-                uploadJob.start(this);
+            } else if (uploadJobId < 0 && automaticDataUploadEnabled){
+                uploadJobId = AndroidJobDataUploadJob.scheduleJob(this);
                 Log.d(TAG, "Automatic upload started");
             }
         } else if (
-                key.equals("automatic_data_upload_only_on_unmetered_connection") &&
-                uploadJob.isStarted()
+                        key.equals("automatic_data_upload_only_on_unmetered_connection") &&
+                        uploadJobId > 0
                 ) {
             Log.d(TAG, "Restart automatic upload");
-            uploadJob.stop();
-            uploadJob.start(this);
+            AndroidJobDataUploadJob.cancelJob(uploadJobId);
+            uploadJobId = AndroidJobDataUploadJob.scheduleJob(this);
         }
     }
 

@@ -7,9 +7,9 @@ android {
     defaultConfig {
         applicationId "de.uni_bremen.comnets.resourcemonitor"
         minSdkVersion 18
-        targetSdkVersion 25
-        versionCode 34
-        versionName "0.34"
+        targetSdkVersion 26
+        versionCode 35
+        versionName "0.35"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -28,9 +28,10 @@ dependencies {
     api 'com.firebase:firebase-jobdispatcher:0.8.4'
     //compile 'com.google.android.gms:play-services:11.6.0'
     api 'com.google.android.gms:play-services-base:15.0.0'
-    api 'com.android.support:appcompat-v7:25.4.0'
+    api 'com.android.support:appcompat-v7:26.1.0'
     api 'com.android.support.constraint:constraint-layout:1.1.0'
-    api 'com.android.support:support-v4:25.4.0'
+    api 'com.android.support:support-v4:26.1.0'
     //testCompile 'junit:junit:4.12'
     api 'com.google.android.gms:play-services-oss-licenses:15.0.0'
+    implementation 'com.evernote:android-job:1.2.5'
 }
