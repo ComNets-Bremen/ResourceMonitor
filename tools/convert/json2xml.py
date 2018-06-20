@@ -18,6 +18,8 @@ from dateutil import parser as dtparser
 import xml.etree.ElementTree as ET
 import random
 
+import numpy as np
+
 argparser = argparse.ArgumentParser(description="Convert the json data from the ResourceMonitor app to an event XML file.")
 argparser.add_argument('infile', metavar='input', type=str, help="Input file name")
 argparser.add_argument('outfile', metavar='output', type=str, help="output file name")
@@ -33,6 +35,7 @@ if args.gzip:
 
 allDatasets = []
 configDict = {}
+batteryStats = []
 minTimestamp = None
 
 print("Processing file", args.infile)
@@ -45,20 +48,31 @@ with opener(args.infile, "rb") as rf:
                 attributes = {}
                 attributes["data_type"] = k
 
+
+                if "time" in eventLine:
+                    dt = dtparser.parse(eventLine["time"])
+                    attributes["timestamp_s"] = dt.timestamp()
+                    attributes["time"] = eventLine["time"]
+                    if minTimestamp == None:
+                        minTimestamp = dt.timestamp()
+                    else:
+                        minTimestamp = min(minTimestamp, dt.timestamp())
+
+                if k == "BatteryStatus":
+                    batteryStats.append({
+                            "timestamp_s": attributes["timestamp_s"],
+                            "percentage" : eventLine["percentage"],
+                            "is_charging": eventLine["is_charging"],
+                        })
+
+
                 for eventAttribute in eventLine:
-                    if eventAttribute.startswith("_"):
+                    if eventAttribute.startswith("_") or\
+                            eventAttribute == "time":
                         # Ignore _id etc.
+                        # Ignore time as it was handled before
                         continue
                     else:
-                        if eventAttribute == "time":
-                            dt = dtparser.parse(eventLine[eventAttribute])
-                            attributes["timestamp_s"] = dt.timestamp()
-                            attributes[eventAttribute] = eventLine[eventAttribute]
-                            if minTimestamp == None:
-                                minTimestamp = dt.timestamp()
-                            else:
-                                minTimestamp = min(minTimestamp, dt.timestamp())
-
                         if eventAttribute == "percentage":
                             if k not in lastPercentages:
                                 lastPercentages[k] = eventLine[eventAttribute]
@@ -77,7 +91,28 @@ with opener(args.infile, "rb") as rf:
 
 configDict["timestamp_delta"] = minTimestamp
 
-print("Got all datasets. Normalizing the times")
+print("Got all datasets")
+
+print("Calculating battery statistics")
+orderedBatteryStats = sorted(batteryStats, key=lambda k: k["timestamp_s"])
+batCharge = []
+batDischarge = []
+for n, v in enumerate(orderedBatteryStats):
+    if n > 1:
+        percentageDelta = v["percentage"] - orderedBatteryStats[n-1]["percentage"]
+        timeDelta = v["timestamp_s"] - orderedBatteryStats[n-1]["timestamp_s"]
+
+        if timeDelta == 0:
+            continue
+
+        deltaPerHour = percentageDelta * 60.0 * 60.0 / timeDelta
+
+        if orderedBatteryStats[n-1]["is_charging"]:
+            batCharge.append(deltaPerHour)
+        else:
+            batDischarge.append(deltaPerHour)
+
+print("Normalizing datasets")
 
 # Check structure, some fixes for XML
 for i in range(len(allDatasets)):
@@ -96,6 +131,20 @@ doc = ET.SubElement(root, "events")
 conf = ET.SubElement(root, "config")
 for c in configDict:
     ET.SubElement(conf, c, {}).text = str(configDict[c])
+
+# The parameters
+par = ET.SubElement(root, "parameters")
+if len(batCharge):
+    ET.SubElement(par, "battery_charge_min", {}).text = str(np.min(batCharge))
+    ET.SubElement(par, "battery_charge_max", {}).text = str(np.max(batCharge))
+    ET.SubElement(par, "battery_charge_median", {}).text = str(np.median(batCharge))
+    ET.SubElement(par, "battery_charge_mean", {}).text = str(np.mean(batCharge))
+
+if len(batDischarge):
+    ET.SubElement(par, "battery_discharge_min", {}).text = str(np.min(batDischarge))
+    ET.SubElement(par, "battery_discharge_max", {}).text = str(np.max(batDischarge))
+    ET.SubElement(par, "battery_discharge_median", {}).text = str(np.median(batDischarge))
+    ET.SubElement(par, "battery_discharge_mean", {}).text = str(np.mean(batDischarge))
 
 print("Create XML document")
 for l in orderedList:
