@@ -8,7 +8,7 @@ import json
 import argparse
 import gzip
 
-argparser = argparse.ArgumentParser(description="Analze exported files from ResourceMonitor")
+argparser = argparse.ArgumentParser(description="Analyze exported files from ResourceMonitor")
 argparser.add_argument('file', metavar='filename', type=str, help="Filename to process")
 argparser.add_argument('-z', "--gzip", action="store_true", help="Input file is gzip compressed")
 
