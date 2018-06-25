@@ -84,6 +84,8 @@ public class CellularBroadcastReceiver extends AbstractResourceBroadcastReceiver
                 return 5;
             case DISCONNECTED:
                 return 6;
+            case DISCONNECTING:
+                return 7;
             case SUSPENDED:
                 return 11;
             default:
