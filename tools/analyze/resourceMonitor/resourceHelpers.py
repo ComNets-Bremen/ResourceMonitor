@@ -57,7 +57,7 @@ class ResourceDataHandler():
             normalizedTime = dt.astimezone(self.timezone)
             return normalizedTime.replace(tzinfo=None)
         else:
-            return parser.parse(datestring)
+            return parser.parse(datestring).replace(tzinfo=None)
 
     # Return a all array-like fields from the json object
     def getArrayFields(self, empty=False):

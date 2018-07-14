@@ -84,11 +84,11 @@ for f in args.files:
 # Check if mMin / xMax were set via CLI
 
 if args.xmin != None:
-    xMin = dparser.parse(args.xmin)
+    xMin = dparser.parse(args.xmin).replace(tzinfo=None)
     print "xMin set to", xMin, "via CLI"
 
 if args.xmax != None:
-    xMax = dparser.parse(args.xmax)
+    xMax = dparser.parse(args.xmax).replace(tzinfo=None)
     print "xMax set to", xMax, "via CLI"
 
 print "Using xMin", xMin, "and xMax", xMax
