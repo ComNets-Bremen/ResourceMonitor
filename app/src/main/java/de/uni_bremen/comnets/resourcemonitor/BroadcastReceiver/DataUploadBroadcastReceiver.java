@@ -9,7 +9,7 @@ import de.uni_bremen.comnets.resourcemonitor.MonitorService;
 
 /**
  * BroadcastReceiver for the data upload.
- * Triggered by the AndroidJobDataUploadJob
+ * Triggered by the UploadWorker
  */
 public class DataUploadBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 

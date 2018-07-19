@@ -17,8 +17,6 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.evernote.android.job.JobManager;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,6 +28,8 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.zip.GZIPOutputStream;
 
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.BluetoothBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.ByteCountBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.CellularBroadcastReceiver;
@@ -54,19 +54,14 @@ public class MonitorService extends Service {
     SQLiteDatabase writableDb;
     static EnergyMonitorDbHelper energyMonitorDbHelper = null;
     String lastDataItemStored = null;
-    String lastNotification = null;
 
     // Settings for the background upload intervals
     public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT  = 60*60; // (in seconds) At maximum once per hour (externally triggered) for the upload
-    // There seems to be a problem with intervals larger than one day: Jobs won't get triggered.
-    // So we use smaller intervals and check frequenty if we should upload the data
     public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*12;  // (in seconds) min time
     public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*24; // (in seconds) max time
     public static final long MIN_AUTO_UPLOAD_INTERVAL       = 60*60*12; // (in seconds): Run upload job if the last one is older than this time span
 
     private boolean dataCollectionRunning = false;
-
-    private JobManager mJobManager;
 
     PowerBroadcastReceiver powerBroadcastReceiver = null;
     ScreenBroadcastReceiver screenBroadcastReceiver = null;
@@ -78,7 +73,8 @@ public class MonitorService extends Service {
 
     DataUploadBroadcastReceiver dataUploadBroadcastReceiver = null;
 
-    int uploadJobId = -1;
+
+    PeriodicWorkRequest uploadWorkRequest = null;
 
     /**
      * Export data to json
@@ -289,6 +285,7 @@ public class MonitorService extends Service {
 
         if (preferences.getBoolean("show_notification_bar", true)) {
             mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            updateNotification();
         }
 
         if (energyMonitorDbHelper == null) {
@@ -315,18 +312,16 @@ public class MonitorService extends Service {
             stopDataCollection();
         }
 
-        JobManager.create(this).addJobCreator(new AndroidJobDataUploadJobCreator(this));
-        mJobManager = JobManager.instance();
 
         dataUploadBroadcastReceiver.register(this);
 
         boolean automaticDataUploadEnabled = preferences.getBoolean("automatic_data_upload", true);
 
-        if (automaticDataUploadEnabled && uploadJobId < 0) {
-            Log.d(TAG, "Start upload");
-            uploadJobId = AndroidJobDataUploadJob.scheduleJob(this);
+        if (automaticDataUploadEnabled && uploadWorkRequest == null){
+            uploadWorkRequest = UploadWorker.getWorkRequest(this);
+            Log.d(TAG, "Upload worker started");
         } else {
-            Log.d(TAG, "No upload");
+            Log.d(TAG, "No upload job scheduled");
         }
 
 
@@ -356,13 +351,14 @@ public class MonitorService extends Service {
             mNM.cancelAll();
         }
         //restartService();
-
-        // Stop automatic data upload
-        if (uploadJobId > 0){
-            AndroidJobDataUploadJob.cancelJob(uploadJobId);
-            uploadJobId = -1;
+/*
+        if (uploadWorkRequest != null){
+            WorkManager.getInstance().cancelWorkById(uploadWorkRequest.getId());
+            uploadWorkRequest = null;
         }
+
         dataUploadBroadcastReceiver.unregister(this);
+*/
     }
 
 
@@ -378,19 +374,12 @@ public class MonitorService extends Service {
 
     private final IBinder mBinder = new MonitorServiceBinder();
 
-    /**
-     * Show last notification
-     */
-    private void showNotification(){
-        showNotification(lastNotification);
-    }
 
     /**
      * Show / update a notification
      * @param text The notification string
      */
     private void showNotification(String text) {
-        lastNotification = text;
 
         if (mNM == null){
             return;
@@ -454,28 +443,31 @@ public class MonitorService extends Service {
             //    Toast.makeText(this, getText(R.string.cannot_deactivate_icon), Toast.LENGTH_LONG).show();
             //    preferences.edit().putBoolean("show_notification_bar", true).apply();
             //}
-            showNotification();
+            updateNotification();
 
         } else if (key.equals("automatic_data_upload")) {
             boolean automaticDataUploadEnabled = preferences.getBoolean("automatic_data_upload", true);
 
             Log.d(TAG, "Automatic Data upload enabled? " + automaticDataUploadEnabled);
 
-            if (uploadJobId > 0 && !automaticDataUploadEnabled){
-                AndroidJobDataUploadJob.cancelJob(uploadJobId);
-                uploadJobId = -1;
+            if (uploadWorkRequest != null && !automaticDataUploadEnabled){
+                WorkManager.getInstance().cancelWorkById(uploadWorkRequest.getId());
+                uploadWorkRequest = null;
                 Log.d(TAG, "Automatic upload stopped");
-            } else if (uploadJobId < 0 && automaticDataUploadEnabled){
-                uploadJobId = AndroidJobDataUploadJob.scheduleJob(this);
+            } else if (uploadWorkRequest == null && automaticDataUploadEnabled){
+                uploadWorkRequest = UploadWorker.getWorkRequest(this);
                 Log.d(TAG, "Automatic upload started");
             }
         } else if (
                         key.equals("automatic_data_upload_only_on_unmetered_connection") &&
-                        uploadJobId > 0
+                        uploadWorkRequest != null
                 ) {
             Log.d(TAG, "Restart automatic upload");
-            AndroidJobDataUploadJob.cancelJob(uploadJobId);
-            uploadJobId = AndroidJobDataUploadJob.scheduleJob(this);
+            //TODO Cancel and restart
+            WorkManager.getInstance().cancelWorkById(uploadWorkRequest.getId());
+            Log.d(TAG, "Job cancelled, restart");
+            uploadWorkRequest = UploadWorker.getWorkRequest(this);
+            Log.d(TAG, "Restart done");
         }
     }
 
