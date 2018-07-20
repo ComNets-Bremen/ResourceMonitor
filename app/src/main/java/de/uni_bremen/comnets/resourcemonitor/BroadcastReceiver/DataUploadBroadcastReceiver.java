@@ -32,4 +32,10 @@ public class DataUploadBroadcastReceiver extends AbstractResourceBroadcastReceiv
 
         return intentFilter;
     }
+
+    @Override
+    public BroadcastReceiverDescriptor getReceiverDescription() {
+        // No user data collected -> not mentioned for the GDPR
+        return null;
+    }
 }

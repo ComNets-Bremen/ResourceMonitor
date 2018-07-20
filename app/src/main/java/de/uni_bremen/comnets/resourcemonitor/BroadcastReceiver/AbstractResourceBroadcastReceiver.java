@@ -9,6 +9,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import de.uni_bremen.comnets.resourcemonitor.MonitorService;
 
 import static de.uni_bremen.comnets.resourcemonitor.Helper.isPowerSaving;
@@ -31,6 +35,8 @@ public abstract class AbstractResourceBroadcastReceiver extends BroadcastReceive
 
     private SQLiteDatabase writableDb;
 
+    private static HashMap<String, BroadcastReceiverDescriptor> registeredReceivers = new HashMap<String, BroadcastReceiverDescriptor>();
+
     /**
      * Constructor, db needed
      * @param db A writable database
@@ -50,6 +56,24 @@ public abstract class AbstractResourceBroadcastReceiver extends BroadcastReceive
      * @return the returned intentFilter
      */
     public abstract IntentFilter getIntentFilter(IntentFilter intentFilter);
+
+    /**
+     * Children have to implement this method with a string describing the receiver.
+     * This is required to explain the user more in detail what is happening to the data and what
+     * kind of data is collected by the app.
+     *
+     * @return BroadcastReceiverDescriptor class describing the receiver
+     */
+    public abstract BroadcastReceiverDescriptor getReceiverDescription();
+
+    /**
+     * Get the list of all registered receivers
+     *
+     * @return A hashmap with all registered receivers
+     */
+    public static HashMap<String, BroadcastReceiverDescriptor> getRegisteredReceivers(){
+        return registeredReceivers;
+    }
 
 
     /**
@@ -102,8 +126,19 @@ public abstract class AbstractResourceBroadcastReceiver extends BroadcastReceive
 
             IntentFilter intentFilter = new IntentFilter();
             context.registerReceiver(mReceiver, getIntentFilter(intentFilter));
+            BroadcastReceiverDescriptor descriptor = mReceiver.getReceiverDescription();
+            if (descriptor != null) {
+                registeredReceivers.put(TAG, descriptor);
+            }
             afterRegister(context);
         }
+/*
+        Log.d(TAG, "###########");
+        for (String key:registeredReceivers.keySet()){
+            Log.d(TAG, "HAVE RECEIVER: " + registeredReceivers.get(key).getDescription() + " with value " + registeredReceivers.get(key));
+        }
+        Log.d(TAG, "###########");
+*/
     }
 
     /**
@@ -114,6 +149,9 @@ public abstract class AbstractResourceBroadcastReceiver extends BroadcastReceive
         Log.d(TAG, "unregister");
         if (mReceiver != null){
             context.unregisterReceiver(mReceiver);
+            if (registeredReceivers.containsKey(TAG)){
+                registeredReceivers.remove(TAG);
+            }
             mReceiver = null;
         }
     }

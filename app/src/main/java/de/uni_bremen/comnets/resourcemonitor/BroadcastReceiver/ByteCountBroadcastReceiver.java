@@ -41,4 +41,12 @@ public class ByteCountBroadcastReceiver extends AbstractResourceBroadcastReceive
         return intentFilter;
     }
 
+    @Override
+    public BroadcastReceiverDescriptor getReceiverDescription() {
+        return new BroadcastReceiverDescriptor(
+                "Traffic Receiver",
+                "This receiver collects data traffic related values. It stores the number of bytes sent and received in total and via the mobile connection."
+        );
+    }
+
 }

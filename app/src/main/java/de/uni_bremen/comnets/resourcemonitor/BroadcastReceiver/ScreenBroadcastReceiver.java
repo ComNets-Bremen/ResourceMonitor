@@ -43,4 +43,11 @@ public class ScreenBroadcastReceiver extends AbstractResourceBroadcastReceiver {
 
         return intentFilter;
     }
+
+    @Override
+    public BroadcastReceiverDescriptor getReceiverDescription() {
+        return new BroadcastReceiverDescriptor(
+                "Screen Status",
+                "This receiver collects the screen status, i.e. if the screen is on or off.");
+    }
 }

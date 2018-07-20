@@ -35,16 +35,28 @@ public class BluetoothBroadcastReceiver extends AbstractResourceBroadcastReceive
     public void afterRegister(Context context) {
         super.afterRegister(context);
 
-        ContentValues contentValues = new ContentValues();
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        int state = BluetoothAdapter.getDefaultAdapter().getState();
-        contentValues.put(EnergyMonitorContract.BluetoothStatusEntry.COLUMN_NAME_BLUETOOTH_STATUS, state);
-        storeValues(EnergyMonitorContract.BluetoothStatusEntry.TABLE_NAME, contentValues);
+        if (bluetoothAdapter != null) {
+            ContentValues contentValues = new ContentValues();
+
+            int state = bluetoothAdapter.getState();
+            contentValues.put(EnergyMonitorContract.BluetoothStatusEntry.COLUMN_NAME_BLUETOOTH_STATUS, state);
+            storeValues(EnergyMonitorContract.BluetoothStatusEntry.TABLE_NAME, contentValues);
+        }
     }
 
     @Override
     public IntentFilter getIntentFilter(IntentFilter intentFilter){
         intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         return intentFilter;
+    }
+
+    @Override
+    public BroadcastReceiverDescriptor getReceiverDescription() {
+        return new BroadcastReceiverDescriptor(
+                "Bluetooth Status",
+                "This receiver records the status of the Bluetooth status. The possible values are: STATE_OFF, STATE_ON, STATE_TURNING_OFF, STATE_TURNING_OFF."
+        );
     }
 }

@@ -29,6 +29,14 @@ public class CellularBroadcastReceiver extends AbstractResourceBroadcastReceiver
     }
 
     @Override
+    public BroadcastReceiverDescriptor getReceiverDescription() {
+        return new BroadcastReceiverDescriptor(
+                "Cellular Interface Status",
+                "This receiver collects data regarding the mobile connection. It stores the status (i.e. CONNECTED, CONNECTING, DISCONNECTED, DISCONNECTING, SUSPENDED) and the name of the type of the connection (i.e. LTE; GSM, 3G etc.)."
+        );
+    }
+
+    @Override
     public void onReceive(Context context, Intent intent) {
         ConnectivityManager conn =  (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 

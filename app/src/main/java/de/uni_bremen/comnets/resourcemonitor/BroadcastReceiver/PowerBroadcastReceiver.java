@@ -26,6 +26,14 @@ public class PowerBroadcastReceiver extends AbstractResourceBroadcastReceiver {
     }
 
     @Override
+    public BroadcastReceiverDescriptor getReceiverDescription() {
+        return new BroadcastReceiverDescriptor(
+                "Power Status",
+                "This receiver collects data regarding the current power status, i.e. the battery level, if the device is charging and if so, the power source (i.e. USB, AC or Wireless)."
+        );
+    }
+
+    @Override
     public void onReceive(Context context, Intent intent) {
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||

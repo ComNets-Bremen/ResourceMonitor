@@ -42,6 +42,13 @@ public class WiFiBroadcastReceiver extends AbstractResourceBroadcastReceiver {
         return intentFilter;
     }
 
+    @Override
+    public BroadcastReceiverDescriptor getReceiverDescription() {
+        return new BroadcastReceiverDescriptor(
+                "WiFi Status",
+                "This receiver collects data regaring the current WiFi status. No SSIDs or MAC addresses are stored. The possible values are: AUTHENTICATING, BLOCKED, CAPTIVE_PORTAL_CHECK, CONNECTED, CONNECTING, DISCONNECTED, FAILED, IDLE, OBTAINING_IPADDR, SCANNING, VERIFYING_POOR_LINK");
+    }
+
 
     /**
      * Convert the enum values to integer values to reduce the database overhead

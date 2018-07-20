@@ -26,6 +26,14 @@ public class AirplaneModeBroadcastReceiver extends AbstractResourceBroadcastRece
     }
 
     @Override
+    public BroadcastReceiverDescriptor getReceiverDescription() {
+        return new BroadcastReceiverDescriptor(
+                "Airplane Mode",
+                "This receiver records whether the airplane mode is switched on or off."
+        );
+    }
+
+    @Override
     public void afterRegister(Context context) {
         super.afterRegister(context);
 
