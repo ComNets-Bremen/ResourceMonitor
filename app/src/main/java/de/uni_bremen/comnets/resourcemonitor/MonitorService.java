@@ -1,6 +1,7 @@
 package de.uni_bremen.comnets.resourcemonitor;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -11,8 +12,10 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -28,8 +31,10 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.zip.GZIPOutputStream;
 
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
+import androidx.work.WorkStatus;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.BluetoothBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.ByteCountBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.CellularBroadcastReceiver;
@@ -56,10 +61,9 @@ public class MonitorService extends Service {
     String lastDataItemStored = null;
 
     // Settings for the background upload intervals
-    public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT  = 60*60; // (in seconds) At maximum once per hour (externally triggered) for the upload
-    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*12;  // (in seconds) min time
-    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*24; // (in seconds) max time
-    public static final long MIN_AUTO_UPLOAD_INTERVAL       = 60*60*12; // (in seconds): Run upload job if the last one is older than this time span
+    public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT  = 60*60;     // (in seconds) At maximum once per hour (externally triggered) for the upload
+    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*24;  // (in seconds) min time
+    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*36;  // (in seconds) max time
 
     private boolean dataCollectionRunning = false;
 
@@ -73,8 +77,6 @@ public class MonitorService extends Service {
 
     DataUploadBroadcastReceiver dataUploadBroadcastReceiver = null;
 
-
-    PeriodicWorkRequest uploadWorkRequest = null;
 
     /**
      * Export data to json
@@ -283,7 +285,10 @@ public class MonitorService extends Service {
         }
 */
 
-        if (preferences.getBoolean("show_notification_bar", true)) {
+        // Required for Android > O
+        createNotificationChannel();
+
+        if (showNotificationBar()) {
             mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             updateNotification();
         }
@@ -316,14 +321,22 @@ public class MonitorService extends Service {
         dataUploadBroadcastReceiver.register(this);
 
         boolean automaticDataUploadEnabled = preferences.getBoolean("automatic_data_upload", true);
+        WorkManager workManager = WorkManager.getInstance();
+        if (workManager != null){
+            //workManager.cancelAllWork();
 
-        if (automaticDataUploadEnabled && uploadWorkRequest == null){
-            uploadWorkRequest = UploadWorker.getWorkRequest(this);
-            Log.d(TAG, "Upload worker started");
+            if (automaticDataUploadEnabled && numUploadJobActive() == 0){
+                cancelAllUploadJobs();
+
+                //workManager.enqueue(UploadWorker.getWorkRequest(this));
+                workManager.enqueueUniquePeriodicWork(UploadWorker.TAG, ExistingPeriodicWorkPolicy.REPLACE, UploadWorker.getWorkRequest(this));
+                Log.d(TAG, "Upload worker started");
+            } else {
+                Log.d(TAG, "No upload job scheduled");
+            }
         } else {
-            Log.d(TAG, "No upload job scheduled");
+            Log.e(TAG, "Cannot get work manager instance");
         }
-
 
     }
 
@@ -351,14 +364,15 @@ public class MonitorService extends Service {
             mNM.cancelAll();
         }
         //restartService();
-/*
-        if (uploadWorkRequest != null){
-            WorkManager.getInstance().cancelWorkById(uploadWorkRequest.getId());
-            uploadWorkRequest = null;
+
+        WorkManager workManager = WorkManager.getInstance();
+        if (workManager != null){
+            cancelAllUploadJobs();
+            //workManager.cancelAllWorkByTag(UploadWorker.TAG);
         }
 
         dataUploadBroadcastReceiver.unregister(this);
-*/
+
     }
 
 
@@ -391,6 +405,7 @@ public class MonitorService extends Service {
                 new Intent(this, MainActivity.class)
                 , 0);
 
+        /*
         Notification notification = new Notification.Builder(this)
                 .setSmallIcon(R.mipmap.smallicon)
                 .setTicker(text)
@@ -399,6 +414,17 @@ public class MonitorService extends Service {
                 .setContentText(lastExport)
                 .setContentIntent(contentIntent)
                 .setOngoing(true)
+                .build();
+        */
+        Notification notification = new NotificationCompat.Builder(this, TAG+".notification_channel")
+                .setSmallIcon(R.mipmap.smallicon)
+                .setContentTitle(text)
+                .setContentText(lastExport)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                //.setWhen(System.currentTimeMillis())
+                .setOngoing(true)
+                .setTicker(text)
+                .setContentIntent(contentIntent)
                 .build();
 
         mNM.notify(NOTIFICATION_ID, notification);
@@ -429,14 +455,16 @@ public class MonitorService extends Service {
             }
         } else if (key.equals("show_notification_bar")){
             //if(!Helper.isPowerSaving(this)){
-                boolean showNotificationBar = preferences.getBoolean("show_notification_bar", true);
+                boolean showNotificationBar = showNotificationBar();
                 if (showNotificationBar && mNM == null){
                     Log.d(TAG, "Enable Notification Bar");
                     mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    updateNotification();
                 } else if (!showNotificationBar && mNM != null){
                     Log.d(TAG, "Disable Notification Bar");
                     mNM.cancelAll();
                     mNM = null;
+                    updateNotification();
                 }
             //} else {
             //    if (!preferences.getBoolean("show_notification_bar", true))
@@ -446,28 +474,41 @@ public class MonitorService extends Service {
             updateNotification();
 
         } else if (key.equals("automatic_data_upload")) {
+            WorkManager workManager = WorkManager.getInstance();
+            if (workManager == null){
+                Log.e(TAG, "Cannot get WorkManager instance!");
+            } else {
             boolean automaticDataUploadEnabled = preferences.getBoolean("automatic_data_upload", true);
 
             Log.d(TAG, "Automatic Data upload enabled? " + automaticDataUploadEnabled);
 
-            if (uploadWorkRequest != null && !automaticDataUploadEnabled){
-                WorkManager.getInstance().cancelWorkById(uploadWorkRequest.getId());
-                uploadWorkRequest = null;
+            if (numUploadJobActive() > 0 && !automaticDataUploadEnabled){
+                Log.d(TAG, "Cancel all upload jobs " + numUploadJobActive());
+                cancelAllUploadJobs();
                 Log.d(TAG, "Automatic upload stopped");
-            } else if (uploadWorkRequest == null && automaticDataUploadEnabled){
-                uploadWorkRequest = UploadWorker.getWorkRequest(this);
+            } else if (automaticDataUploadEnabled && numUploadJobActive() == 0){
+                //workManager.enqueue(UploadWorker.getWorkRequest(this));
+                workManager.enqueueUniquePeriodicWork(UploadWorker.TAG, ExistingPeriodicWorkPolicy.REPLACE, UploadWorker.getWorkRequest(this));
                 Log.d(TAG, "Automatic upload started");
+            }
             }
         } else if (
                         key.equals("automatic_data_upload_only_on_unmetered_connection") &&
-                        uploadWorkRequest != null
+                        numUploadJobActive() > 0 &&
+                                preferences.getBoolean("automatic_data_upload_only_on_unmetered_connection", true) != UploadWorker.onlyUnmeteredConnection()
                 ) {
-            Log.d(TAG, "Restart automatic upload");
-            //TODO Cancel and restart
-            WorkManager.getInstance().cancelWorkById(uploadWorkRequest.getId());
-            Log.d(TAG, "Job cancelled, restart");
-            uploadWorkRequest = UploadWorker.getWorkRequest(this);
-            Log.d(TAG, "Restart done");
+            WorkManager workManager = WorkManager.getInstance();
+            if (workManager == null){
+                Log.e(TAG, "Cannot get WorkManager instance!");
+            } else {
+                Log.d(TAG, "Restart automatic upload");
+                cancelAllUploadJobs();
+                //workManager.cancelAllWorkByTag(UploadWorker.TAG);
+                Log.d(TAG, "Job cancelled, restart");
+                //workManager.enqueue(UploadWorker.getWorkRequest(this));
+                workManager.enqueueUniquePeriodicWork(UploadWorker.TAG, ExistingPeriodicWorkPolicy.REPLACE, UploadWorker.getWorkRequest(this));
+                Log.d(TAG, "Restart done");
+            }
         }
     }
 
@@ -717,5 +758,81 @@ public class MonitorService extends Service {
      */
     public void uploadToServer(){
         uploadToServer(null);
+    }
+
+    /**
+     * Creates a notification channel for Android API 26+
+     */
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            CharSequence name = getString(R.string.app_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel channel = new NotificationChannel(TAG+".notification_channel", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    /**
+     * Return if a notification bar should be shown
+     *
+     * @return  true if it should be shown, otherwise false
+     */
+    private boolean showNotificationBar() {
+        // TODO change for API level 26 and higher!
+        /*
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return true;
+        }
+        */
+        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("show_notification_bar", true);
+    }
+
+    /**
+     * Check for active background jobs
+     *
+     * @return  True if a background job is active, otherwise false
+     */
+    private int numUploadJobActive() {
+        WorkManager workManager = WorkManager.getInstance();
+        if (workManager == null) {
+            Log.e(TAG, "WorkManager: Cannot get instance of work manager!");
+            return 0;
+        }
+        List<WorkStatus> statuses = workManager.getStatusesByTag(UploadWorker.TAG).getValue();
+        if (statuses == null){
+            Log.d(TAG, "WorkManager: status null");
+            return 0;
+        }
+        return statuses.size();
+
+    }
+
+    private void cancelAllUploadJobs(){
+        WorkManager workManager = WorkManager.getInstance();
+        if (workManager == null){
+            Log.e(TAG, "WorkManager: Cannot get instance of work manager!");
+            return;
+        }
+
+        workManager.cancelUniqueWork(UploadWorker.TAG);
+
+        List<WorkStatus> statuses = workManager.getStatusesByTag(UploadWorker.TAG).getValue();
+        if (statuses == null){
+            Log.d(TAG, "WorkManager: status: null");
+            return;
+        }
+
+        for (WorkStatus status : statuses){
+            Log.d(TAG, "WorkManager: Cancelling job");
+            workManager.cancelWorkById(status.getId());
+        }
     }
 }
