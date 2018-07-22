@@ -1,6 +1,17 @@
 Changelog
 =========
 
+### 2018-07-22, Version 0.36, Version Code 36
+
+- Update some dependencies
+- Switch to WorkManager to upload the data
+- Change target version
+- Bugfix for devices w/o Bluetooth
+- Show more details about the used receivers. Collect this data dynamically
+  from the receiver modules
+- Upload should now work on Android O
+
+
 ### 2018-04-23, Version 0.35, Version Code 35
 
 - Switch to current gradle and Android API
