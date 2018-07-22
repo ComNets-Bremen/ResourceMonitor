@@ -30,7 +30,7 @@
     <string name="mail_developer_body">Bitte die nachfolgenden Informationen nicht verändern. Dies hilft und mögliche Probleme zu beheben.</string>
     <string name="dialog_export_provider">Anwendung auswählen</string>
     <string name="action_version_info">Versionsinfo</string>
-    <string name="action_info">Über diese App</string>
+    <string name="action_info">Über diese App / Datenschutz</string>
     <string name="action_github">ResourceMonitor auf GitHub</string>
     <string name="action_export_file">Datenbank in eine Datei exportieren</string>
     <string name="action_contact">ComNets kontaktieren</string>
@@ -59,7 +59,7 @@
     <string name="action_manual">Anleitung</string>
     <string name="last_item_to_db">Letzte Messung: %1$s</string>
     <string name="settings_show_notification_bar">Zeige Benachrichtigung</string>
-    <string name="settings_show_notification_bar_summary">Zeige ein App-Symbol im Benachrichtigungsbereich.</string>
+    <string name="settings_show_notification_bar_summary">Zeige ein App-Symbol im Benachrichtigungsbereich. Dies ist sich ab Android 6.0 / Marshmallow nicht mehr verfügbar.</string>
     <string name="cannot_deactivate_icon">Kann die Benachrichtigung nicht deaktivieren: Android würde die Messwertaufnahme stoppen.</string>
     <string name="info_discharge_unit">%1$s %%/Stunde</string>
     <string name="info_text_24h_time">Letzte 24 Stunden</string>
@@ -95,4 +95,7 @@
     <string name="upload_failed_multiple_times">Der Datenupload ist mehrere Male schief gelaufen. Vielleicht sollten sie den automatischen Upload deaktivieren und die Daten manuell übertragen, wenn sie online sind.</string>
     <string name="upload_failed_multiple_times_title">Upload mehrfach fehlgeschlagen</string>
     <string name="txt_failed_uploads">Fehlgeschlagene Uploads</string>
+    <string name="channel_description">Resource Monitor Data</string>
+    <string name="broadcast_module_info_title">Verwendete Datenquellen</string>
+    <string name="broadcast_module_info_description">Dies ist eine kurze, automatisch generierte Beschreibung aller verwendeten Datensätze. Neben den Beschriebenen Daten wird ebenfalls jeweils die Uhrzeit und das Datum gespeichert.</string>
 </resources>

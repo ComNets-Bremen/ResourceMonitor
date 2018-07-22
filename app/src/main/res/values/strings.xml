@@ -25,7 +25,7 @@
     <string name="export_progress_text">Starting…</string>
     <string name="export_failed">Export failed</string>
     <string name="settings_data_collection_summary">Enable / disable the data collection</string>
-    <string name="action_info">About this App</string>
+    <string name="action_info">About this App / Data Privacy</string>
     <string name="action_version_info">Version info</string>
     <string name="action_contact">Contact ComNets</string>
     <string name="action_github">Visit project on GitHub</string>
@@ -65,7 +65,7 @@
     <string name="action_manual">App manual</string>
     <string name="last_item_to_db">Last measurement: %1$s</string>
     <string name="settings_show_notification_bar">Show Notification Bar</string>
-    <string name="settings_show_notification_bar_summary">Show an app icon in the notification bar.</string>
+    <string name="settings_show_notification_bar_summary">Show an app icon in the notification bar. Not available starting with Android 6.0 / Marshmallow.</string>
     <string name="cannot_deactivate_icon">Cannot deactivate notification: Android might stop the data acquisition.</string>
     <string name="info_text_total_time">Total time</string>
     <string name="info_discharge_unit">%1$s %%/hour</string>
@@ -101,4 +101,7 @@
     <string name="upload_failed_multiple_times" >The data upload failed multiple times. Maybe think about disabling the automatic upload and manually upload the data if an internet connection is available.</string>
     <string name="upload_failed_multiple_times_title" >Upload failed multiple times</string>
     <string name="txt_failed_uploads">Failed uploads</string>
+    <string name="channel_description">Resource Monitor Data</string>
+    <string name="broadcast_module_info_title">Used Data Sources</string>
+    <string name="broadcast_module_info_description">This is a brief automatically generated description of all used receivers and the type of the collected data. In addition to the collected data the current date and time are stored as well.</string>
 </resources>
