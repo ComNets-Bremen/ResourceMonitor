@@ -26,9 +26,13 @@ import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.AbstractResourceBroadcastReceiver;
+import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.BroadcastReceiverDescriptor;
 
 public class MainActivity extends AppCompatActivity
                 implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -184,7 +188,20 @@ public class MainActivity extends AppCompatActivity
                     InputStream ioHelp = getResources().openRawResource(R.raw.infotext);
                     byte[] b = new byte[ioHelp.available()];
                     ioHelp.read(b);
-                    text = new String(b);
+                    StringBuilder stringBuilder = new StringBuilder(new String(b));
+                    stringBuilder.append("<h2>" + getString(R.string.broadcast_module_info_title) + "</h2>");
+                    stringBuilder.append(getString(R.string.broadcast_module_info_description));
+
+                    HashMap<String, BroadcastReceiverDescriptor> receivers = AbstractResourceBroadcastReceiver.getRegisteredReceivers();
+
+                    for (String key : receivers.keySet()){
+                        stringBuilder.append("<h3>").append(receivers.get(key).getTitle()).append("</h3>");
+                        stringBuilder.append("<p>").append(receivers.get(key).getDescription()).append("</p>");
+                    }
+
+                    text = stringBuilder.toString();
+
+
                 } catch (IOException e) {
                     text = getResources().getString(R.string.dialog_not_available);
                 }
