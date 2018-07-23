@@ -32,9 +32,9 @@ public class UploadWorker extends Worker {
             getApplicationContext().sendBroadcast(intent);
             Log.d(TAG, "Sent upload intent");
 
-    } else {
-        Log.d(TAG, "Skipped current upload");
-    }
+        } else {
+            Log.d(TAG, "Skipped current upload");
+        }
         return Result.SUCCESS;
     }
 
@@ -44,17 +44,17 @@ public class UploadWorker extends Worker {
      *
      * @return true if unmetered, otherwise false
      */
-    public static boolean onlyUnmeteredConnection(){
+    public static boolean onlyUnmeteredConnection() {
         return useUnmeteredConnection;
     }
 
     /**
      * Return the contraints for the worker
      *
-     * @param context   The application context
-     * @return          The constaints
+     * @param context The application context
+     * @return The constaints
      */
-    public static Constraints getWorkerConstaints(Context context){
+    public static Constraints getWorkerConstaints(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         Constraints.Builder builder = new Constraints.Builder();
@@ -69,7 +69,7 @@ public class UploadWorker extends Worker {
         return builder.build();
     }
 
-    public static PeriodicWorkRequest getWorkRequest(Context context){
-        return new PeriodicWorkRequest.Builder(UploadWorker.class, MonitorService.MAX_PERIOD_DATA_UPLOAD_INTERVAL, TimeUnit.SECONDS, MonitorService.MAX_PERIOD_DATA_UPLOAD_INTERVAL-MonitorService.MIN_DATA_UPLOAD_INTERVAL_LIMIT, TimeUnit.SECONDS).setConstraints(getWorkerConstaints(context)).addTag(TAG).build();
+    public static PeriodicWorkRequest getWorkRequest(Context context) {
+        return new PeriodicWorkRequest.Builder(UploadWorker.class, MonitorService.MAX_PERIOD_DATA_UPLOAD_INTERVAL, TimeUnit.SECONDS, MonitorService.MAX_PERIOD_DATA_UPLOAD_INTERVAL - MonitorService.MIN_DATA_UPLOAD_INTERVAL_LIMIT, TimeUnit.SECONDS).setConstraints(getWorkerConstaints(context)).addTag(TAG).build();
     }
 }
