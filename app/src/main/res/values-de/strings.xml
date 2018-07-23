@@ -59,7 +59,7 @@
     <string name="action_manual">Anleitung</string>
     <string name="last_item_to_db">Letzte Messung: %1$s</string>
     <string name="settings_show_notification_bar">Zeige Benachrichtigung</string>
-    <string name="settings_show_notification_bar_summary">Zeige ein App-Symbol im Benachrichtigungsbereich. Dies ist sich ab Android 6.0 / Marshmallow nicht mehr verfügbar.</string>
+    <string name="settings_show_notification_bar_summary">Zeige ein App-Symbol im Benachrichtigungsbereich.</string>
     <string name="cannot_deactivate_icon">Kann die Benachrichtigung nicht deaktivieren: Android würde die Messwertaufnahme stoppen.</string>
     <string name="info_discharge_unit">%1$s %%/Stunde</string>
     <string name="info_text_24h_time">Letzte 24 Stunden</string>

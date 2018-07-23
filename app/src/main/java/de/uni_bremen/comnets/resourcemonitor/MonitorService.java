@@ -61,9 +61,9 @@ public class MonitorService extends Service {
     String lastDataItemStored = null;
 
     // Settings for the background upload intervals
-    public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT  = 60*60;     // (in seconds) At maximum once per hour (externally triggered) for the upload
-    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*24;  // (in seconds) min time
-    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*60*36;  // (in seconds) max time
+    public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT  = 60*15;     // (in seconds) At maximum once per hour (externally triggered) for the upload
+    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*15;  // (in seconds) min time
+    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*30;  // (in seconds) max time
 
     private boolean dataCollectionRunning = false;
 
@@ -323,13 +323,14 @@ public class MonitorService extends Service {
         boolean automaticDataUploadEnabled = preferences.getBoolean("automatic_data_upload", true);
         WorkManager workManager = WorkManager.getInstance();
         if (workManager != null){
-            //workManager.cancelAllWork();
+
+            // TODO: Check
+            workManager.cancelAllWork();
 
             if (automaticDataUploadEnabled && numUploadJobActive() == 0){
-                cancelAllUploadJobs();
 
                 //workManager.enqueue(UploadWorker.getWorkRequest(this));
-                workManager.enqueueUniquePeriodicWork(UploadWorker.TAG, ExistingPeriodicWorkPolicy.REPLACE, UploadWorker.getWorkRequest(this));
+                workManager.enqueueUniquePeriodicWork(UploadWorker.TAG, ExistingPeriodicWorkPolicy.KEEP, UploadWorker.getWorkRequest(this));
                 Log.d(TAG, "Upload worker started");
             } else {
                 Log.d(TAG, "No upload job scheduled");
@@ -367,7 +368,7 @@ public class MonitorService extends Service {
 
         WorkManager workManager = WorkManager.getInstance();
         if (workManager != null){
-            cancelAllUploadJobs();
+            workManager.cancelUniqueWork(UploadWorker.TAG);
             //workManager.cancelAllWorkByTag(UploadWorker.TAG);
         }
 
@@ -484,7 +485,7 @@ public class MonitorService extends Service {
 
             if (numUploadJobActive() > 0 && !automaticDataUploadEnabled){
                 Log.d(TAG, "Cancel all upload jobs " + numUploadJobActive());
-                cancelAllUploadJobs();
+                workManager.cancelUniqueWork(UploadWorker.TAG);
                 Log.d(TAG, "Automatic upload stopped");
             } else if (automaticDataUploadEnabled && numUploadJobActive() == 0){
                 //workManager.enqueue(UploadWorker.getWorkRequest(this));
@@ -501,10 +502,6 @@ public class MonitorService extends Service {
             if (workManager == null){
                 Log.e(TAG, "Cannot get WorkManager instance!");
             } else {
-                Log.d(TAG, "Restart automatic upload");
-                cancelAllUploadJobs();
-                //workManager.cancelAllWorkByTag(UploadWorker.TAG);
-                Log.d(TAG, "Job cancelled, restart");
                 //workManager.enqueue(UploadWorker.getWorkRequest(this));
                 workManager.enqueueUniquePeriodicWork(UploadWorker.TAG, ExistingPeriodicWorkPolicy.REPLACE, UploadWorker.getWorkRequest(this));
                 Log.d(TAG, "Restart done");
@@ -796,7 +793,7 @@ public class MonitorService extends Service {
     }
 
     /**
-     * Check for active background jobs
+     * Check for active unique background jobs
      *
      * @return  True if a background job is active, otherwise false
      */
@@ -806,15 +803,19 @@ public class MonitorService extends Service {
             Log.e(TAG, "WorkManager: Cannot get instance of work manager!");
             return 0;
         }
-        List<WorkStatus> statuses = workManager.getStatusesByTag(UploadWorker.TAG).getValue();
+
+        //List<WorkStatus> statuses = workManager.getStatusesByTag(UploadWorker.TAG).getValue();
+        List<WorkStatus> statuses = workManager.getStatusesForUniqueWork(UploadWorker.TAG).getValue();
         if (statuses == null){
-            Log.d(TAG, "WorkManager: status null");
+            Log.d(TAG, "WorkManager: statuses null");
             return 0;
         }
+        Log.d(TAG, "WorkManager: Status size: " + statuses.size());
         return statuses.size();
 
     }
 
+  /*
     private void cancelAllUploadJobs(){
         WorkManager workManager = WorkManager.getInstance();
         if (workManager == null){
@@ -835,4 +836,5 @@ public class MonitorService extends Service {
             workManager.cancelWorkById(status.getId());
         }
     }
+    */
 }

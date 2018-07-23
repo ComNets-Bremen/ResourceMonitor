@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### 2018-07-23, Version 0.37, Version Code 37
+
+- Bugfix for scheduler
+
 ### 2018-07-22, Version 0.36, Version Code 36
 
 - Update some dependencies
