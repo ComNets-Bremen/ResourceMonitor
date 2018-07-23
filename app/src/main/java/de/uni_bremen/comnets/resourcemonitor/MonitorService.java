@@ -20,6 +20,8 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.evernote.android.job.JobManager;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,14 +33,11 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.zip.GZIPOutputStream;
 
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
-import androidx.work.WorkStatus;
+import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.AirplaneModeBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.BluetoothBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.ByteCountBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.CellularBroadcastReceiver;
-import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.AirplaneModeBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.DataUploadBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.PowerBroadcastReceiver;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.ScreenBroadcastReceiver;
@@ -61,9 +60,9 @@ public class MonitorService extends Service {
     String lastDataItemStored = null;
 
     // Settings for the background upload intervals
-    public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT  = 60*15;     // (in seconds) At maximum once per hour (externally triggered) for the upload
-    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60*15;  // (in seconds) min time
-    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60*30;  // (in seconds) max time
+    public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT = 60 * 60;     // (in seconds) At maximum once per hour (externally triggered) for the upload
+    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60 * 60 * 24;  // (in seconds) min time
+    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60 * 30 * 48;  // (in seconds) max time
 
     private boolean dataCollectionRunning = false;
 
@@ -81,8 +80,8 @@ public class MonitorService extends Service {
     /**
      * Export data to json
      *
-     * @param job   The json object defining which data is already available at the server side
-     * @return      The missing data
+     * @param job The json object defining which data is already available at the server side
+     * @return The missing data
      */
     public JSONObject exportDataForServer(JSONObject job) {
         return db2Json(job);
@@ -94,7 +93,7 @@ public class MonitorService extends Service {
      * @param context the context
      * @return the UUID, null if not available
      */
-    public static String getUUID(Context context){
+    public static String getUUID(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getString("uuid", null);
     }
 
@@ -103,8 +102,8 @@ public class MonitorService extends Service {
      *
      * @return a readable db instance
      */
-    public static SQLiteDatabase getReadableDb(){
-        if (energyMonitorDbHelper != null){
+    public static SQLiteDatabase getReadableDb() {
+        if (energyMonitorDbHelper != null) {
             return energyMonitorDbHelper.getReadableDatabase();
         }
         return null;
@@ -131,7 +130,7 @@ public class MonitorService extends Service {
                 if (serverUploadResult.getInt(key) > 0) {
                     totalChangedItems += serverUploadResult.getInt(key);
                 }
-            } catch (JSONException e){
+            } catch (JSONException e) {
                 Log.d("TAG", "Not an int key: " + key);
             }
         }
@@ -142,12 +141,12 @@ public class MonitorService extends Service {
     /**
      * Get the timestamp of the last data upload
      *
-     * @param context   The application context
-     * @return          The timestamp, -1 if not available
+     * @param context The application context
+     * @return The timestamp, -1 if not available
      */
-    public static long getLastServerUploadTimestamp(Context context){
+    public static long getLastServerUploadTimestamp(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        if (prefs.getAll().get("LastSuccessfulUpload_Time")instanceof Long){
+        if (prefs.getAll().get("LastSuccessfulUpload_Time") instanceof Long) {
             return prefs.getLong("LastSuccessfulUpload_Time", -1);
         }
         return -1;
@@ -158,7 +157,7 @@ public class MonitorService extends Service {
      *
      * @param status The status code
      */
-    public void setLastServerUploadStatuscode(int status){
+    public void setLastServerUploadStatuscode(int status) {
         preferences.edit().putInt("LastSuccessfulUpload_Code", status).apply();
         Intent intent = new Intent(UPLOAD_DONE_BROADCAST_ACTION);
         sendBroadcast(intent);
@@ -169,7 +168,7 @@ public class MonitorService extends Service {
      *
      * @return The status code
      */
-    public int getLastServerUploadStatuscode(){
+    public int getLastServerUploadStatuscode() {
         return preferences.getInt("LastSuccessfulUpload_Code", -1);
     }
 
@@ -178,8 +177,8 @@ public class MonitorService extends Service {
      *
      * @return The string representing the last status
      */
-    public String getLastServerUploadStatusText(){
-        switch (getLastServerUploadStatuscode()){
+    public String getLastServerUploadStatusText() {
+        switch (getLastServerUploadStatuscode()) {
             case ServerCommunicationHandler.CHECK_URL:
                 return getString(R.string.export_server_check_url_failed);
             case ServerCommunicationHandler.CHECK_NETWORK:
@@ -191,9 +190,9 @@ public class MonitorService extends Service {
             case ServerCommunicationHandler.EXPORT_DB:
                 return getString(R.string.export_server_export_data_failed);
             case ServerCommunicationHandler.UPLOAD_DB:
-                return  getString(R.string.export_server_upload_data_failed);
+                return getString(R.string.export_server_upload_data_failed);
             case ServerCommunicationHandler.DONE:
-                return  getString(R.string.export_server_done);
+                return getString(R.string.export_server_done);
             default:
                 return "-";
         }
@@ -201,6 +200,7 @@ public class MonitorService extends Service {
 
     /**
      * Get the time of the last successful upload
+     *
      * @return String with the time or null if never uploaded data
      */
     public String getLastServerUploadTime() {
@@ -209,13 +209,13 @@ public class MonitorService extends Service {
         long timestamp = -1;
 
         // Fallback for old version where the time was stored as a string
-        if (preferences.getAll().get("LastSuccessfulUpload_Time")instanceof String){
+        if (preferences.getAll().get("LastSuccessfulUpload_Time") instanceof String) {
             return preferences.getString("LastSuccessfulUpload_Time", getString(R.string.export_time_never));
         }
 
         timestamp = preferences.getLong("LastSuccessfulUpload_Time", -1);
 
-        if (timestamp < 0){
+        if (timestamp < 0) {
             return getString(R.string.export_time_never);
         }
 
@@ -228,6 +228,7 @@ public class MonitorService extends Service {
 
     /**
      * Get the number changed item at the server side during the last upload. -1 if no values are available.
+     *
      * @return number of changed items or -1 if no values are available.
      */
     public int getLastServerUploadItems() {
@@ -237,7 +238,7 @@ public class MonitorService extends Service {
     /**
      * Called if a dataset was succesfully stored by a broadcast receiver
      */
-    public void setDatasetStored(){
+    public void setDatasetStored() {
 
         Calendar c = Calendar.getInstance();
         lastDataItemStored = DateUtils.formatDateTime(
@@ -252,7 +253,7 @@ public class MonitorService extends Service {
      *
      * @return String with the timestamp of null if no value is available
      */
-    public String getLastDataItemStored(){
+    public String getLastDataItemStored() {
         return lastDataItemStored;
     }
 
@@ -271,6 +272,12 @@ public class MonitorService extends Service {
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate()");
+
+        // Job Creator
+        // Todo: rm if using different job scheduler like android worker
+        JobManager.create(this).addJobCreator(new UploadJobCreator());
+        // We cancel all existing work as it might not be done before
+        Log.d(TAG, "Cancelled " + JobManager.instance().cancelAll() + " jobs from the JobManager");
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -297,7 +304,7 @@ public class MonitorService extends Service {
             energyMonitorDbHelper = new EnergyMonitorDbHelper(getApplicationContext());
         }
         writableDb = energyMonitorDbHelper.getWritableDatabase();
-        Log.d(TAG, "db path: " +writableDb.getPath());
+        Log.d(TAG, "db path: " + writableDb.getPath());
 
         powerBroadcastReceiver = new PowerBroadcastReceiver(this, writableDb);
         screenBroadcastReceiver = new ScreenBroadcastReceiver(this, writableDb);
@@ -310,7 +317,7 @@ public class MonitorService extends Service {
         dataUploadBroadcastReceiver = new DataUploadBroadcastReceiver(this, writableDb);
 
         boolean dataCollectionEnabled = preferences.getBoolean("data_collection_enabled", true);
-        if(dataCollectionEnabled){
+        if (dataCollectionEnabled) {
             startDataCollection();
         } else {
             // Should not be started but ensure all notifications are correct
@@ -321,6 +328,24 @@ public class MonitorService extends Service {
         dataUploadBroadcastReceiver.register(this);
 
         boolean automaticDataUploadEnabled = preferences.getBoolean("automatic_data_upload", true);
+
+        // Schedule upload job?
+
+        WorkManager workManager = WorkManager.getInstance();
+
+        if (workManager != null) {
+            // Cancel all work (if existent). We use the evernote job library
+            workManager.cancelAllWork();
+        }
+
+        if (automaticDataUploadEnabled) {
+            Log.d(TAG, "Scheduling upload job");
+            JobUploadWorker.scheduleJob(this);
+        }
+
+        /*
+        // WorkManager part
+
         WorkManager workManager = WorkManager.getInstance();
         if (workManager != null){
 
@@ -339,6 +364,8 @@ public class MonitorService extends Service {
             Log.e(TAG, "Cannot get work manager instance");
         }
 
+        */
+
     }
 
     /**
@@ -346,7 +373,7 @@ public class MonitorService extends Service {
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "Received start id " +  startId + ": " + intent);
+        Log.i(TAG, "Received start id " + startId + ": " + intent);
         return START_STICKY;
     }
 
@@ -355,7 +382,7 @@ public class MonitorService extends Service {
      * Stop service
      */
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         Log.d(TAG, "onDestroy()");
         stopDataCollection();
         if (energyMonitorDbHelper != null) {
@@ -366,11 +393,17 @@ public class MonitorService extends Service {
         }
         //restartService();
 
+        // Cancel upload jobs (if existent)
+        JobUploadWorker.cancelJob();
+
+        /*
+
         WorkManager workManager = WorkManager.getInstance();
         if (workManager != null){
             workManager.cancelUniqueWork(UploadWorker.TAG);
             //workManager.cancelAllWorkByTag(UploadWorker.TAG);
         }
+        */
 
         dataUploadBroadcastReceiver.unregister(this);
 
@@ -379,6 +412,7 @@ public class MonitorService extends Service {
 
     /**
      * Return the binder reference
+     *
      * @param intent
      * @return
      */
@@ -392,11 +426,12 @@ public class MonitorService extends Service {
 
     /**
      * Show / update a notification
+     *
      * @param text The notification string
      */
     private void showNotification(String text) {
 
-        if (mNM == null){
+        if (mNM == null) {
             return;
         }
         String lastTime = getLastServerUploadTime();
@@ -417,7 +452,7 @@ public class MonitorService extends Service {
                 .setOngoing(true)
                 .build();
         */
-        Notification notification = new NotificationCompat.Builder(this, TAG+".notification_channel")
+        Notification notification = new NotificationCompat.Builder(this, TAG + ".notification_channel")
                 .setSmallIcon(R.mipmap.smallicon)
                 .setContentTitle(text)
                 .setContentText(lastExport)
@@ -434,8 +469,8 @@ public class MonitorService extends Service {
     /**
      * Update the notification bar with the most recent message
      */
-    public void updateNotification(){
-        if (preferences.getBoolean("data_collection_enabled", true)){
+    public void updateNotification() {
+        if (preferences.getBoolean("data_collection_enabled", true)) {
             showNotification(getString(R.string.DataCollectionRunning));
         } else {
             showNotification(getString(R.string.DataCollectionStopped));
@@ -446,27 +481,27 @@ public class MonitorService extends Service {
     /**
      * Handle updates from the UI
      */
-    public void updatedSetting(String key){
-        if (key.equals("data_collection_enabled")){
+    public void updatedSetting(String key) {
+        if (key.equals("data_collection_enabled")) {
             boolean dataCollectionEnabled = preferences.getBoolean("data_collection_enabled", true);
-            if (dataCollectionEnabled && !dataCollectionRunning){
+            if (dataCollectionEnabled && !dataCollectionRunning) {
                 startDataCollection();
-            } else if (!dataCollectionEnabled && dataCollectionRunning){
+            } else if (!dataCollectionEnabled && dataCollectionRunning) {
                 stopDataCollection();
             }
-        } else if (key.equals("show_notification_bar")){
+        } else if (key.equals("show_notification_bar")) {
             //if(!Helper.isPowerSaving(this)){
-                boolean showNotificationBar = showNotificationBar();
-                if (showNotificationBar && mNM == null){
-                    Log.d(TAG, "Enable Notification Bar");
-                    mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                    updateNotification();
-                } else if (!showNotificationBar && mNM != null){
-                    Log.d(TAG, "Disable Notification Bar");
-                    mNM.cancelAll();
-                    mNM = null;
-                    updateNotification();
-                }
+            boolean showNotificationBar = showNotificationBar();
+            if (showNotificationBar && mNM == null) {
+                Log.d(TAG, "Enable Notification Bar");
+                mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                updateNotification();
+            } else if (!showNotificationBar && mNM != null) {
+                Log.d(TAG, "Disable Notification Bar");
+                mNM.cancelAll();
+                mNM = null;
+                updateNotification();
+            }
             //} else {
             //    if (!preferences.getBoolean("show_notification_bar", true))
             //    Toast.makeText(this, getText(R.string.cannot_deactivate_icon), Toast.LENGTH_LONG).show();
@@ -475,37 +510,19 @@ public class MonitorService extends Service {
             updateNotification();
 
         } else if (key.equals("automatic_data_upload")) {
-            WorkManager workManager = WorkManager.getInstance();
-            if (workManager == null){
-                Log.e(TAG, "Cannot get WorkManager instance!");
-            } else {
-            boolean automaticDataUploadEnabled = preferences.getBoolean("automatic_data_upload", true);
 
-            Log.d(TAG, "Automatic Data upload enabled? " + automaticDataUploadEnabled);
+            if (!JobUploadWorker.isJobRunning()) {
+                boolean automaticDataUploadEnabled = preferences.getBoolean("automatic_data_upload", true);
 
-            if (numUploadJobActive() > 0 && !automaticDataUploadEnabled){
-                Log.d(TAG, "Cancel all upload jobs " + numUploadJobActive());
-                workManager.cancelUniqueWork(UploadWorker.TAG);
-                Log.d(TAG, "Automatic upload stopped");
-            } else if (automaticDataUploadEnabled && numUploadJobActive() == 0){
-                //workManager.enqueue(UploadWorker.getWorkRequest(this));
-                workManager.enqueueUniquePeriodicWork(UploadWorker.TAG, ExistingPeriodicWorkPolicy.REPLACE, UploadWorker.getWorkRequest(this));
-                Log.d(TAG, "Automatic upload started");
-            }
+                Log.d(TAG, "Automatic Data upload enabled? " + automaticDataUploadEnabled);
+                JobUploadWorker.scheduleJob(this);
             }
         } else if (
-                        key.equals("automatic_data_upload_only_on_unmetered_connection") &&
-                        numUploadJobActive() > 0 &&
-                                preferences.getBoolean("automatic_data_upload_only_on_unmetered_connection", true) != UploadWorker.onlyUnmeteredConnection()
+                key.equals("automatic_data_upload_only_on_unmetered_connection") &&
+                        JobUploadWorker.isJobRunning() &&
+                        preferences.getBoolean("automatic_data_upload_only_on_unmetered_connection", true) != UploadWorker.onlyUnmeteredConnection()
                 ) {
-            WorkManager workManager = WorkManager.getInstance();
-            if (workManager == null){
-                Log.e(TAG, "Cannot get WorkManager instance!");
-            } else {
-                //workManager.enqueue(UploadWorker.getWorkRequest(this));
-                workManager.enqueueUniquePeriodicWork(UploadWorker.TAG, ExistingPeriodicWorkPolicy.REPLACE, UploadWorker.getWorkRequest(this));
-                Log.d(TAG, "Restart done");
-            }
+            JobUploadWorker.scheduleJob(this);
         }
     }
 
@@ -514,15 +531,16 @@ public class MonitorService extends Service {
      *
      * @return true if notification is enabled
      */
-    public boolean isNotificationEnabled(){
+    public boolean isNotificationEnabled() {
         return mNM != null;
     }
 
     /**
      * Return a string with some DB statistics
-     * @return  Get a string containing the statistics
+     *
+     * @return Get a string containing the statistics
      */
-    String getDbStats(){
+    String getDbStats() {
         return EnergyMonitorDbHelper.getDbStatistics(writableDb);
     }
 
@@ -530,11 +548,11 @@ public class MonitorService extends Service {
     /**
      * Get some battery discharge characteristics.
      *
-     * @param minTime   Minimum time in milliseconds
-     * @param maxTime   Maximum time in milliseconds
-     * @return          List of Battery objects
+     * @param minTime Minimum time in milliseconds
+     * @param maxTime Maximum time in milliseconds
+     * @return List of Battery objects
      */
-    public List<BatteryChangeObject> getBatteryStats(long minTime, long maxTime){
+    public List<BatteryChangeObject> getBatteryStats(long minTime, long maxTime) {
         return EnergyMonitorDbHelper.getDischargeBehaviour(writableDb, minTime, maxTime);
     }
 
@@ -543,8 +561,8 @@ public class MonitorService extends Service {
      *
      * @return JSONObject database as json
      */
-    public JSONObject db2Json(JSONObject exportRange){
-        if (exportRange == null){
+    public JSONObject db2Json(JSONObject exportRange) {
+        if (exportRange == null) {
             Log.d(TAG, "No range requested");
         } else {
             Log.d(TAG, "Range: " + exportRange);
@@ -552,7 +570,7 @@ public class MonitorService extends Service {
         JSONObject jsonObject = new JSONObject();
 
         // Battery
-        Cursor  batteryStatusCursor = writableDb.query(
+        Cursor batteryStatusCursor = writableDb.query(
                 EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME,
                 null,
                 EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.BatteryStatusEntry.TABLE_NAME),
@@ -560,7 +578,7 @@ public class MonitorService extends Service {
                 null,
                 null,
                 null);
-        Cursor  byteCountCursor = writableDb.query(
+        Cursor byteCountCursor = writableDb.query(
                 EnergyMonitorContract.TrafficStatsEntry.TABLE_NAME,
                 null,
                 EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.TrafficStatsEntry.TABLE_NAME),
@@ -568,7 +586,7 @@ public class MonitorService extends Service {
                 null,
                 null,
                 null);
-        Cursor  bluetoothCursor = writableDb.query(
+        Cursor bluetoothCursor = writableDb.query(
                 EnergyMonitorContract.BluetoothStatusEntry.TABLE_NAME,
                 null,
                 EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.BluetoothStatusEntry.TABLE_NAME),
@@ -576,7 +594,7 @@ public class MonitorService extends Service {
                 null,
                 null,
                 null);
-        Cursor  flightModeCursor = writableDb.query(
+        Cursor flightModeCursor = writableDb.query(
                 EnergyMonitorContract.AirplaneModeEntry.TABLE_NAME,
                 null,
                 EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.AirplaneModeEntry.TABLE_NAME),
@@ -584,7 +602,7 @@ public class MonitorService extends Service {
                 null,
                 null,
                 null);
-        Cursor  wifiCursor = writableDb.query(
+        Cursor wifiCursor = writableDb.query(
                 EnergyMonitorContract.WiFiStatusEntry.TABLE_NAME,
                 null,
                 EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.WiFiStatusEntry.TABLE_NAME),
@@ -592,7 +610,7 @@ public class MonitorService extends Service {
                 null,
                 null,
                 null);
-        Cursor  screenStatusCursor = writableDb.query(
+        Cursor screenStatusCursor = writableDb.query(
                 EnergyMonitorContract.ScreenStatusEntry.TABLE_NAME,
                 null,
                 EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.ScreenStatusEntry.TABLE_NAME),
@@ -600,7 +618,7 @@ public class MonitorService extends Service {
                 null,
                 null,
                 null);
-        Cursor  cellularStatusCursor = writableDb.query(
+        Cursor cellularStatusCursor = writableDb.query(
                 EnergyMonitorContract.CellularStatusEntry.TABLE_NAME,
                 null,
                 EnergyMonitorDbHelper.getWhereForQuery(exportRange, EnergyMonitorContract.CellularStatusEntry.TABLE_NAME),
@@ -629,19 +647,19 @@ public class MonitorService extends Service {
             jsonObject.put("EXPORT_TIMESTAMP", exportTimestamp);
             jsonObject.put("VERSION_CODE", BuildConfig.VERSION_CODE);
 
-            Log.d(TAG, "UUID: " +  uuid + " timezone: " + timezone + " export timestamp: " + exportTimestamp);
+            Log.d(TAG, "UUID: " + uuid + " timezone: " + timezone + " export timestamp: " + exportTimestamp);
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Log.d(TAG, "Json object size: " +  jsonObject.toString().length());
+        Log.d(TAG, "Json object size: " + jsonObject.toString().length());
 
         return jsonObject;
     }
 
-    public void exportDbToServer(){
+    public void exportDbToServer() {
         Log.d(TAG, "Export db to server");
     }
 
@@ -650,14 +668,14 @@ public class MonitorService extends Service {
      *
      * @return A file handler to the created file
      */
-    public File exportData(){
+    public File exportData() {
 
         JSONObject jsonObject = db2Json(null);
 
         try {
             File f = new File(getFilesDir(),
 
-                    Long.toString(System.currentTimeMillis()/1000)+
+                    Long.toString(System.currentTimeMillis() / 1000) +
                             "_" +
                             getString(R.string.export_filename_prefix) +
                             "_" +
@@ -680,7 +698,7 @@ public class MonitorService extends Service {
     /**
      * Register the broadcast receiver to start the data collection
      */
-    public void startDataCollection(){
+    public void startDataCollection() {
         showNotification(getString(R.string.DataCollectionRunning));
         powerBroadcastReceiver.register(this);
         screenBroadcastReceiver.register(this);
@@ -696,7 +714,7 @@ public class MonitorService extends Service {
     /**
      * Stop the data collection by unregistering the broadcast receiver
      */
-    public void stopDataCollection(){
+    public void stopDataCollection() {
         showNotification(getString(R.string.DataCollectionStopped));
         powerBroadcastReceiver.unregister(this);
         screenBroadcastReceiver.unregister(this);
@@ -711,7 +729,7 @@ public class MonitorService extends Service {
     /**
      * Restart the service after the destroy was called to ensure it is continuously running
      */
-    private void restartService(){
+    private void restartService() {
         Log.d(TAG, "Restart intent");
         Toast.makeText(this, "Sending restart intend", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent("de.uni_bremen.comnets.resourcemonitor.restart");
@@ -721,26 +739,25 @@ public class MonitorService extends Service {
     /**
      * Upload the data to the server
      *
-     * @param context    The context
+     * @param context The context
      */
-    public void uploadToServer(Context context){
+    public void uploadToServer(Context context) {
 
         // TODO: Last upload status
-        if (context == null){
+        if (context == null) {
             // Background upload
             try {
                 long lastUpload = getLastServerUploadTimestamp(getApplicationContext());
-                if (System.currentTimeMillis() < lastUpload + MIN_DATA_UPLOAD_INTERVAL_LIMIT*1000) {
+                if (System.currentTimeMillis() < lastUpload + MIN_DATA_UPLOAD_INTERVAL_LIMIT * 1000) {
                     Log.d(TAG, "Just uploaded data. Skipping this upload");
                     return;
                 }
                 new ExportDatabaseToServerTask(getApplicationContext(), this, true).execute();
                 Log.d(TAG, "Background Upload done");
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 // TODO: Handle, fix and report exceptions of the background upload
             }
-
 
         } else {
             new ExportDatabaseToServerTask(context, this, false).execute();
@@ -753,7 +770,7 @@ public class MonitorService extends Service {
     /**
      * Upload the data to the server without UI interaction
      */
-    public void uploadToServer(){
+    public void uploadToServer() {
         uploadToServer(null);
     }
 
@@ -768,7 +785,7 @@ public class MonitorService extends Service {
             CharSequence name = getString(R.string.app_name);
             String description = getString(R.string.channel_description);
             int importance = NotificationManager.IMPORTANCE_LOW;
-            NotificationChannel channel = new NotificationChannel(TAG+".notification_channel", name, importance);
+            NotificationChannel channel = new NotificationChannel(TAG + ".notification_channel", name, importance);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
@@ -780,7 +797,7 @@ public class MonitorService extends Service {
     /**
      * Return if a notification bar should be shown
      *
-     * @return  true if it should be shown, otherwise false
+     * @return true if it should be shown, otherwise false
      */
     private boolean showNotificationBar() {
         // TODO change for API level 26 and higher!
@@ -795,8 +812,10 @@ public class MonitorService extends Service {
     /**
      * Check for active unique background jobs
      *
-     * @return  True if a background job is active, otherwise false
+     * @return True if a background job is active, otherwise false
      */
+/*
+workManager stuff
     private int numUploadJobActive() {
         WorkManager workManager = WorkManager.getInstance();
         if (workManager == null) {
@@ -815,7 +834,10 @@ public class MonitorService extends Service {
 
     }
 
+ */
+
   /*
+  workManager stuff
     private void cancelAllUploadJobs(){
         WorkManager workManager = WorkManager.getInstance();
         if (workManager == null){

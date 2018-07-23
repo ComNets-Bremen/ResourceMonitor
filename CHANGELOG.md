@@ -1,6 +1,12 @@
 Changelog
 =========
 
+### 2018-07-23, Version 0.38, Version Code 38
+
+- Changed back to old scheduler. WorkManager seems to have some bugs with the
+  current API level
+
+
 ### 2018-07-23, Version 0.37, Version Code 37
 
 - Bugfix for scheduler

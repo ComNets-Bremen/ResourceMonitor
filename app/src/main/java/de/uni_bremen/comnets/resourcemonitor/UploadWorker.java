@@ -15,6 +15,9 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.Worker;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.DataUploadBroadcastReceiver;
 
+/**
+ * This class is for the android worker library. As this is currently still in alpha state, we focus on the evernote library android job
+ */
 public class UploadWorker extends Worker {
 
     public static final String TAG = UploadWorker.class.getSimpleName();
