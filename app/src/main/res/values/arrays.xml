@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="interval_values_human">
+    <string-array name="interval_values_human" translatable="false">
         <item>1 – 2 h</item>
         <item>12 – 24 h</item>
         <item>24 – 36 h</item>
@@ -8,7 +8,7 @@
         <item>3 – 4 d</item>
         <item>4 – 7 d</item>
     </string-array>
-    <string-array name="interval_values">
+    <string-array name="interval_values" translatable="false">
         <item>1</item>
         <item>2</item>
         <item>3</item>

@@ -44,7 +44,8 @@ dependencies {
     implementation "com.android.support:support-compat:26.1.0"
 
     // Work Manager, Still buggy in 1.0.0-alpha04
-    def work_version = "1.0.0-alpha04"
+    // We need it for the update process to cancel all (maybe still running) jobs.
+    def work_version = "1.0.0-alpha05"
     implementation "android.arch.work:work-runtime:$work_version"
     //implementation "android.arch.work:work-firebase:$work_version"
 
