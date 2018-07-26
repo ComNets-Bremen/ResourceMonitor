@@ -4,6 +4,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
 /**
@@ -16,6 +17,10 @@ public class SettingsFragment extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // RM Values for debugging
+        //getPreferenceManager().getSharedPreferences().edit().remove("automatic_data_upload_interval").apply();
+
         addPreferencesFromResource(R.xml.preferences);
         // TODO: change for API level higher 26
 /*
@@ -29,6 +34,11 @@ public class SettingsFragment extends PreferenceFragment {
         }
 */
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override

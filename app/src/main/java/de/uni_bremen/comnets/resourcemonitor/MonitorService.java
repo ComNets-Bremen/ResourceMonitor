@@ -59,11 +59,6 @@ public class MonitorService extends Service {
     static EnergyMonitorDbHelper energyMonitorDbHelper = null;
     String lastDataItemStored = null;
 
-    // Settings for the background upload intervals
-    public static final int MIN_DATA_UPLOAD_INTERVAL_LIMIT = 60 * 60;     // (in seconds) At maximum once per hour (externally triggered) for the upload
-    public static final int MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60 * 60 * 24;  // (in seconds) min time
-    public static final int MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60 * 30 * 48;  // (in seconds) max time
-
     private boolean dataCollectionRunning = false;
 
     PowerBroadcastReceiver powerBroadcastReceiver = null;
@@ -511,17 +506,26 @@ public class MonitorService extends Service {
 
         } else if (key.equals("automatic_data_upload")) {
 
-            if (!JobUploadWorker.isJobRunning()) {
-                boolean automaticDataUploadEnabled = preferences.getBoolean("automatic_data_upload", true);
-
-                Log.d(TAG, "Automatic Data upload enabled? " + automaticDataUploadEnabled);
+            if (!JobUploadWorker.isJobRunning() && preferences.getBoolean("automatic_data_upload", true)) {
+                Log.d(TAG, "Job not running. Starting...");
                 JobUploadWorker.scheduleJob(this);
+            } else if (JobUploadWorker.isJobRunning() && !preferences.getBoolean("automatic_data_upload", true)) {
+                Log.d(TAG, "Job is running. Stopping...");
+                JobUploadWorker.cancelJob();
             }
         } else if (
                 key.equals("automatic_data_upload_only_on_unmetered_connection") &&
                         JobUploadWorker.isJobRunning() &&
-                        preferences.getBoolean("automatic_data_upload_only_on_unmetered_connection", true) != UploadWorker.onlyUnmeteredConnection()
+                        preferences.getBoolean("automatic_data_upload_only_on_unmetered_connection", true) != JobUploadWorker.onlyUnmeteredConnection()
                 ) {
+            Log.d(TAG, "Setting for unmetered connection changed. Restarting job");
+            JobUploadWorker.scheduleJob(this);
+        } else if (
+                key.equals("automatic_data_upload_interval") &&
+                        JobUploadWorker.isJobRunning() &&
+                        JobUploadWorker.hasUploadStateChanged(this)
+                ) {
+            Log.d(TAG, "Upload interval changed. Restarting job");
             JobUploadWorker.scheduleJob(this);
         }
     }
@@ -748,7 +752,7 @@ public class MonitorService extends Service {
             // Background upload
             try {
                 long lastUpload = getLastServerUploadTimestamp(getApplicationContext());
-                if (System.currentTimeMillis() < lastUpload + MIN_DATA_UPLOAD_INTERVAL_LIMIT * 1000) {
+                if (System.currentTimeMillis() < lastUpload + JobUploadWorker.getMinUploadIntervalLimit(this) * 1000) {
                     Log.d(TAG, "Just uploaded data. Skipping this upload");
                     return;
                 }

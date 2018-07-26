@@ -13,10 +13,6 @@ import com.evernote.android.job.JobRequest;
 
 import java.util.concurrent.TimeUnit;
 
-import androidx.work.Constraints;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.Worker;
 import de.uni_bremen.comnets.resourcemonitor.BroadcastReceiver.DataUploadBroadcastReceiver;
 
 /**
@@ -30,13 +26,20 @@ public class JobUploadWorker extends Job {
 
     static private int jobid = -1;
 
+    static private String lastStartIntervalId = null;
+
+    // Settings for the background upload intervals
+    public static final int DEFAULT_MIN_DATA_UPLOAD_INTERVAL_LIMIT = 60 * 60;     // (in seconds) At maximum once per hour (externally triggered) for the upload
+    public static final int DEFAULT_MIN_PERIOD_DATA_UPLOAD_INTERVAL = 60 * 60 * 24;  // (in seconds) min time
+    public static final int DEFAULT_MAX_PERIOD_DATA_UPLOAD_INTERVAL = 60 * 60 * 48;  // (in seconds) max time
+
 
     @Override
     @NonNull
     protected Result onRunJob(Params params) {
 
         Log.d(TAG, "onRunJob uploadWorker");
-        if (System.currentTimeMillis() > MonitorService.getLastServerUploadTimestamp(getContext()) + MonitorService.MIN_PERIOD_DATA_UPLOAD_INTERVAL * 1000) {
+        if (System.currentTimeMillis() > MonitorService.getLastServerUploadTimestamp(getContext()) + TimeUnit.SECONDS.toMillis(getMinUploadInterval(getContext()))) {
             Intent intent = new Intent();
             intent.setAction(DataUploadBroadcastReceiver.DATA_UPLOAD);
             getContext().sendBroadcast(intent);
@@ -62,8 +65,12 @@ public class JobUploadWorker extends Job {
             cancelJob();
         }
 
+
         JobRequest.Builder builder = new JobRequest.Builder(TAG);
-        builder.setPeriodic(TimeUnit.SECONDS.toMillis(MonitorService.MAX_PERIOD_DATA_UPLOAD_INTERVAL), TimeUnit.SECONDS.toMillis(MonitorService.MAX_PERIOD_DATA_UPLOAD_INTERVAL - MonitorService.MIN_DATA_UPLOAD_INTERVAL_LIMIT));
+        long interval = TimeUnit.SECONDS.toMillis(getMaxUploadInterval(context));
+        long flex = TimeUnit.SECONDS.toMillis(getMaxUploadInterval(context) - getMinUploadInterval(context));
+        Log.d(TAG, "Adding job with the following data: Interval: " + interval +  " flex: " + flex);
+        builder.setPeriodic(interval, flex);
         builder.setRequiresBatteryNotLow(true);
         builder.setRequirementsEnforced(true);
 
@@ -73,6 +80,9 @@ public class JobUploadWorker extends Job {
         if (useUnmeteredConnection) {
             builder.setRequiredNetworkType(JobRequest.NetworkType.UNMETERED);
         }
+
+
+        lastStartIntervalId = PreferenceManager.getDefaultSharedPreferences(context).getString("automatic_data_upload_interval", null);
 
         jobid = builder.build().schedule();
 
@@ -109,4 +119,106 @@ public class JobUploadWorker extends Job {
     public static boolean onlyUnmeteredConnection() {
         return useUnmeteredConnection;
     }
+
+
+    /**
+     * Get the minimum upload interval
+     *
+     * @param context The context
+     * @return The interval in seconds
+     */
+    public static int getMinUploadInterval(Context context){
+        String pref = PreferenceManager.getDefaultSharedPreferences(context).getString("automatic_data_upload_interval", null);
+        if (pref == null) return DEFAULT_MIN_PERIOD_DATA_UPLOAD_INTERVAL;
+        Log.d(TAG, "interval ID: " + pref);
+
+        switch (pref){
+            case "1":
+                // 1h
+                return 1*60*60;
+            case "2":
+                // 12h
+                return 12*60*60;
+            case "3":
+                // 24h
+                return 24*60*60;
+            case "4":
+                // 36h
+                return 36*60*60;
+            case "5":
+                // 3d
+                return 3*24*60*60;
+            case "6":
+                // 4d
+                return 4*24*60*60;
+            default:
+                Log.e(TAG, "Undefined type for min time interval: " + pref);
+        }
+        return DEFAULT_MIN_PERIOD_DATA_UPLOAD_INTERVAL;
+
+    }
+
+    /**
+     * Get the maximum upload interval
+     *
+     * @param context The context
+     * @return The interval in seconds
+     */
+    public static int getMaxUploadInterval(Context context){
+        String pref = PreferenceManager.getDefaultSharedPreferences(context).getString("automatic_data_upload_interval", null);
+        if (pref == null) return DEFAULT_MAX_PERIOD_DATA_UPLOAD_INTERVAL;
+
+        Log.d(TAG, "interval ID: " + pref);
+
+        switch (pref){
+            case "1":
+                // 2h
+                return 2*60*60;
+            case "2":
+                // 24h
+                return 24*60*60;
+            case "3":
+                // 36h
+                return 36*60*60;
+            case "4":
+                // 72h
+                return 72*60*60;
+            case "5":
+                // 4d
+                return 4*24*60*60;
+            case "6":
+                // 7d
+                return 7*24*60*60;
+            default:
+                Log.e(TAG, "Undefined type for max time interval: " + pref);
+        }
+
+        return DEFAULT_MAX_PERIOD_DATA_UPLOAD_INTERVAL;
+    }
+
+    /**
+     * Return the absolute minimum time limit between two uploads
+     *
+     * @param context   The context
+     * @return  The interval in seconds
+     */
+    public static int getMinUploadIntervalLimit(Context context){
+        return DEFAULT_MIN_DATA_UPLOAD_INTERVAL_LIMIT;
+    }
+
+    /**
+     * Get the id of the last used start interval identifier
+     *
+     * @return The identifier
+     */
+    public static String getLastStartIntervalId() {
+        return lastStartIntervalId;
+    }
+
+    public static boolean hasUploadStateChanged(Context context){
+        String pref = PreferenceManager.getDefaultSharedPreferences(context).getString("automatic_data_upload_interval", null);
+        if (pref == null) return true;
+        return !pref.equals(getLastStartIntervalId());
+    }
+
 }
