@@ -1,6 +1,11 @@
 Changelog
 =========
 
+### 2018-07-26, Version 0.39, Version Code 39
+
+- User can now change the upload interval in the settings
+- Minor improvements and bugfixes
+
 ### 2018-07-23, Version 0.38, Version Code 38
 
 - Changed back to old scheduler. WorkManager seems to have some bugs with the
