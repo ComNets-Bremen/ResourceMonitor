@@ -98,4 +98,6 @@
     <string name="channel_description">Resource Monitor Data</string>
     <string name="broadcast_module_info_title">Verwendete Datenquellen</string>
     <string name="broadcast_module_info_description">Dies ist eine kurze, automatisch generierte Beschreibung aller verwendeten Datensätze. Neben den Beschriebenen Daten wird ebenfalls jeweils die Uhrzeit und das Datum gespeichert.</string>
+    <string name="settings_category_automatic_upload">Einstellungen für den automatischen Upload</string>
+    <string name="settings_automatic_upload_interval">Häufigkeit des automatischen Uploads. Upload alle</string>
 </resources>

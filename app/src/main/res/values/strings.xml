@@ -104,4 +104,6 @@
     <string name="channel_description">Resource Monitor Data</string>
     <string name="broadcast_module_info_title">Used Data Sources</string>
     <string name="broadcast_module_info_description">This is a brief automatically generated description of all used receivers and the type of the collected data. In addition to the collected data the current date and time are stored as well.</string>
+    <string name="settings_category_automatic_upload">Automatic upload settings</string>
+    <string name="settings_automatic_upload_interval">Automatic Upload Interval. Upload every</string>
 </resources>
