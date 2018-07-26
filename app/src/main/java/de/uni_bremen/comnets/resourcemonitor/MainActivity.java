@@ -406,6 +406,7 @@ public class MainActivity extends AppCompatActivity
             mService.updatedSetting("show_notification_bar");
             mService.updatedSetting("automatic_data_upload");
             mService.updatedSetting("automatic_data_upload_only_on_unmetered_connection");
+            mService.updatedSetting("automatic_data_upload_interval");
             TextView lastUpload = (TextView) findViewById(R.id.lastUpload);
             String lastTime = mService.getLastServerUploadTime();
             if (lastTime == null){
