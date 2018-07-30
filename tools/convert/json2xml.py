@@ -42,12 +42,14 @@ print("Processing file", args.infile)
 with opener(args.infile, "rb") as rf:
     data = json.load(rf)
     lastPercentages = {}
+    sequentialNumber = 0
     for k in data.keys():
         if type(data[k]) in [list, tuple]:
             for eventLine in data[k]:
                 attributes = {}
                 attributes["data_type"] = k
-
+                attributes["sequential_number"] = sequentialNumber
+                sequentialNumber += 1
 
                 if "time" in eventLine:
                     dt = dtparser.parse(eventLine["time"])
@@ -94,6 +96,8 @@ configDict["timestamp_delta"] = minTimestamp
 print("Got all datasets")
 
 print("Calculating battery statistics")
+
+# Sorting function is stable: It does not change the order of equal values
 orderedBatteryStats = sorted(batteryStats, key=lambda k: k["timestamp_s"])
 batCharge = []
 batDischarge = []
@@ -117,12 +121,14 @@ print("Normalizing datasets")
 # Check structure, some fixes for XML
 for i in range(len(allDatasets)):
     allDatasets[i]["timestamp_s"] = allDatasets[i]["timestamp_s"] - minTimestamp
-    for d in allDatasets[i]:
-        if type(allDatasets[i][d]) in (bool, float, int):
-            allDatasets[i][d] = str(allDatasets[i][d])
 
 print("Sorting the list")
 orderedList = sorted(allDatasets, key=lambda k: k["timestamp_s"])
+
+for i in range(len(allDatasets)):
+    for d in allDatasets[i]:
+        if type(allDatasets[i][d]) in (bool, float, int):
+            allDatasets[i][d] = str(allDatasets[i][d])
 
 root = ET.Element("root")
 doc = ET.SubElement(root, "events")
