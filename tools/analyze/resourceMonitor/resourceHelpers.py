@@ -118,8 +118,9 @@ class ResourceDataHandler():
             lastDataset = data[1]
             lastTimestamp = data[0]
 
-        if self.timeMax > lastTimestamp:
-            newData.append([self.timeMax, lastDataset])
+        if len(datas) > 0:
+            if self.timeMax > lastTimestamp:
+                newData.append([self.timeMax, lastDataset])
 
         x = []
         y = []

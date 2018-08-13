@@ -154,8 +154,9 @@ for f in resourceDataHandlers:
         else:
             pass
 
-    x, y = zip(*convertedData)
-    mobiledataAxis.plot(x, y, linestyle=LINESTYLE, marker=MARKER, linewidth=LINEWIDTH)
+    if len(convertedData) > 0:
+        x, y = zip(*convertedData)
+        mobiledataAxis.plot(x, y, linestyle=LINESTYLE, marker=MARKER, linewidth=LINEWIDTH)
 
 # Plotting
 batteryAxis.yaxis.set_major_formatter(FuncFormatter(graphHelper.percentage_formatter))
