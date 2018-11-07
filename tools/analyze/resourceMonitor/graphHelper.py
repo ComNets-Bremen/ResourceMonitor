@@ -27,6 +27,10 @@ def percentage_formatter(x, pos):
 def hour_formatter(x, pos):
     return str(int(x/60.0/60.0))+"h"
 
+# Format the axis with days (input given in seconds)
+def day_formatter(x, pos):
+    return str(int(x/(60*60*24))) + "d"
+
 # Format the current value as on (==1) or off (otherwise)
 def onOff_formatter(x, pos):
     if x:
